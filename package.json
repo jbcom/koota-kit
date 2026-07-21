@@ -1,0 +1,58 @@
+{
+  "name": "@arcade-cabinet/ecs-koota",
+  "version": "0.1.0",
+  "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard — extracted from timber-town.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "sideEffects": false,
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./world": {
+      "types": "./dist/esm/world.d.ts",
+      "import": "./dist/esm/world.js",
+      "require": "./dist/cjs/world.cjs"
+    },
+    "./rng": {
+      "types": "./dist/esm/rng.d.ts",
+      "import": "./dist/esm/rng.js",
+      "require": "./dist/cjs/rng.cjs"
+    },
+    "./traits": {
+      "types": "./dist/esm/traits/index.d.ts",
+      "import": "./dist/esm/traits/index.js",
+      "require": "./dist/cjs/traits/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@types/seedrandom": "^3.0.8",
+    "seedrandom": "^3.0.5"
+  },
+  "peerDependencies": {
+    "koota": "^0.4.4"
+  },
+  "devDependencies": {
+    "koota": "^0.4.4",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

@@ -89,3 +89,11 @@ pnpm test       # vitest conformance suite (ported from timber-town + footgun pi
 pnpm typecheck  # tsc --noEmit
 pnpm build      # dist/esm (ESM + .d.ts) and dist/cjs
 ```
+
+## Release evidence
+
+`0.1.1` was built from merged source commit `72473a3`, passed 26 package tests,
+and was published to the private Gitea npm registry. A credential-free scratch
+consumer installed exact versions `@arcade-cabinet/ecs-koota@0.1.1` and
+`koota@0.6.6`, then executed a multi-trait `world.query(...).updateEach(...)`
+smoke successfully.

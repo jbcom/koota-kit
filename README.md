@@ -4,6 +4,10 @@ Thin koota ECS conventions layer, extracted from **timber-town** (winner of the
 ecs-conventions tournament). NOT a game engine — three small modules that keep
 a game's sim deterministic and its ECS lib swappable:
 
+Version `0.1.1` targets Koota `^0.6.6`. The package's release gate requires its
+peer and conformance-test dependency to match the latest published Koota line;
+the wrapper must never make fleet adoption an excuse to pin an obsolete ECS.
+
 - **`./world`** — `WorldHandle` facade (`createSimWorld`, `advanceClock`,
   `snapshotWorld`, `restoreWorldHeader`). Wraps koota's
   `createWorld`/`trait`/`relation`/`createActions` behind one boundary so no
@@ -39,6 +43,9 @@ a game's sim deterministic and its ECS lib swappable:
   reference-identity holds.
 - Use `relation()` for ownership edges, not manual foreign-key id fields.
 - Route ALL sim randomness through `rng.gen` / `rng.events`.
+- Express runtime work as Koota queries and systems. The facade is a lifecycle
+  and determinism boundary, not permission to replace ECS queries with hand-run
+  arrays of mutable game objects.
 
 ## Usage
 

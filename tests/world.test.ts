@@ -36,6 +36,23 @@ describe("world bootstrap", () => {
     expect(e.has(Tag)).toBe(false);
   });
 
+  it("runs multi-trait queries through Koota 0.6.x updateEach", () => {
+    const h = createSimWorld({ gen: "g", events: "e" });
+    const Position = trait({ x: 0, y: 0 });
+    const Velocity = trait({ x: 0, y: 0 });
+    const moving = h.world.spawn(Position({ x: 2, y: 4 }), Velocity({ x: 3, y: -1 }));
+    const stationary = h.world.spawn(Position({ x: 9, y: 9 }));
+
+    h.world.query(Position, Velocity).updateEach(([position, velocity]) => {
+      position.x += velocity.x;
+      position.y += velocity.y;
+    });
+
+    expect(moving.get(Position)).toEqual({ x: 5, y: 3 });
+    expect(stationary.get(Position)).toEqual({ x: 9, y: 9 });
+    h.world.destroy();
+  });
+
   it("snapshot + restoreWorldHeader replays both RNG layers byte-exact", () => {
     const h = createSimWorld({ gen: "g", events: "e" });
     nextU32(h.rng.gen);

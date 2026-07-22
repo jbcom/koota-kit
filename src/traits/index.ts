@@ -66,5 +66,8 @@ export function defineTrait<S extends Schema>(schema: S & SafeSchema<S>): Trait<
       }
     }
   }
-  return trait(schema);
+  // Pin Koota's normalization generic to the caller's schema. Passing the
+  // guard intersection through inference makes Koota 0.6.x normalize
+  // `S & SafeSchema<S>` and produces a narrower, incompatible Trait type.
+  return trait<S>(schema);
 }

@@ -1,6 +1,6 @@
 {
   "name": "@arcade-cabinet/ecs-koota",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard — extracted from timber-town.",
   "type": "module",
   "license": "UNLICENSED",
@@ -48,10 +48,10 @@
     "seedrandom": "^3.0.5"
   },
   "peerDependencies": {
-    "koota": "^0.4.4"
+    "koota": "^0.6.6"
   },
   "devDependencies": {
-    "koota": "^0.4.4",
+    "koota": "^0.6.6",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

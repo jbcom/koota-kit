@@ -7,6 +7,8 @@
 //              snapshot/restore
 //   ./traits — defineTrait AoS-aliasing guard (leaf module, zero sibling
 //              imports)
+//   ./eventLog — scratch-backed publish/drain event logs with a peek seam for
+//              observers (harnesses, tests, HUDs)
 
 export {
   advanceClock,
@@ -37,6 +39,9 @@ export type {
   RngStream,
   RngStreamSnapshot,
 } from "./rng.js";
+
+export { defineEventLog } from "./eventLog.js";
+export type { EventLog } from "./eventLog.js";
 
 export { defineTrait } from "./traits/index.js";
 export type { SafeSchema } from "./traits/index.js";

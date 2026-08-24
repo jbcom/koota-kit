@@ -54,5 +54,9 @@
     "koota": "^0.6.6",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://redacted-private-registry.example/arcade-cabinet/ecs-koota"
   }
 }

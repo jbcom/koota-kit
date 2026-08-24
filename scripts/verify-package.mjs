@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+const npmNeedsShell = process.platform === "win32";
 // pnpm forwards its own npm_config_* settings to child processes. Newer npm
 // versions warn about pnpm-only keys, so give this read-only pack inspection a
 // clean npm configuration while preserving PATH, HOME, and other environment.
@@ -23,7 +24,7 @@ try {
   const packOutput = execFileSync(
     npm,
     ["pack", "--pack-destination", consumerRoot, "--ignore-scripts", "--json"],
-    { cwd: packageRoot, encoding: "utf8", env: npmEnvironment },
+    { cwd: packageRoot, encoding: "utf8", env: npmEnvironment, shell: npmNeedsShell },
   );
   const [pack] = JSON.parse(packOutput);
   assert(pack, "npm pack did not return a package manifest");
@@ -98,6 +99,7 @@ try {
   execFileSync(npm, ["install", "--no-audit", "--no-fund", tarball], {
     cwd: consumerRoot,
     env: npmEnvironment,
+    shell: npmNeedsShell,
     stdio: "pipe",
   });
   const esmInstalledDraw = execFileSync(

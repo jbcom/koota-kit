@@ -3,7 +3,6 @@
 ![Two deterministic streams—world generation and runtime events—flow through a simulation clock into modular ECS components.](./docs/assets/koota-kit-hero.webp)
 
 [![CI](https://github.com/jbcom/koota-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/jbcom/koota-kit/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/jbcom/koota-kit/actions/workflows/codeql.yml/badge.svg)](https://github.com/jbcom/koota-kit/actions/workflows/codeql.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-17324d.svg)](./LICENSE)
 
 Small, production-derived conventions for deterministic simulations built with

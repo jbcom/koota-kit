@@ -6,7 +6,7 @@ description: Install koota-kit and apply its deterministic simulation convention
 ## Install
 
 ```sh
-pnpm add @jbdevprimary/koota-kit koota
+pnpm add koota-kit koota
 ```
 
 Use Node.js 22 or newer. Install Koota `^0.6.6` in the application: it is a
@@ -24,7 +24,7 @@ import {
   destroySimWorld,
   nextInt,
   snapshotWorld,
-} from "@jbdevprimary/koota-kit";
+} from "koota-kit";
 
 const Position = defineTrait({ x: 0, y: 0 });
 const Inventory = defineTrait({ items: () => [] as string[] });

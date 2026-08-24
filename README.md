@@ -29,7 +29,7 @@ Full documentation: **[jonbogaty.com/koota-kit](https://jonbogaty.com/koota-kit/
 ## Install
 
 ```sh
-pnpm add @jbdevprimary/koota-kit koota
+pnpm add koota-kit koota
 ```
 
 Requirements:
@@ -51,7 +51,7 @@ import {
   destroySimWorld,
   nextInt,
   snapshotWorld,
-} from "@jbdevprimary/koota-kit";
+} from "koota-kit";
 
 const Position = defineTrait({ x: 0, y: 0 });
 const Inventory = defineTrait({ items: () => [] as string[] });
@@ -106,7 +106,7 @@ stream in query iteration order. Entity IDs contain process-global world and
 generation bits. Derive a local stream from a stable domain key instead:
 
 ```ts
-import { createRng, nextU32 } from "@jbdevprimary/koota-kit/rng";
+import { createRng, nextU32 } from "koota-kit/rng";
 
 const tileRng = createRng({
   gen: `${String(sim.seeds.gen)}/tile:12,8`,
@@ -150,10 +150,10 @@ The root package exports the full API. Focused entry points are also available:
 
 | Entry point | Purpose |
 | --- | --- |
-| `@jbdevprimary/koota-kit/world` | World lifecycle, clock, Koota facade, world snapshots |
-| `@jbdevprimary/koota-kit/rng` | Seeded streams, bounded draws, snapshots |
-| `@jbdevprimary/koota-kit/traits` | Safe trait declaration |
-| `@jbdevprimary/koota-kit/eventLog` | World-scoped publish/drain logs |
+| `koota-kit/world` | World lifecycle, clock, Koota facade, world snapshots |
+| `koota-kit/rng` | Seeded streams, bounded draws, snapshots |
+| `koota-kit/traits` | Safe trait declaration |
+| `koota-kit/eventLog` | World-scoped publish/drain logs |
 
 See the [API reference](./docs/API.md) for signatures and validation behavior,
 and [architecture notes](./docs/ARCHITECTURE.md) for module boundaries and

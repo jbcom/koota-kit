@@ -79,7 +79,7 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "examples:check": "node examples/basic.mjs && node examples/commonjs.cjs",
-    "lint:docs": "markdownlint-cli2 README.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md CHANGELOG.md \"docs/**/*.md\" .github/PULL_REQUEST_TEMPLATE.md",
+    "lint:docs": "markdownlint-cli2 README.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md CHANGELOG.md AGENTS.md \"docs/**/*.md\" \"!docs/superpowers/**\" .github/PULL_REQUEST_TEMPLATE.md",
     "package:check": "publint && attw --pack . && node scripts/verify-package.mjs",
     "verify": "pnpm run lint && pnpm run lint:docs && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run examples:check && pnpm run package:check",
     "lint": "biome check .",
@@ -110,7 +110,7 @@
     "type": "git",
     "url": "git+https://github.com/jbcom/koota-kit.git"
   },
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@11.23.0+sha512.f00082e5b283a199b74e079da28d155c008fe232f44c8a06ea7ddfa014ecf719fc362f790ecc67b28106ddac2afb24c49a9a079159da560b2ce7d1e98efd11af",
   "bugs": {
     "url": "https://github.com/jbcom/koota-kit/issues"
   },

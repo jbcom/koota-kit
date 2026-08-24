@@ -5,8 +5,12 @@ updates:
     schedule:
       interval: weekly
     groups:
-      dev-dependencies:
-        dependency-type: development
+      major:
+        applies-to: version-updates
+        update-types: [major]
+      non-major:
+        applies-to: version-updates
+        update-types: [minor, patch]
     labels:
       - dependencies
 
@@ -15,8 +19,12 @@ updates:
     schedule:
       interval: weekly
     groups:
-      docs-dependencies:
-        dependency-type: development
+      major:
+        applies-to: version-updates
+        update-types: [major]
+      non-major:
+        applies-to: version-updates
+        update-types: [minor, patch]
     labels:
       - dependencies
       - docs
@@ -25,6 +33,13 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      major:
+        applies-to: version-updates
+        update-types: [major]
+      non-major:
+        applies-to: version-updates
+        update-types: [minor, patch]
     labels:
       - dependencies
       - ci

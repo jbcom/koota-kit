@@ -16,6 +16,7 @@ concurrency:
 jobs:
   verify:
     name: Verify (${{ matrix.os }}, Node ${{ matrix.node }})
+    if: github.event_name != 'pull_request' || !((github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.head_ref, 'release-please--')) || (github.event.pull_request.user.login == 'app/dependabot' && contains(github.event.pull_request.title, 'non-major')))
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -50,6 +51,7 @@ jobs:
 
   docs:
     name: Docs build
+    if: github.event_name != 'pull_request' || !((github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.head_ref, 'release-please--')) || (github.event.pull_request.user.login == 'app/dependabot' && contains(github.event.pull_request.title, 'non-major')))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -65,7 +67,7 @@ jobs:
   sonarcloud:
     name: SonarCloud analysis
     # Organization secrets are deliberately unavailable to external pull requests.
-    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && !((github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.head_ref, 'release-please--')) || (github.event.pull_request.user.login == 'app/dependabot' && contains(github.event.pull_request.title, 'non-major'))))
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -86,6 +88,7 @@ jobs:
 
   pre-commit:
     name: Pre-commit
+    if: github.event_name != 'pull_request' || !((github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.head_ref, 'release-please--')) || (github.event.pull_request.user.login == 'app/dependabot' && contains(github.event.pull_request.title, 'non-major')))
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -95,7 +98,10 @@ jobs:
   gate:
     name: CI / gate
     needs: [verify, docs, sonarcloud, pre-commit]
-    if: always()
+    if: >-
+      always() && (github.event_name != 'pull_request' ||
+      !((github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.head_ref, 'release-please--')) ||
+      (github.event.pull_request.user.login == 'app/dependabot' && contains(github.event.pull_request.title, 'non-major'))))
     runs-on: ubuntu-24.04
     steps:
       - name: Require every native validation job

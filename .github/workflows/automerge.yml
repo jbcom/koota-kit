@@ -14,6 +14,8 @@ jobs:
     # generated sources can receive the organization automation credential.
     if: >-
       github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
       ((github.event.pull_request.user.login == 'app/github-actions' &&
       startsWith(github.event.pull_request.head.ref, 'release-please--')) ||
       (github.event.pull_request.user.login == 'app/dependabot' &&

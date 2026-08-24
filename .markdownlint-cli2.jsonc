@@ -7,7 +7,7 @@
   },
   "overrides": [
     {
-      "files": ["CHANGELOG.md"],
+      "filter": "CHANGELOG.md",
       "config": {
         // Release Please prepends a generated section that uses this layout.
         "MD004": false,

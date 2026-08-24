@@ -1,40 +1,64 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: koota-kit
+description: Deterministic Koota simulation conventions — world lifecycle, dual RNG streams, safe object traits, and world-scoped event logs.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  title: "koota-kit"
+  tagline: Small, production-derived conventions for deterministic simulations built with Koota. One lifecycle boundary, two independent seeded random streams, safe object-valued traits, world-scoped event logs.
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/koota-kit-hero.webp
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get started
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+      link: /koota-kit/getting-started/
+    - text: View on GitHub
       icon: external
       variant: minimal
+      link: https://github.com/jbcom/koota-kit
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid } from "@astrojs/starlight/components";
 
-## Next steps
+koota-kit is deliberately **not a game engine**. It is the narrow layer that
+prevents recurring classes of simulation bug without hiding
+[Koota](https://github.com/pmndrs/koota)'s queries, entities, relations, or
+actions.
+
+## Why use it?
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Two independent RNG streams" icon="random">
+		World generation and runtime events never share a PRNG instance, so
+		unrelated gameplay draws can't perturb world content. See
+		[Randomness has two jobs](/koota-kit/getting-started/#randomness-has-two-jobs).
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="Byte-exact snapshots" icon="seti:lock">
+		`snapshotWorld` and `restoreWorldHeader` round-trip the clock and both RNG
+		states through JSON, so a loaded save reproduces the next random result.
+		See [Persistence boundary](/koota-kit/getting-started/#persistence-boundary).
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Safe object-valued traits" icon="approve-check">
+		`defineTrait` rejects bare object and array fields at compile time and
+		runtime, so state can't alias across entities. See
+		[Object-valued traits need factories](/koota-kit/api/#traits).
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="Single-consumer event logs" icon="document">
+		`drain` consumes once, `peek` never consumes — so a HUD or test can't
+		steal an event from the system that owns it. See
+		[Event logs have one consuming owner](/koota-kit/api/#eventlog).
 	</Card>
 </CardGrid>
+
+## Install
+
+```sh
+pnpm add @jbdevprimary/koota-kit koota
+```
+
+Requirements: Node.js 22 or newer, and Koota `^0.6.6` as a peer dependency.
+The package ships native ESM and CommonJS entry points with format-correct
+TypeScript declarations.
+
+Continue to [Getting started](/koota-kit/getting-started/) for a full
+walkthrough, or jump straight to the [API reference](/koota-kit/api/) and
+[architecture notes](/koota-kit/architecture/).

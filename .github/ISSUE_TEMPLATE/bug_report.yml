@@ -1,6 +1,6 @@
 name: Bug report
 description: Report reproducible incorrect behavior in koota-kit.
-title: "bug: "
+title: "fix: "
 labels: [bug]
 body:
   - type: markdown
@@ -26,7 +26,7 @@ body:
     attributes:
       label: Versions
       description: koota-kit, Koota, Node.js, package manager, and operating system.
-      placeholder: koota-kit 0.1.1; Koota 0.6.6; Node 24; pnpm 10; macOS 26
+      placeholder: koota-kit 0.1.1; Koota 0.6.6; Node 24; pnpm 11; macOS 26
     validations:
       required: true
   - type: textarea

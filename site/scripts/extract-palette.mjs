@@ -1,6 +1,13 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const { data, info } = await sharp("../docs/assets/koota-kit-hero.webp")
+const heroPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../docs/assets/koota-kit-hero.webp",
+);
+
+const { data, info } = await sharp(heroPath)
   .resize(400, 400, { fit: "inside" })
   .raw()
   .toBuffer({ resolveWithObject: true });

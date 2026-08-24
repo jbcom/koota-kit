@@ -30,11 +30,20 @@ operation is idempotent.
 
 ### `advanceClock(handle, dt)`
 
+```ts
+function advanceClock(handle: WorldHandle, dt: number): void;
+```
+
 Advances `tickIndex` by one and adds `dt` to `simSeconds`. `dt` must be finite
 and non-negative. A zero-duration tick is allowed. Overflow and corrupted clock
 values raise `RangeError` without changing the clock.
 
 ### `snapshotWorld(handle)` / `restoreWorldHeader(handle, snapshot)`
+
+```ts
+function snapshotWorld(handle: WorldHandle): WorldSnapshot;
+function restoreWorldHeader(handle: WorldHandle, snapshot: WorldSnapshot): void;
+```
 
 Snapshots and restores both RNG streams plus the simulation clock. The plain
 object can be round-tripped through JSON. Entity and trait data are outside

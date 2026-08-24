@@ -11,7 +11,7 @@ pnpm add @jbdevprimary/koota-kit koota
 
 Requirements:
 
-- Node.js 22 or newer (CI covers Node 22/24 on Linux and Node 24 on Windows)
+- Node.js 22 or newer (CI covers Node 22/24/26 on Linux and Node 24 on Windows)
 - Koota `^0.6.6`, installed by the application as a peer dependency
 
 The package ships native ESM and CommonJS entry points with format-correct

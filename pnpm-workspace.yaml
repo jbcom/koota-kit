@@ -16,6 +16,7 @@ packageExtensions:
   # does not declare it as a dependency, so pnpm's strict per-package
   # node_modules can't resolve it. Declare the missing edge until upstream
   # fixes it: https://github.com/withastro/astro/issues (mdx satteri import).
-  "@astrojs/mdx":
+  # Scoped to exactly 7.0.7 so a fixed upstream release stops needing this.
+  "@astrojs/mdx@7.0.7":
     dependencies:
       satteri: "^0.9.1"

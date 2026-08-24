@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Node engines floor: `>=22` (existing `package.json`). CI matrix stays Node 22 + 24 on Linux, Node 24 on Windows (existing `ci.yml`) — do not narrow it.
-- Package manager: pnpm `10.33.2` (pinned in root `package.json#packageManager`) — the `docs` workspace member must use the same pnpm, not a separate lockfile.
+- Package manager: pnpm `10.33.2` at plan-authoring time (pinned in root `package.json#packageManager`) — the `docs` workspace member must use the same pnpm, not a separate lockfile. **Superseded during execution**: the repo's `pnpm-workspace.yaml` turned out to already be mid-migration to pnpm v11 syntax (a broken `allowBuilds` placeholder), so execution completed that migration instead — the repo now runs pnpm `11.23.0` with the v11 `allowBuilds` map, not `onlyBuiltDependencies`. See the `chore: upgrade pnpm to v11` commit.
 - All new/changed GitHub Actions steps must reference the action by **full commit SHA**, with a trailing `# vX.Y.Z` comment for humans — resolved from `gh api repos/<owner>/<repo>/git/ref/tags/<tag>` (or `git/tags/<sha>` if annotated) against each action's **latest release**, not a version from training data.
 - No `pull_request_target` anywhere; only `pull_request` (default: no secrets, read-only `GITHUB_TOKEN`) for anything that runs on untrusted fork code.
 - Root `package.json` name/exports/publishConfig (`@jbdevprimary/koota-kit`, provenance, subpath exports) must not change — only scripts/devDependencies/workspace wiring may be touched.

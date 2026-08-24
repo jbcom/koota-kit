@@ -123,7 +123,7 @@
     "*.{ts,js,mjs,cjs,json}": [
       "biome check --write --no-errors-on-unmatched"
     ],
-    "*.md": [
+    "!(docs/superpowers/**)*.md": [
       "markdownlint-cli2"
     ]
   },

@@ -14,9 +14,17 @@ const npmNeedsShell = process.platform === "win32";
 // pnpm forwards its own npm_config_* settings to child processes. Newer npm
 // versions warn about pnpm-only keys, so give this read-only pack inspection a
 // clean npm configuration while preserving PATH, HOME, and other environment.
-const npmEnvironment = Object.fromEntries(
-  Object.entries(process.env).filter(([key]) => !key.toLowerCase().startsWith("npm_config_")),
-);
+// npm always runs "prepare" for `npm pack`/`npm publish` regardless of
+// --ignore-scripts (it exists precisely to build-before-publish), so this
+// package's own git-hook installer would otherwise print an [INFO] line
+// into the same stdout stream as npm's --json output. Silence it — hook
+// installation is irrelevant to a packaging dry-run.
+const npmEnvironment = {
+  ...Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !key.toLowerCase().startsWith("npm_config_")),
+  ),
+  SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1",
+};
 
 const consumerRoot = mkdtempSync(path.join(tmpdir(), "koota-kit-package-"));
 
@@ -26,7 +34,13 @@ try {
     ["pack", "--pack-destination", consumerRoot, "--ignore-scripts", "--json"],
     { cwd: packageRoot, encoding: "utf8", env: npmEnvironment, shell: npmNeedsShell },
   );
-  const [pack] = JSON.parse(packOutput);
+  // Defend against any other lifecycle script (this package's or a
+  // transitive one's) writing non-JSON text before/after the JSON array,
+  // the same way the git-hook installer just did.
+  const jsonStart = packOutput.indexOf("[");
+  const jsonEnd = packOutput.lastIndexOf("]");
+  assert(jsonStart !== -1 && jsonEnd !== -1, `npm pack produced no JSON array:\n${packOutput}`);
+  const [pack] = JSON.parse(packOutput.slice(jsonStart, jsonEnd + 1));
   assert(pack, "npm pack did not return a package manifest");
 
   const packedPaths = new Set(pack.files.map((file) => file.path));

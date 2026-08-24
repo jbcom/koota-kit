@@ -1,22 +1,11 @@
 packages:
   - .
-  - site
+  - docs
 allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
 minimumReleaseAgeExclude:
-  # Astro core pins svgo to exactly ^4.1.0; the 24h supply-chain cooldown
-  # otherwise blocks every install until that release ages out on its own.
-  # Scoped to this one version, not the whole package, so the cooldown still
-  # applies to every future svgo release.
+  # Sourcey currently resolves this exact svgo release. Keep the normal 24-hour
+  # age policy for every other package and future svgo version.
   - svgo@4.1.0
-packageExtensions:
-  # @astrojs/mdx@7.0.7 imports satteri directly (dist/satteri/index.js) but
-  # does not declare it as a dependency, so pnpm's strict per-package
-  # node_modules can't resolve it. Declare the missing edge until upstream
-  # fixes it: https://github.com/withastro/astro/issues (mdx satteri import).
-  # Scoped to exactly 7.0.7 so a fixed upstream release stops needing this.
-  "@astrojs/mdx@7.0.7":
-    dependencies:
-      satteri: "^0.9.1"

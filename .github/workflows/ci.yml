@@ -60,3 +60,26 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm docs:build
+
+  pre-commit:
+    name: Pre-commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+  gate:
+    name: CI / gate
+    needs: [verify, docs, pre-commit]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every native validation job
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          PRE_COMMIT_RESULT: ${{ needs.pre-commit.result }}
+        run: |
+          test "$VERIFY_RESULT" = success
+          test "$DOCS_RESULT" = success
+          test "$PRE_COMMIT_RESULT" = success

@@ -9,10 +9,12 @@ covers what isn't obvious from reading the code alone.
   `mise install` (reads `mise.toml`) for a matching local Node/pnpm
   toolchain, or `corepack enable` if mise isn't available.
 - This is a pnpm workspace with two members: `.` (the published library)
-  and `site/` (the Astro/Starlight documentation site, private, not
-  published). Root-level `pnpm` scripts operate on the library; `pnpm
-  docs:*` scripts (`docs:dev`, `docs:build`, `docs:check`) delegate to
-  `site/` via `pnpm --filter koota-kit-docs`.
+  and `docs/` (the private Sourcey documentation site). Root-level `pnpm`
+  scripts operate on the library; `pnpm docs:*` scripts (`docs:dev`,
+  `docs:build`, `docs:check`) delegate to `docs/` via
+  `pnpm --filter koota-kit-docs`. Sourcey emits `docs/dist/`, including the
+  site `llms.txt` and `llms-full.txt`; root `llms.txt` is separate, concise
+  repository-agent orientation.
 - `pnpm verify` is the single gate CI runs on the library: Biome lint,
   markdownlint on the published docs, strict TypeScript, the full test
   suite at 100% coverage thresholds, both dual-format builds, both
@@ -47,24 +49,21 @@ class it was built to prevent. Full detail in `docs/ARCHITECTURE.md`.
 A change to `src/*.ts`'s public surface needs matching updates in all of:
 
 - `tests/*.test.ts` — the coverage gate is 100%, not "reasonable effort."
-- `docs/API.md` — canonical API reference, linked from the README.
-- `docs/ARCHITECTURE.md` — if the change touches a module boundary or
-  invariant, not just a signature.
-- `site/src/content/docs/api.md` and `architecture.md` — the published
-  docs site mirrors these two files; they are meant to stay in sync with
-  `docs/API.md`/`docs/ARCHITECTURE.md`, not drift into a second source of
-  truth.
+- `docs/API.md` and `docs/ARCHITECTURE.md` — these are the authored Sourcey
+  pages and canonical API/architecture references; update architecture when a
+  change crosses a module boundary or invariant. Do not create a second
+  documentation renderer or a duplicate page tree.
 - `README.md` — if the change affects the Quick start example or the
   "Why use it?" table.
 
 ## Commits and releases
 
 - Conventional Commits only (`fix:`, `feat:`, `docs:`, `refactor:`,
-  `test:`, `chore:`, …). A PR's title becomes the squash-merge commit
-  message, and a required CI check enforces the format — Release Please
-  parses these commits to drive `CHANGELOG.md` and the next version. Never
-  hand-edit the changelog or bump a version yourself.
-- `simple-git-hooks` + `lint-staged` + `commitlint` run locally on
+  `test:`, `chore:`, …). A required CI check enforces conventional PR titles
+  and Release Please parses the preserved merge-commit history to drive
+  `CHANGELOG.md` and the next version. Never hand-edit the changelog or bump
+  a version yourself.
+- `pre-commit`, `simple-git-hooks`, `lint-staged`, and `commitlint` run locally on
   `pre-commit`/`commit-msg` after `pnpm install` (via the `prepare`
   script). They mirror what CI enforces; don't bypass them with
   `--no-verify` to save time — fix the input instead.
@@ -79,10 +78,6 @@ A change to `src/*.ts`'s public surface needs matching updates in all of:
   which packages' install scripts run — `esbuild` and `sharp` are the only
   two currently allowed. A new dependency needing a native build step will
   silently no-op until it's added here.
-- `pnpm-workspace.yaml`'s `packageExtensions` patches a missing dependency
-  declaration in `@astrojs/mdx@7.0.7` (it imports `satteri` without
-  declaring it) — remove that entry once upstream fixes it, don't assume
-  it's dead weight.
-- `pnpm-workspace.yaml`'s `minimumReleaseAgeExclude` narrowly exempts one
-  exact `svgo` version that Astro's own dependency range forces; it does
-  not weaken the 24-hour supply-chain cooldown for anything else.
+- Sourcey paths in `docs/sourcey.config.ts` resolve relative to `docs/`.
+  `pnpm docs:build` is the production check and builds the static Sourcey
+  site; inspect `docs/dist/` for subdirectory-safe links before deployment.

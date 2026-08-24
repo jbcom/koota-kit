@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 const REPO = "jbcom/koota-kit";
 
 const ruleset = {
-  name: "main-protection",
+  name: "main-integrity",
   target: "branch",
   enforcement: "active",
   conditions: {
@@ -12,7 +12,6 @@ const ruleset = {
   rules: [
     { type: "deletion" },
     { type: "non_fast_forward" },
-    { type: "required_linear_history" },
     {
       type: "pull_request",
       parameters: {
@@ -21,6 +20,7 @@ const ruleset = {
         require_code_owner_review: false,
         require_last_push_approval: false,
         required_review_thread_resolution: true,
+        allowed_merge_methods: ["merge"],
       },
     },
     {
@@ -28,17 +28,15 @@ const ruleset = {
       parameters: {
         strict_required_status_checks_policy: true,
         required_status_checks: [
-          { context: "Verify (ubuntu-24.04, Node 22)" },
-          { context: "Verify (ubuntu-24.04, Node 24)" },
-          { context: "Verify (ubuntu-24.04, Node 26)" },
-          { context: "Verify (windows-2022, Node 24)" },
-          { context: "Docs build" },
+          { context: "CI / gate" },
           { context: "Lint PR / title" },
+          { context: "Repository Policy / gate" },
+          { context: "Dependency Review / gate" },
         ],
       },
     },
   ],
-  bypass_actors: [{ actor_type: "OrganizationAdmin", bypass_mode: "always" }],
+  bypass_actors: [],
 };
 
 // required_approving_review_count is 0 deliberately: this repo is
@@ -48,13 +46,18 @@ const ruleset = {
 // pull_request-triggered workflow repo secrets, (b)
 // strict_required_status_checks_policy forcing the PR branch to be
 // up-to-date with main and every listed check green on that exact
-// commit, (c) non_fast_forward + deletion blocking history rewrites on
-// main itself, and (d) only org admins ever bypassing this ruleset.
+// commit, and (c) non_fast_forward + deletion blocking history rewrites on
+// main itself. The bypass list is deliberately empty: trusted agents satisfy
+// policy; they do not bypass it.
 
 const existing = JSON.parse(
   execFileSync("gh", ["api", `repos/${REPO}/rulesets`], { encoding: "utf8" }),
 );
-const current = existing.find((r) => r.name === ruleset.name);
+// Upgrade the former name in place so its legacy linear-history rule cannot
+// remain layered over this merge-commit policy.
+const current =
+  existing.find((r) => r.name === ruleset.name) ??
+  existing.find((r) => r.name === "main-protection");
 
 const endpoint = current ? `repos/${REPO}/rulesets/${current.id}` : `repos/${REPO}/rulesets`;
 const method = current ? "PUT" : "POST";

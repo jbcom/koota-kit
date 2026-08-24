@@ -2,6 +2,7 @@ name: Repository Policy
 
 on:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,7 +19,14 @@ jobs:
           IS_FORK: ${{ github.event.pull_request.head.repo.fork }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.ref_name }}
         run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            PR_NUMBER="$(gh pr list --repo "$REPOSITORY" --head "$HEAD_REF" --state open --json number --jq '.[0].number')"
+            test -n "$PR_NUMBER"
+            IS_FORK="$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json isCrossRepository --jq '.isCrossRepository')"
+          fi
           if [ "$IS_FORK" != true ]; then exit 0; fi
           changed_files="$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')"
           forbidden='^(.github/workflows/|.github/actions/|.github/dependabot.yml$|.coderabbit.yaml$|sonar-project.properties$|release-please-config.json$|.release-please-manifest.json$|docs/sourcey.config.ts$|docs/package.json$)'

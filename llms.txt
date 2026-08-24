@@ -16,6 +16,12 @@
   full signatures and validation behavior for every export.
 - [Architecture](https://github.com/jbcom/koota-kit/blob/main/docs/ARCHITECTURE.md):
   module boundaries, invariants, performance choices, intentional limits.
+- [Determinism guide](https://jonbogaty.com/koota-kit/determinism/): assigning
+  random decisions to streams and deriving stable local randomness.
+- [Persistence guide](https://jonbogaty.com/koota-kit/persistence/): the
+  header-only save boundary and atomic restore contract.
+- [Event-log guide](https://jonbogaty.com/koota-kit/event-logs/): single-owner
+  consumption, non-consuming observation, and scratch-key ownership.
 - [AGENTS.md](https://github.com/jbcom/koota-kit/blob/main/AGENTS.md):
   toolchain, invariants not to violate, and doc/test sync obligations for
   an autonomous coding agent working in this repository.

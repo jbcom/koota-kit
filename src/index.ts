@@ -1,4 +1,4 @@
-// @jbcom/koota-kit — thin koota ECS conventions layer.
+// @jbdevprimary/koota-kit — thin koota ECS conventions layer.
 //
 // Four modules, also importable as subpaths:
 //   ./world    — WorldHandle facade (world + dual-stream rng + clock + scratch)

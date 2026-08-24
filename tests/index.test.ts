@@ -1,5 +1,5 @@
 // Exercises the package's ROOT entry point (`"."` in package.json's
-// `exports` map) — what `import ... from "@jbcom/koota-kit"` actually
+// `exports` map) — what `import ... from "@jbdevprimary/koota-kit"` actually
 // resolves to. The subpath tests (world.test.ts, rng.test.ts, etc.) import
 // straight from `../src/*.js` and never touch this barrel, so without this
 // file `src/index.ts` — the entry point most consumers use — has zero
@@ -49,7 +49,7 @@ describe("root barrel (src/index.ts) re-exports", () => {
   });
 
   it("drives a full create -> spawn -> rng -> event log -> snapshot cycle through ONLY the root barrel", () => {
-    // A consumer importing solely from "@jbcom/koota-kit" (not a subpath)
+    // A consumer importing solely from "@jbdevprimary/koota-kit" (not a subpath)
     // must be able to do everything the README's usage example does.
     const Town = indexModule.defineTrait({
       name: "",

@@ -1,4 +1,4 @@
-# @jbcom/koota-kit
+# @jbdevprimary/koota-kit
 
 Thin koota ECS conventions layer, distilled from real production use. NOT a
 game engine — four small modules that keep a game's sim deterministic and its
@@ -55,7 +55,7 @@ the wrapper must never make its own adoption an excuse to pin an obsolete ECS.
 ## Install
 
 ```sh
-pnpm add @jbcom/koota-kit koota
+pnpm add @jbdevprimary/koota-kit koota
 ```
 
 `koota` is a **peer dependency** (`^0.6.6`) — install it alongside, so your app
@@ -75,7 +75,7 @@ import {
   relation,
   restoreWorldHeader,
   snapshotWorld,
-} from "@jbcom/koota-kit";
+} from "@jbdevprimary/koota-kit";
 
 const Town = defineTrait({
   name: "",

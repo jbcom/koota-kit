@@ -65,7 +65,7 @@ jobs:
   sonarcloud:
     name: SonarCloud analysis
     # Organization secrets are deliberately unavailable to external pull requests.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

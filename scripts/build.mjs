@@ -11,14 +11,18 @@
 // consumer gets the wrong module shape for every export.
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const pkgRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const tscBin = path.join(pkgRoot, "node_modules", ".bin", "tsc");
+const require = createRequire(import.meta.url);
+const tscBin = require.resolve("typescript/bin/tsc");
 
 function run(args) {
-  execFileSync(tscBin, args, { cwd: pkgRoot, stdio: "inherit" });
+  // Invoke TypeScript through the active Node executable instead of the
+  // platform-specific node_modules/.bin shim (`tsc` vs `tsc.cmd`).
+  execFileSync(process.execPath, [tscBin, ...args], { cwd: pkgRoot, stdio: "inherit" });
 }
 
 function walk(dir, visit) {

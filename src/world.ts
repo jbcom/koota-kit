@@ -1,6 +1,6 @@
 // World facade. Wraps koota's createWorld + trait helper so the rest of a
-// game's codebase imports from here and the ECS lib stays swappable behind
-// one boundary.
+// game's codebase imports from here and lifecycle/determinism conventions stay
+// behind one boundary.
 //
 // Games declare their traits with `defineTrait` (see ./traits) and drive the
 // sim through the WorldHandle: world creation, trait re-export, tick clock,
@@ -16,7 +16,7 @@ export type { World };
 export { createActions, relation, trait };
 
 export type WorldHandle = {
-  world: World;
+  readonly world: World;
   rng: RngLayers;
   /**
    * The immutable seeds this world was created from. Stored so systems
@@ -27,14 +27,14 @@ export type WorldHandle = {
    * non-deterministic across two runs in one process. Derive from
    * `seeds.gen`, never a lazy draw.
    */
-  seeds: RngSeeds;
+  readonly seeds: Readonly<RngSeeds>;
   clock: { tickIndex: number; simSeconds: number };
   /**
    * Per-system scratch caches owned by the WorldHandle (so they lifecycle with
    * the world, not at module scope). Systems read/write via well-known keys.
    * Examples: per-region noise fns, pathfinding grids, behavior-tree instances.
    */
-  scratch: Map<string, unknown>;
+  readonly scratch: Map<string, unknown>;
 };
 
 /**
@@ -46,13 +46,29 @@ export type WorldHandle = {
  * clock starting at zero, scratch starting empty) always hold.
  */
 export function createSimWorld(seeds: RngSeeds): WorldHandle {
+  // Validate before allocating a Koota world: invalid input must not consume a
+  // process-global world id or leave a world that the caller cannot destroy.
+  const rng = createRng(seeds);
+  const immutableSeeds = Object.freeze({ gen: seeds.gen, events: seeds.events });
   return {
     world: createWorld(),
-    rng: createRng(seeds),
-    seeds,
+    rng,
+    seeds: immutableSeeds,
     clock: { tickIndex: 0, simSeconds: 0 },
     scratch: new Map(),
   };
+}
+
+/**
+ * Tear down a simulation handle. This clears facade-owned scratch state and
+ * releases Koota's process-global world id. The operation is idempotent, which
+ * makes it safe to call from cleanup paths that may run more than once.
+ */
+export function destroySimWorld(handle: WorldHandle): void {
+  handle.scratch.clear();
+  if (handle.world.isInitialized) {
+    handle.world.destroy();
+  }
 }
 
 /**
@@ -63,8 +79,22 @@ export function createSimWorld(seeds: RngSeeds): WorldHandle {
  * have progressed after this tick's work."
  */
 export function advanceClock(handle: WorldHandle, dt: number): void {
-  handle.clock.tickIndex += 1;
-  handle.clock.simSeconds += dt;
+  if (!Number.isFinite(dt) || dt < 0) {
+    throw new RangeError(`advanceClock: dt must be a finite, non-negative number; received ${dt}.`);
+  }
+  if (!Number.isSafeInteger(handle.clock.tickIndex) || handle.clock.tickIndex < 0) {
+    throw new RangeError("advanceClock: clock.tickIndex must be a non-negative safe integer.");
+  }
+  if (!Number.isFinite(handle.clock.simSeconds) || handle.clock.simSeconds < 0) {
+    throw new RangeError("advanceClock: clock.simSeconds must be finite and non-negative.");
+  }
+  const tickIndex = handle.clock.tickIndex + 1;
+  const simSeconds = handle.clock.simSeconds + dt;
+  if (!Number.isSafeInteger(tickIndex) || !Number.isFinite(simSeconds)) {
+    throw new RangeError("advanceClock: advancing the clock would exceed its numeric range.");
+  }
+  handle.clock.tickIndex = tickIndex;
+  handle.clock.simSeconds = simSeconds;
 }
 
 /**
@@ -100,6 +130,21 @@ export function snapshotWorld(handle: WorldHandle): WorldSnapshot {
  * that separately using whatever serialization your game chose.
  */
 export function restoreWorldHeader(handle: WorldHandle, snap: WorldSnapshot): void {
-  handle.rng = restoreLayers(snap.rng);
-  handle.clock = { tickIndex: snap.clock.tickIndex, simSeconds: snap.clock.simSeconds };
+  const clock = snap?.clock;
+  if (
+    !clock ||
+    !Number.isSafeInteger(clock.tickIndex) ||
+    clock.tickIndex < 0 ||
+    !Number.isFinite(clock.simSeconds) ||
+    clock.simSeconds < 0
+  ) {
+    throw new TypeError(
+      "restoreWorldHeader: snapshot.clock must contain a non-negative safe integer tickIndex and finite, non-negative simSeconds.",
+    );
+  }
+  // Build and validate every replacement before mutating the handle so a bad
+  // persisted snapshot cannot leave it half-restored.
+  const rng = restoreLayers(snap.rng);
+  handle.rng = rng;
+  handle.clock = { tickIndex: clock.tickIndex, simSeconds: clock.simSeconds };
 }

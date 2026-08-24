@@ -20,6 +20,7 @@ import * as worldModule from "../src/world.js";
 describe("root barrel (src/index.ts) re-exports", () => {
   it("re-exports every world.js value by identity", () => {
     expect(indexModule.createSimWorld).toBe(worldModule.createSimWorld);
+    expect(indexModule.destroySimWorld).toBe(worldModule.destroySimWorld);
     expect(indexModule.advanceClock).toBe(worldModule.advanceClock);
     expect(indexModule.snapshotWorld).toBe(worldModule.snapshotWorld);
     expect(indexModule.restoreWorldHeader).toBe(worldModule.restoreWorldHeader);
@@ -76,5 +77,6 @@ describe("root barrel (src/index.ts) re-exports", () => {
     indexModule.advanceClock(h, 1 / 60);
     indexModule.restoreWorldHeader(h, snap);
     expect(h.clock.tickIndex).toBe(1);
+    indexModule.destroySimWorld(h);
   });
 });

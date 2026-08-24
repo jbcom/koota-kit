@@ -20,8 +20,8 @@ version matches CI.
 2. Write the test first. A bug fix should come with a test that fails without it.
 3. Run `pnpm verify`. A change is not ready while any part of that is red.
 4. Commit with [Conventional Commits](https://www.conventionalcommits.org):
-   `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`. This is enforced by
-   commitlint, and it is what drives the changelog and the next version number.
+   `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`. Release Please uses
+   these commits to drive the changelog and next version number.
 5. Open a pull request describing what changed and why.
 
 ## What gets reviewed
@@ -31,6 +31,8 @@ version matches CI.
   `BREAKING CHANGE:` footer.
 - Are the types right for consumers? CI runs `publint` and
   `arethetypeswrong` because broken types only surface at integration time.
+- Do invalid inputs fail before changing clock, RNG, or restored state?
+- Does the change keep Koota-facing behavior aligned with the supported peer?
 
 ## Releases
 

@@ -1,7 +1,7 @@
 // @jbdevprimary/koota-kit — thin koota ECS conventions layer.
 //
 // Four modules, also importable as subpaths:
-//   ./world    — WorldHandle facade (world + dual-stream rng + clock + scratch)
+//   ./world    — WorldHandle lifecycle (world + dual-stream rng + clock + scratch)
 //   ./rng      — dual-layer deterministic seedrandom PRNG with byte-exact
 //                snapshot/restore
 //   ./traits   — defineTrait AoS-aliasing guard (leaf module, zero sibling
@@ -13,6 +13,7 @@ export {
   advanceClock,
   createActions,
   createSimWorld,
+  destroySimWorld,
   relation,
   restoreWorldHeader,
   snapshotWorld,

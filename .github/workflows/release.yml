@@ -43,7 +43,7 @@ jobs:
           ref: ${{ needs.release-please.outputs.tag }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
@@ -52,6 +52,6 @@ jobs:
         # NPM_TOKEN is only needed until the package exists on npm. Once it does
         # and trusted publishing is configured for this repo, drop the env block
         # and the id-token permission alone is sufficient.
-        run: pnpm publish --access public --provenance --no-git-checks
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

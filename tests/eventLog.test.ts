@@ -1,15 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { defineEventLog } from "../src/eventLog.js";
-import { createSimWorld } from "../src/world.js";
+import { createSimWorld, destroySimWorld, type WorldHandle } from "../src/world.js";
 
 type Hit = { target: string; damage: number };
 
 const seeds = { gen: "test:gen", events: "test:events" };
 const hits = defineEventLog<Hit>("test:hits");
+const handles: WorldHandle[] = [];
 
 function world() {
-  return createSimWorld(seeds);
+  const handle = createSimWorld(seeds);
+  handles.push(handle);
+  return handle;
 }
+
+afterEach(() => {
+  for (const handle of handles.splice(0)) destroySimWorld(handle);
+});
 
 describe("event log", () => {
   it("publishes and drains in order", () => {
@@ -87,6 +94,10 @@ describe("event log", () => {
   it("clear and size work without allocating a read", () => {
     const h = world();
     expect(hits.size(h)).toBe(0);
+    expect(hits.peek(h)).toEqual([]);
+    expect(hits.drain(h)).toEqual([]);
+    hits.clear(h);
+    expect(h.scratch.has(hits.key)).toBe(false);
     hits.push(h, { target: "a", damage: 1 });
     hits.push(h, { target: "b", damage: 2 });
     expect(hits.size(h)).toBe(2);
@@ -96,5 +107,14 @@ describe("event log", () => {
 
   it("exposes its key for debugging and snapshot tooling", () => {
     expect(hits.key).toBe("test:hits");
+  });
+
+  it("rejects empty keys and reports scratch-key collisions", () => {
+    expect(() => defineEventLog("  ")).toThrow(/non-empty string/);
+    expect(() => defineEventLog(42 as never)).toThrow(/non-empty string/);
+
+    const h = world();
+    h.scratch.set(hits.key, { not: "an event array" });
+    expect(() => hits.push(h, { target: "a", damage: 1 })).toThrow(/non-array value/);
   });
 });

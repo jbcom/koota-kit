@@ -14,4 +14,12 @@ advisory unless you would rather remain anonymous.
 
 ## Supported versions
 
-The latest minor release receives security fixes. Older lines are not patched.
+The latest `0.x` release receives security fixes. Older pre-1.0 releases are
+not patched unless a coordinated disclosure requires an exceptional backport.
+
+## In scope
+
+Examples include malicious persisted snapshot handling, package supply-chain
+issues, unexpected code execution during install/build, and vulnerabilities in
+the package's runtime dependencies. Application authorization and game logic
+built on top of koota-kit are outside this repository's security boundary.

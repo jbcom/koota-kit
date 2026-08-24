@@ -1,4 +1,4 @@
-# @arcade-cabinet/ecs-koota
+# @jbcom/koota-kit
 
 Thin koota ECS conventions layer, extracted from **timber-town** (winner of the
 ecs-conventions tournament). NOT a game engine — three small modules that keep
@@ -47,6 +47,17 @@ the wrapper must never make fleet adoption an excuse to pin an obsolete ECS.
   and determinism boundary, not permission to replace ECS queries with hand-run
   arrays of mutable game objects.
 
+## Install
+
+```sh
+pnpm add @jbcom/koota-kit koota
+```
+
+`koota` is a **peer dependency** (`^0.6.6`) — install it alongside, so your app
+controls the ECS version rather than this wrapper pinning it for you.
+
+Ships dual ESM + CJS with types for both; `import` and `require` both work.
+
 ## Usage
 
 ```ts
@@ -58,7 +69,7 @@ import {
   relation,
   restoreWorldHeader,
   snapshotWorld,
-} from "@arcade-cabinet/ecs-koota";
+} from "@jbcom/koota-kit";
 
 const Town = defineTrait({
   name: "",
@@ -92,8 +103,14 @@ pnpm build      # dist/esm (ESM + .d.ts) and dist/cjs
 
 ## Release evidence
 
-`0.1.1` was built from merged source commit `72473a3`, passed 26 package tests,
-and was published to the private Gitea npm registry. A credential-free scratch
-consumer installed exact versions `@arcade-cabinet/ecs-koota@0.1.1` and
-`koota@0.6.6`, then executed a multi-trait `world.query(...).updateEach(...)`
-smoke successfully.
+Extracted standalone from its host monorepo with history preserved. Verified
+outside any workspace: 35 tests pass, `tsc --noEmit` is clean, and the dual
+build emits ESM + CJS with per-format declarations. `publint` reports no
+problems and `arethetypeswrong` is green on every entry point across `node10`,
+`node16` (from CJS and ESM), and `bundler`. A scratch consumer installed the
+packed tarball and exercised the public API from both `import` and `require`,
+getting identical RNG draws from each.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).

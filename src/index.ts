@@ -1,4 +1,4 @@
-// @arcade-cabinet/ecs-koota — thin koota ECS conventions layer.
+// @jbcom/koota-kit — thin koota ECS conventions layer.
 //
 // Extracted from timber-town (ecs-conventions tournament winner). Three
 // modules, also importable as subpaths:

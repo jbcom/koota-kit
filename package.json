@@ -1,11 +1,12 @@
 {
-  "name": "@arcade-cabinet/ecs-koota",
+  "name": "@jbcom/koota-kit",
   "version": "0.1.1",
   "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard — extracted from timber-town.",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": false,
   "main": "./dist/cjs/index.cjs",
@@ -13,24 +14,44 @@
   "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.cjs"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
     },
     "./world": {
-      "types": "./dist/esm/world.d.ts",
-      "import": "./dist/esm/world.js",
-      "require": "./dist/cjs/world.cjs"
+      "import": {
+        "types": "./dist/esm/world.d.ts",
+        "default": "./dist/esm/world.js"
+      },
+      "require": {
+        "types": "./dist/cjs/world.d.cts",
+        "default": "./dist/cjs/world.cjs"
+      }
     },
     "./rng": {
-      "types": "./dist/esm/rng.d.ts",
-      "import": "./dist/esm/rng.js",
-      "require": "./dist/cjs/rng.cjs"
+      "import": {
+        "types": "./dist/esm/rng.d.ts",
+        "default": "./dist/esm/rng.js"
+      },
+      "require": {
+        "types": "./dist/cjs/rng.d.cts",
+        "default": "./dist/cjs/rng.cjs"
+      }
     },
     "./traits": {
-      "types": "./dist/esm/traits/index.d.ts",
-      "import": "./dist/esm/traits/index.js",
-      "require": "./dist/cjs/traits/index.cjs"
+      "import": {
+        "types": "./dist/esm/traits/index.d.ts",
+        "default": "./dist/esm/traits/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/traits/index.d.cts",
+        "default": "./dist/cjs/traits/index.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -41,7 +62,10 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
   },
   "dependencies": {
     "@types/seedrandom": "^3.0.8",
@@ -51,12 +75,37 @@
     "koota": "^0.6.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.5",
     "koota": "^0.6.6",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
   "repository": {
     "type": "git",
-    "url": "https://redacted-private-registry.example/arcade-cabinet/ecs-koota"
+    "url": "git+https://github.com/jbcom/koota-kit.git"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "bugs": {
+    "url": "https://github.com/jbcom/koota-kit/issues"
+  },
+  "homepage": "https://github.com/jbcom/koota-kit#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "typesVersions": {
+    "*": {
+      "world": [
+        "./dist/esm/world.d.ts"
+      ],
+      "rng": [
+        "./dist/esm/rng.d.ts"
+      ],
+      "traits": [
+        "./dist/esm/traits/index.d.ts"
+      ],
+      "*": [
+        "./dist/esm/index.d.ts"
+      ]
+    }
   }
 }

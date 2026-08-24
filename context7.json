@@ -18,6 +18,7 @@
     "Validate RNG parameters before drawing so invalid input never advances a stream.",
     "Use factories for object- and array-valued traits; bare object or array literals are intentionally rejected.",
     "Treat event logs as single-consumer: drain consumes, while peek returns a detached non-consuming copy.",
-    "Persist only the simulation header with snapshotWorld and restoreWorldHeader; entities and traits remain application-owned state."
+    "Persist only the simulation header with snapshotWorld and restoreWorldHeader; entities and traits remain application-owned state.",
+    "Restore a world header atomically: validate the complete replacement before mutating its clock or RNG streams."
   ]
 }

@@ -87,7 +87,8 @@
     "prepack": "node scripts/build.mjs",
     "docs:dev": "pnpm --filter koota-kit-docs dev",
     "docs:build": "pnpm --filter koota-kit-docs build",
-    "docs:check": "pnpm --filter koota-kit-docs check"
+    "docs:check": "pnpm --filter koota-kit-docs check",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@types/seedrandom": "^3.0.8",
@@ -99,12 +100,28 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "^2.5.5",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "@vitest/coverage-v8": "^3.2.7",
     "koota": "^0.6.6",
+    "lint-staged": "^17.3.0",
     "markdownlint-cli2": "^0.23.2",
     "publint": "^0.3.24",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged",
+    "commit-msg": "pnpm exec commitlint --edit $1"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs,json}": [
+      "biome check --write --no-errors-on-unmatched"
+    ],
+    "*.md": [
+      "markdownlint-cli2"
+    ]
   },
   "repository": {
     "type": "git",

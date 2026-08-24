@@ -4,6 +4,7 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+  simple-git-hooks: true
 minimumReleaseAgeExclude:
   # Astro core pins svgo to exactly ^4.1.0; the 24h supply-chain cooldown
   # otherwise blocks every install until that release ages out on its own.

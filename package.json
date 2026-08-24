@@ -107,5 +107,15 @@
         "./dist/esm/index.d.ts"
       ]
     }
-  }
+  },
+  "author": "Jon Bogaty <jon@jonbogaty.com>",
+  "keywords": [
+    "koota",
+    "ecs",
+    "deterministic",
+    "rng",
+    "seedrandom",
+    "game-dev",
+    "simulation"
+  ]
 }

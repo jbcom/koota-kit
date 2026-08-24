@@ -1,8 +1,8 @@
 # @jbcom/koota-kit
 
-Thin koota ECS conventions layer, extracted from **timber-town** (winner of the
-ecs-conventions tournament). NOT a game engine — three small modules that keep
-a game's sim deterministic and its ECS lib swappable:
+Thin koota ECS conventions layer, distilled from real production use. NOT a
+game engine — three small modules that keep a game's sim deterministic and its
+ECS lib swappable:
 
 Version `0.1.1` targets Koota `^0.6.6`. The package's release gate requires its
 peer and conformance-test dependency to match the latest published Koota line;
@@ -96,7 +96,7 @@ restoreWorldHeader(h, snap);
 ## Development
 
 ```sh
-pnpm test       # vitest conformance suite (ported from timber-town + footgun pins)
+pnpm test       # vitest conformance suite (production-derived footgun pins)
 pnpm typecheck  # tsc --noEmit
 pnpm build      # dist/esm (ESM + .d.ts) and dist/cjs
 ```

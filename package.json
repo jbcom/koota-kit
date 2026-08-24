@@ -1,7 +1,7 @@
 {
   "name": "@jbcom/koota-kit",
   "version": "0.1.1",
-  "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard — extracted from timber-town.",
+  "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard.",
   "type": "module",
   "license": "MIT",
   "publishConfig": {

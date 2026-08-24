@@ -6,7 +6,7 @@ ECS lib swappable:
 
 Version `0.1.1` targets Koota `^0.6.6`. The package's release gate requires its
 peer and conformance-test dependency to match the latest published Koota line;
-the wrapper must never make fleet adoption an excuse to pin an obsolete ECS.
+the wrapper must never make its own adoption an excuse to pin an obsolete ECS.
 
 - **`./world`** — `WorldHandle` facade (`createSimWorld`, `advanceClock`,
   `snapshotWorld`, `restoreWorldHeader`). Wraps koota's

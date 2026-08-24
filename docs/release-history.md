@@ -1,5 +1,5 @@
 ---
-title: Changelog
+title: Release history
 description: Release history maintained by Release Please from Conventional Commits.
 ---
 

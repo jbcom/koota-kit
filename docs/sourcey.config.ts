@@ -57,12 +57,16 @@ export default defineConfig({
               pages: ["introduction", "getting-started"],
             },
             {
+              group: "Guides",
+              pages: ["determinism", "persistence", "event-logs"],
+            },
+            {
               group: "Reference",
               pages: ["API", "ARCHITECTURE"],
             },
             {
               group: "Project",
-              pages: ["contributing", "changelog"],
+              pages: ["contributing", "release-history"],
             },
           ],
         }),

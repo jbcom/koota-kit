@@ -159,6 +159,11 @@ See the [API reference](./docs/API.md) for signatures and validation behavior,
 and [architecture notes](./docs/ARCHITECTURE.md) for module boundaries and
 invariants.
 
+For task-oriented usage, read the Sourcey guides on
+[deterministic randomness](https://jonbogaty.com/koota-kit/determinism/),
+[save headers](https://jonbogaty.com/koota-kit/persistence/), and
+[event ownership](https://jonbogaty.com/koota-kit/event-logs/).
+
 ## Errors and edge cases
 
 - Seeds must be strings or finite numbers.

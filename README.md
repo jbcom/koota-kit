@@ -137,9 +137,12 @@ the system responsible for acting on the event should drain.
 ## Persistence boundary
 
 `snapshotWorld` stores the clock and both RNG states. It intentionally does not
-serialize entities or traits: those are application data with application-
-specific schemas and migrations. `restoreWorldHeader` validates a parsed save
-before changing the handle and restores atomically.
+serialize immutable seeds, entities, or traits: persist `sim.seeds` beside the
+header so a fresh handle can retain stable derived randomness, and keep entity
+data in application-specific schemas and migrations. Stage a fresh handle when
+loading so old scratch caches and event logs cannot leak into the restored run.
+`restoreWorldHeader` validates a parsed save before changing that staged handle
+and restores atomically.
 
 Persist a version beside the header and your ECS state so the application can
 migrate its own schema.

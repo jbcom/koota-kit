@@ -43,9 +43,11 @@ function restoreWorldHeader(handle: WorldHandle, snapshot: WorldSnapshot): void;
 ```
 
 Snapshots and restores both RNG streams plus the simulation clock. The plain
-object can be round-tripped through JSON. Entity and trait data are outside
-this package's persistence boundary. Restore validates the complete replacement
-before mutating the handle.
+object can be round-tripped through JSON. It does not include `WorldHandle.seeds`:
+persist the immutable seeds separately and use them when creating a fresh
+handle for loading. Entity and trait data are also outside this package's
+persistence boundary. Restore validates the complete replacement before
+mutating the handle.
 
 ### Koota exports
 

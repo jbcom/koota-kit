@@ -60,7 +60,8 @@ Runnable ESM and CommonJS examples are in the
 - An event log has one consuming owner. Use `drain` for that system and
   `peek` for HUDs, tools, and tests.
 
-`snapshotWorld` records the clock and RNG streams only. Persist it beside your
-own versioned entity/trait data; entity serialization remains application
-specific. See the [API reference](../API/) and
+`snapshotWorld` records the clock and RNG streams only. Persist `sim.seeds`
+beside it so a fresh handle can preserve stable derived randomness, then load
+into that fresh handle with your own versioned entity/trait data. Entity
+serialization remains application specific. See the [API reference](../API/) and
 [architecture](../ARCHITECTURE/) for exact validation and boundaries.

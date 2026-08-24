@@ -141,14 +141,17 @@ world header.
 ## Development
 
 ```sh
-corepack enable
+mise install   # or: corepack enable
 pnpm install --frozen-lockfile
 pnpm verify
 ```
 
-`pnpm verify` runs formatting/lint checks, strict TypeScript, the full test
-suite with 100% coverage thresholds, dual-format builds, both runnable
-examples, `publint`, Are The Types Wrong, and package-content/runtime checks.
+Node and pnpm versions live in `mise.toml` for local development; CI
+verifies against the full supported Node range (22, 24, 26) with the
+official `actions/setup-node` and `pnpm/action-setup`. `pnpm verify` runs
+formatting/lint checks, strict TypeScript, the full test suite with 100%
+coverage thresholds, dual-format builds, both runnable examples, `publint`,
+Are The Types Wrong, and package-content/runtime checks.
 
 Useful individual commands:
 

@@ -4,15 +4,25 @@ Thanks for taking the time to contribute.
 
 ## Getting set up
 
+With [mise](https://mise.jdx.dev) (recommended — installs the Node and pnpm
+versions pinned in `mise.toml`):
+
 ```sh
-corepack enable
+mise install
 pnpm install
 pnpm verify   # lint, typecheck, test, build — the same gate CI runs
 ```
 
-Node and pnpm versions are pinned in `package.json` under `engines` and
-`packageManager`. Use `corepack` rather than a globally installed pnpm so your
-version matches CI.
+Without mise, use `corepack` so pnpm matches the version pinned in
+`package.json#packageManager`, on any Node release in the `engines.node`
+range (`>=22`; CI verifies 22, 24, and 26 with the official
+`actions/setup-node` + `pnpm/action-setup`):
+
+```sh
+corepack enable
+pnpm install
+pnpm verify
+```
 
 ## Making a change
 

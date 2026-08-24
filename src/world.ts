@@ -37,6 +37,14 @@ export type WorldHandle = {
   scratch: Map<string, unknown>;
 };
 
+/**
+ * Create a fresh `WorldHandle`: a new koota world, both RNG layers seeded
+ * from `seeds`, a zeroed clock, and an empty scratch map. This is the one
+ * entry point for standing up a sim — call it once per world (per game
+ * session, per test, per worldgen run) rather than constructing the koota
+ * world and RNG separately, so the facade's invariants (immutable `seeds`,
+ * clock starting at zero, scratch starting empty) always hold.
+ */
 export function createSimWorld(seeds: RngSeeds): WorldHandle {
   return {
     world: createWorld(),
@@ -47,16 +55,36 @@ export function createSimWorld(seeds: RngSeeds): WorldHandle {
   };
 }
 
+/**
+ * Advance `handle`'s clock by one fixed-timestep tick: increments
+ * `tickIndex` by 1 and accumulates `dt` seconds into `simSeconds`. Call once
+ * per sim tick, before running that tick's systems, so `clock` always
+ * reflects "how far the sim has progressed" rather than "how far it will
+ * have progressed after this tick's work."
+ */
 export function advanceClock(handle: WorldHandle, dt: number): void {
   handle.clock.tickIndex += 1;
   handle.clock.simSeconds += dt;
 }
 
+/**
+ * The serializable "header" of a world: both RNG layers' byte-exact state
+ * plus the clock. Deliberately excludes entity/component state — koota
+ * entities are the caller's data to serialize however their game needs
+ * (full ECS dump, delta log, etc.); this snapshot only covers what the
+ * facade itself owns.
+ */
 export type WorldSnapshot = {
   rng: RngLayersSnapshot;
   clock: { tickIndex: number; simSeconds: number };
 };
 
+/**
+ * Capture `handle`'s RNG state and clock into a plain, JSON-serializable
+ * `WorldSnapshot`. Pair with `restoreWorldHeader` for save/load — restoring
+ * a snapshot reproduces every subsequent RNG draw on both layers byte-exact
+ * and resumes the clock from the exact tick/second it was captured at.
+ */
 export function snapshotWorld(handle: WorldHandle): WorldSnapshot {
   return {
     rng: snapshotLayers(handle.rng),
@@ -64,6 +92,13 @@ export function snapshotWorld(handle: WorldHandle): WorldSnapshot {
   };
 }
 
+/**
+ * Restore `handle`'s RNG layers and clock from a `WorldSnapshot` taken by
+ * `snapshotWorld`. Mutates `handle` in place (replaces `handle.rng` and
+ * `handle.clock` with freshly rebuilt values) — entity/component state is
+ * untouched, since the facade never captured it in the first place; restore
+ * that separately using whatever serialization your game chose.
+ */
 export function restoreWorldHeader(handle: WorldHandle, snap: WorldSnapshot): void {
   handle.rng = restoreLayers(snap.rng);
   handle.clock = { tickIndex: snap.clock.tickIndex, simSeconds: snap.clock.simSeconds };

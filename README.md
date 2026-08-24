@@ -1,7 +1,7 @@
 # @jbcom/koota-kit
 
 Thin koota ECS conventions layer, distilled from real production use. NOT a
-game engine — three small modules that keep a game's sim deterministic and its
+game engine — four small modules that keep a game's sim deterministic and its
 ECS lib swappable:
 
 Version `0.1.1` targets Koota `^0.6.6`. The package's release gate requires its
@@ -20,6 +20,11 @@ the wrapper must never make its own adoption an excuse to pin an obsolete ECS.
   enforces the AoS-factory convention (`field: () => ({...})`) for
   object-valued fields at type level and runtime, preventing koota's SoA
   layout from aliasing one shared object across every entity.
+- **`./eventLog`** — `defineEventLog`, a scratch-backed publish/drain seam for
+  telling one sim system that something HAPPENED this tick, not merely that
+  some state now differs. `push`/`drain` for the single owning consumer,
+  `peek` (non-consuming, returns a copy) for observers — a dev harness, a
+  test, a HUD — so an observer can never starve the real consumer.
 
 ## The two crown jewels (read before using)
 
@@ -64,6 +69,7 @@ Ships dual ESM + CJS with types for both; `import` and `require` both work.
 import {
   advanceClock,
   createSimWorld,
+  defineEventLog,
   defineTrait,
   nextFloat,
   relation,
@@ -78,15 +84,27 @@ const Town = defineTrait({
 });
 const BelongsTo = relation();
 
+// Declared once, at module scope — the key is written in exactly one place.
+const townFounded = defineEventLog<{ name: string }>("towns:founded");
+
 const h = createSimWorld({ gen: "world-42", events: "playthrough-0" });
 const town = h.world.spawn(Town({ name: "Riverside" }));
 h.world.spawn(Town(), BelongsTo(town));
+townFounded.push(h, { name: "Riverside" });
 
 // per tick:
 advanceClock(h, 1 / 60);
 if (nextFloat(h.rng.events) < 0.01) {
   /* rare event */
 }
+
+// a system that owns this fact drains it exactly once per tick:
+for (const event of townFounded.drain(h)) {
+  console.log(`${event.name} founded`);
+}
+// an observer (HUD, harness, test) peeks instead — it must never drain,
+// or whichever of the two runs first steals the events from the other:
+townFounded.peek(h);
 
 // save / load:
 const snap = snapshotWorld(h); // rng byte-exact + clock (entity state is yours to serialize)

@@ -6,7 +6,7 @@ import {
   destroySimWorld,
   nextInt,
   snapshotWorld,
-} from "@jbdevprimary/koota-kit";
+} from "koota-kit";
 
 const Position = defineTrait({ x: 0, y: 0 });
 const moves = defineEventLog("movement:completed");

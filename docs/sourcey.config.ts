@@ -36,7 +36,7 @@ export default defineConfig({
   navbar: {
     links: [
       { type: "github", href: "https://github.com/jbcom/koota-kit" },
-      { label: "npm", href: "https://www.npmjs.com/package/@jbdevprimary/koota-kit" },
+      { label: "npm", href: "https://www.npmjs.com/package/koota-kit" },
     ],
   },
   footer: {

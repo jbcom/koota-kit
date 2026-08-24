@@ -1,5 +1,5 @@
 {
-  "name": "@jbdevprimary/koota-kit",
+  "name": "koota-kit",
   "version": "0.1.1",
   "description": "Deterministic Koota simulation conventions: world lifecycle, dual RNG streams, safe object traits, and world-scoped event logs.",
   "type": "module",

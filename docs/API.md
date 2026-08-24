@@ -1,6 +1,6 @@
 # API reference
 
-All functions and types are exported from `@jbdevprimary/koota-kit`. The
+All functions and types are exported from `koota-kit`. The
 module-specific import paths shown below can reduce coupling in larger
 codebases.
 

@@ -1,4 +1,4 @@
-const { createSimWorld, destroySimWorld, nextU32 } = require("@jbdevprimary/koota-kit");
+const { createSimWorld, destroySimWorld, nextU32 } = require("koota-kit");
 
 const sim = createSimWorld({ gen: "commonjs", events: "run-1" });
 try {

@@ -130,7 +130,7 @@ try {
     [
       "--input-type=module",
       "--eval",
-      "import { createRng, nextU32 } from '@jbdevprimary/koota-kit'; " +
+      "import { createRng, nextU32 } from 'koota-kit'; " +
         "process.stdout.write(String(nextU32(createRng({ gen: 'g', events: 'e' }).events)));",
     ],
     { cwd: consumerRoot, encoding: "utf8" },
@@ -140,7 +140,7 @@ try {
     [
       "--input-type=commonjs",
       "--eval",
-      "const { createRng, nextU32 } = require('@jbdevprimary/koota-kit'); " +
+      "const { createRng, nextU32 } = require('koota-kit'); " +
         "process.stdout.write(String(nextU32(createRng({ gen: 'g', events: 'e' }).events)));",
     ],
     { cwd: consumerRoot, encoding: "utf8" },

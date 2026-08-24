@@ -36,12 +36,21 @@ try {
   );
   // Defend against any other lifecycle script (this package's or a
   // transitive one's) writing non-JSON text before/after the JSON array,
-  // the same way the git-hook installer just did.
-  const jsonStart = packOutput.indexOf("[");
+  // the same way the git-hook installer just did — a plain indexOf("[")
+  // is not enough, since script output like "[INFO] ..." also starts
+  // with "[". Parse from every "[" that opens a line until one succeeds.
   const jsonEnd = packOutput.lastIndexOf("]");
-  assert(jsonStart !== -1 && jsonEnd !== -1, `npm pack produced no JSON array:\n${packOutput}`);
-  const [pack] = JSON.parse(packOutput.slice(jsonStart, jsonEnd + 1));
-  assert(pack, "npm pack did not return a package manifest");
+  assert(jsonEnd !== -1, `npm pack produced no JSON array:\n${packOutput}`);
+  let pack;
+  for (const match of packOutput.matchAll(/^\[/gm)) {
+    try {
+      [pack] = JSON.parse(packOutput.slice(match.index, jsonEnd + 1));
+      break;
+    } catch {
+      // Not the real array start (e.g. a "[INFO] ..." line) — try the next "[".
+    }
+  }
+  assert(pack, `npm pack did not return a parseable package manifest:\n${packOutput}`);
 
   const packedPaths = new Set(pack.files.map((file) => file.path));
   for (const required of [

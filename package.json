@@ -67,8 +67,12 @@
   },
   "files": [
     "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "dist",
-    "docs",
+    "docs/API.md",
+    "docs/ARCHITECTURE.md",
+    "docs/assets",
     "examples"
   ],
   "scripts": {

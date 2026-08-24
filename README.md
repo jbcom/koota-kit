@@ -14,6 +14,8 @@ It is deliberately **not a game engine**. It is the narrow layer that prevents
 recurring classes of simulation bug without hiding Koota's queries,
 entities, relations, or actions.
 
+Full documentation: **[jonbogaty.com/koota-kit](https://jonbogaty.com/koota-kit/)**
+
 ## Why use it?
 
 | Problem | koota-kit convention |

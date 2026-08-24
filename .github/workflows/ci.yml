@@ -62,6 +62,28 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm docs:build
 
+  sonarcloud:
+    name: SonarCloud analysis
+    # Organization secrets are deliberately unavailable to external pull requests.
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm coverage
+      - name: SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   pre-commit:
     name: Pre-commit
     runs-on: ubuntu-24.04
@@ -72,7 +94,7 @@ jobs:
 
   gate:
     name: CI / gate
-    needs: [verify, docs, pre-commit]
+    needs: [verify, docs, sonarcloud, pre-commit]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -80,8 +102,10 @@ jobs:
         env:
           VERIFY_RESULT: ${{ needs.verify.result }}
           DOCS_RESULT: ${{ needs.docs.result }}
+          SONARCLOUD_RESULT: ${{ needs.sonarcloud.result }}
           PRE_COMMIT_RESULT: ${{ needs.pre-commit.result }}
         run: |
           test "$VERIFY_RESULT" = success
           test "$DOCS_RESULT" = success
+          test "$SONARCLOUD_RESULT" = success || test "$SONARCLOUD_RESULT" = skipped
           test "$PRE_COMMIT_RESULT" = success

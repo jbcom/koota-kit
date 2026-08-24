@@ -16,6 +16,8 @@ All notable changes to this project are documented here. This project follows
 - World-scoped event logs with consuming and observational read paths.
 - Runnable examples, package-consumer checks, API/architecture documentation,
   and Node 22/24 Linux plus Node 24 Windows CI coverage.
+- Repository-level LF normalization so formatter checks behave identically on
+  Windows, macOS, and Linux checkouts.
 
 ### Changed
 

@@ -1,19 +1,19 @@
-// @arcade-cabinet/ecs-koota — thin koota ECS conventions layer.
+// @jbdevprimary/koota-kit — thin koota ECS conventions layer.
 //
-// Extracted from timber-town (ecs-conventions tournament winner). Three
-// modules, also importable as subpaths:
-//   ./world  — WorldHandle facade (world + dual-stream rng + clock + scratch)
-//   ./rng    — dual-layer deterministic seedrandom PRNG with byte-exact
-//              snapshot/restore
-//   ./traits — defineTrait AoS-aliasing guard (leaf module, zero sibling
-//              imports)
+// Four modules, also importable as subpaths:
+//   ./world    — WorldHandle lifecycle (world + dual-stream rng + clock + scratch)
+//   ./rng      — dual-layer deterministic seedrandom PRNG with byte-exact
+//                snapshot/restore
+//   ./traits   — defineTrait AoS-aliasing guard (leaf module, zero sibling
+//                imports)
 //   ./eventLog — scratch-backed publish/drain event logs with a peek seam for
-//              observers (harnesses, tests, HUDs)
+//                observers (harnesses, tests, HUDs)
 
 export {
   advanceClock,
   createActions,
   createSimWorld,
+  destroySimWorld,
   relation,
   restoreWorldHeader,
   snapshotWorld,

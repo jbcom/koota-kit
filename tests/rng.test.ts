@@ -12,6 +12,15 @@ import {
 } from "../src/rng.js";
 
 describe("dual-layer seedrandom PRNG", () => {
+  it("rejects malformed or non-finite seeds with actionable errors", () => {
+    expect(() => createRng(null as never)).toThrow(/seeds must be an object/);
+    expect(() => createRng({ gen: {} as never, events: "e" })).toThrow(/seeds.gen/);
+    expect(() => createRng({ gen: Number.NaN, events: "e" })).toThrow(/seeds.gen.*finite/);
+    expect(() => createRng({ gen: "g", events: Number.POSITIVE_INFINITY })).toThrow(
+      /seeds.events.*finite/,
+    );
+  });
+
   it("produces a deterministic sequence per stream for fixed seeds", () => {
     const a = createRng({ gen: "world-A", events: "play-0" });
     const b = createRng({ gen: "world-A", events: "play-0" });
@@ -63,12 +72,40 @@ describe("dual-layer seedrandom PRNG", () => {
     }
   });
 
+  it("nextInt rejects unsafe, empty, reversed, and oversized ranges without drawing", () => {
+    const r = createRng({ gen: 99, events: 99 });
+    const before = snapshotStream(r.events);
+    expect(() => nextInt(r.events, 0.5, 2)).toThrow(/safe integers/);
+    expect(() => nextInt(r.events, 0, 2.5)).toThrow(/safe integers/);
+    expect(() => nextInt(r.events, 2, 2)).toThrow(/must be greater/);
+    expect(() => nextInt(r.events, 2, 1)).toThrow(/must be greater/);
+    expect(() => nextInt(r.events, 0, 2 ** 32 + 1)).toThrow(/cannot exceed/);
+    expect(snapshotStream(r.events)).toEqual(before);
+  });
+
   it("chance(p) converges to p over many draws", () => {
     const r = createRng({ gen: "g", events: "e" });
     let hits = 0;
     const N = 10_000;
     for (let i = 0; i < N; i++) if (chance(r.events, 0.25)) hits++;
     expect(hits / N).toBeCloseTo(0.25, 1);
+  });
+
+  it("chance rejects values outside [0, 1] without drawing", () => {
+    const r = createRng({ gen: "g", events: "e" });
+    const before = snapshotStream(r.events);
+    for (const invalid of [Number.NaN, Number.POSITIVE_INFINITY, -0.01, 1.01]) {
+      expect(() => chance(r.events, invalid)).toThrow(/probability/);
+    }
+    expect(snapshotStream(r.events)).toEqual(before);
+  });
+
+  it("chance consumes one draw even for the boundary probabilities", () => {
+    const zero = createRng({ gen: "g", events: "e" }).events;
+    const one = restoreStream(snapshotStream(zero));
+    expect(chance(zero, 0)).toBe(false);
+    expect(chance(one, 1)).toBe(true);
+    expect(snapshotStream(zero)).toEqual(snapshotStream(one));
   });
 
   it("snapshot + restore stream yields byte-exact replay", () => {
@@ -114,5 +151,44 @@ describe("dual-layer seedrandom PRNG", () => {
     const after = [nextU32(r.events), nextU32(r.events)];
     const restored = restoreLayers(snap);
     expect([nextU32(restored.events), nextU32(restored.events)]).toEqual(after);
+  });
+
+  it("the same snapshot can seed multiple independent replays", () => {
+    const stream = createRng({ gen: "g", events: "e" }).events;
+    const snap = snapshotStream(stream);
+    const a = restoreStream(snap);
+    const b = restoreStream(snap);
+    expect(Array.from({ length: 8 }, () => nextU32(a))).toEqual(
+      Array.from({ length: 8 }, () => nextU32(b)),
+    );
+    expect(snap).toEqual(snapshotStream(stream));
+  });
+
+  it("rejects malformed persisted ARC4 snapshots", () => {
+    const valid = snapshotStream(createRng({ gen: "g", events: "e" }).events);
+    const malformed: unknown[] = [
+      null,
+      {},
+      { state: { ...valid.state, i: 0.5 } },
+      { state: { ...valid.state, i: -1 } },
+      { state: { ...valid.state, i: 256 } },
+      { state: { ...valid.state, j: 0.5 } },
+      { state: { ...valid.state, j: -1 } },
+      { state: { ...valid.state, j: 256 } },
+      { state: { ...valid.state, S: "not-an-array" } },
+      { state: { ...valid.state, S: valid.state.S.slice(1) } },
+      { state: { ...valid.state, S: valid.state.S.map((v, i) => (i === 0 ? 0.5 : v)) } },
+      { state: { ...valid.state, S: valid.state.S.map((v, i) => (i === 0 ? -1 : v)) } },
+      { state: { ...valid.state, S: valid.state.S.map((v, i) => (i === 0 ? 256 : v)) } },
+      {
+        state: { ...valid.state, S: valid.state.S.map((v, i) => (i === 0 ? valid.state.S[1] : v)) },
+      },
+    ];
+
+    for (const snap of malformed) {
+      expect(() => restoreStream(snap as never)).toThrow(/valid seedrandom ARC4 state/);
+    }
+    expect(() => restoreLayers(null as never)).toThrow(/snapshot must contain/);
+    expect(() => restoreLayers({ gen: valid, events: {} as never })).toThrow(/valid seedrandom/);
   });
 });

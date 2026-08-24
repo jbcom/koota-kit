@@ -1,0 +1,8 @@
+{
+  "config": {
+    // Tables, image alt text, and API signatures are clearer unwrapped.
+    "MD013": false,
+    // GitHub pull request templates conventionally begin below H1.
+    "MD041": false
+  }
+}

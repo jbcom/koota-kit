@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Widest currently-supported Node range: both active LTS lines plus
+        # the current release. See https://nodejs.org/en/about/previous-releases
+        # for status; engines.node in package.json is the floor (>=22).
+        include:
+          - os: ubuntu-24.04
+            node: "22"
+          - os: ubuntu-24.04
+            node: "24"
+          - os: ubuntu-24.04
+            node: "26"
+          - os: windows-2022
+            node: "24"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lockfile is in sync
+        if: matrix.os == 'ubuntu-24.04' && matrix.node == '24'
+        run: |
+          pnpm install --lockfile-only
+          git diff --exit-code pnpm-lock.yaml
+      - run: pnpm verify
+
+  docs:
+    name: Docs build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:build
+
+  pre-commit:
+    name: Pre-commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 -m pip install --disable-pip-version-check pre-commit==4.6.1
+      - run: pre-commit run --all-files --show-diff-on-failure
+
+  gate:
+    name: CI / gate
+    needs: [verify, docs, pre-commit]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every native validation job
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          PRE_COMMIT_RESULT: ${{ needs.pre-commit.result }}
+        run: |
+          test "$VERIFY_RESULT" = success
+          test "$DOCS_RESULT" = success
+          test "$PRE_COMMIT_RESULT" = success

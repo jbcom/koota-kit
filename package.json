@@ -1,11 +1,12 @@
 {
-  "name": "@arcade-cabinet/ecs-koota",
+  "name": "@jbdevprimary/koota-kit",
   "version": "0.1.1",
-  "description": "Thin koota ECS conventions layer: WorldHandle facade (world+rng+clock+scratch), dual-stream deterministic seedrandom RNG (gen vs events) with byte-exact snapshot/restore, and defineTrait AoS-aliasing guard — extracted from timber-town.",
+  "description": "Deterministic Koota simulation conventions: world lifecycle, dual RNG streams, safe object traits, and world-scoped event logs.",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": false,
   "main": "./dist/cjs/index.cjs",
@@ -13,35 +14,85 @@
   "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.cjs"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
     },
     "./world": {
-      "types": "./dist/esm/world.d.ts",
-      "import": "./dist/esm/world.js",
-      "require": "./dist/cjs/world.cjs"
+      "import": {
+        "types": "./dist/esm/world.d.ts",
+        "default": "./dist/esm/world.js"
+      },
+      "require": {
+        "types": "./dist/cjs/world.d.cts",
+        "default": "./dist/cjs/world.cjs"
+      }
     },
     "./rng": {
-      "types": "./dist/esm/rng.d.ts",
-      "import": "./dist/esm/rng.js",
-      "require": "./dist/cjs/rng.cjs"
+      "import": {
+        "types": "./dist/esm/rng.d.ts",
+        "default": "./dist/esm/rng.js"
+      },
+      "require": {
+        "types": "./dist/cjs/rng.d.cts",
+        "default": "./dist/cjs/rng.cjs"
+      }
     },
     "./traits": {
-      "types": "./dist/esm/traits/index.d.ts",
-      "import": "./dist/esm/traits/index.js",
-      "require": "./dist/cjs/traits/index.cjs"
+      "import": {
+        "types": "./dist/esm/traits/index.d.ts",
+        "default": "./dist/esm/traits/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/traits/index.d.cts",
+        "default": "./dist/cjs/traits/index.cjs"
+      }
+    },
+    "./eventLog": {
+      "import": {
+        "types": "./dist/esm/eventLog.d.ts",
+        "default": "./dist/esm/eventLog.js"
+      },
+      "require": {
+        "types": "./dist/cjs/eventLog.d.cts",
+        "default": "./dist/cjs/eventLog.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "dist",
+    "docs/API.md",
+    "docs/ARCHITECTURE.md",
+    "docs/assets",
+    "examples"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "examples:check": "node examples/basic.mjs && node examples/commonjs.cjs",
+    "lint:docs": "markdownlint-cli2 README.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md CHANGELOG.md AGENTS.md \"docs/**/*.md\" \"!docs/node_modules/**\" \"!docs/dist/**\" \"!docs/superpowers/**\" .github/PULL_REQUEST_TEMPLATE.md",
+    "package:check": "publint && attw --pack . && node scripts/verify-package.mjs",
+    "verify": "pnpm run lint && pnpm run lint:docs && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run examples:check && pnpm run package:check",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "prepack": "node scripts/build.mjs",
+    "docs:dev": "pnpm --filter koota-kit-docs dev",
+    "docs:build": "pnpm --filter koota-kit-docs build",
+    "docs:check": "pnpm --filter koota-kit-docs check",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@types/seedrandom": "^3.0.8",
@@ -51,8 +102,72 @@
     "koota": "^0.6.6"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@biomejs/biome": "^2.5.5",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "@vitest/coverage-v8": "^3.2.7",
     "koota": "^0.6.6",
+    "lint-staged": "^17.3.0",
+    "markdownlint-cli2": "^0.23.2",
+    "publint": "^0.3.24",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged",
+    "commit-msg": "pnpm exec commitlint --edit $1"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs,json}": [
+      "biome check --write --no-errors-on-unmatched"
+    ],
+    "!(docs/superpowers/**)*.md": [
+      "markdownlint-cli2"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbcom/koota-kit.git"
+  },
+  "packageManager": "pnpm@11.23.0+sha512.f00082e5b283a199b74e079da28d155c008fe232f44c8a06ea7ddfa014ecf719fc362f790ecc67b28106ddac2afb24c49a9a079159da560b2ce7d1e98efd11af",
+  "bugs": {
+    "url": "https://github.com/jbcom/koota-kit/issues"
+  },
+  "homepage": "https://github.com/jbcom/koota-kit#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "typesVersions": {
+    "*": {
+      "world": [
+        "./dist/esm/world.d.ts"
+      ],
+      "rng": [
+        "./dist/esm/rng.d.ts"
+      ],
+      "traits": [
+        "./dist/esm/traits/index.d.ts"
+      ],
+      "eventLog": [
+        "./dist/esm/eventLog.d.ts"
+      ],
+      "*": [
+        "./dist/esm/index.d.ts"
+      ]
+    }
+  },
+  "author": "Jon Bogaty <jon@jonbogaty.com>",
+  "keywords": [
+    "koota",
+    "ecs",
+    "deterministic",
+    "rng",
+    "seedrandom",
+    "game-dev",
+    "simulation",
+    "procedural-generation",
+    "replay"
+  ]
 }

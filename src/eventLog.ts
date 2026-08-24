@@ -64,15 +64,29 @@ export type EventLog<T> = {
  *
  * Keys should be namespaced by system (`"combat:hits"`, `"voices:events"`) for
  * the same reason trait names are: scratch is one flat map shared by every
- * system in the world.
+ * system in the world. Empty keys are rejected, as is a collision with an
+ * existing non-array scratch value.
  */
 export function defineEventLog<T>(key: string): EventLog<T> {
-  const arrayFor = (handle: WorldHandle): T[] => {
-    let log = handle.scratch.get(key) as T[] | undefined;
-    if (!log) {
-      log = [];
-      handle.scratch.set(key, log);
+  if (typeof key !== "string" || key.trim().length === 0) {
+    throw new TypeError("defineEventLog: key must be a non-empty string.");
+  }
+
+  const existingFor = (handle: WorldHandle): T[] | undefined => {
+    const existing = handle.scratch.get(key);
+    if (existing === undefined) return undefined;
+    if (!Array.isArray(existing)) {
+      throw new TypeError(
+        `Event log "${key}" cannot use its scratch key because it already holds a non-array value.`,
+      );
     }
+    return existing as T[];
+  };
+  const arrayFor = (handle: WorldHandle): T[] => {
+    const existing = existingFor(handle);
+    if (existing) return existing;
+    const log: T[] = [];
+    handle.scratch.set(key, log);
     return log;
   };
 
@@ -82,7 +96,8 @@ export function defineEventLog<T>(key: string): EventLog<T> {
       arrayFor(handle).push(event);
     },
     drain: (handle) => {
-      const log = arrayFor(handle);
+      const log = existingFor(handle);
+      if (!log) return [];
       // Copy, then truncate IN PLACE rather than replacing the array: another
       // system may already hold this reference, and swapping in a new array
       // would leave that holder appending into an orphan nobody drains.
@@ -90,10 +105,11 @@ export function defineEventLog<T>(key: string): EventLog<T> {
       log.length = 0;
       return out;
     },
-    peek: (handle) => arrayFor(handle).slice(),
+    peek: (handle) => existingFor(handle)?.slice() ?? [],
     clear: (handle) => {
-      arrayFor(handle).length = 0;
+      const log = existingFor(handle);
+      if (log) log.length = 0;
     },
-    size: (handle) => arrayFor(handle).length,
+    size: (handle) => existingFor(handle)?.length ?? 0,
   };
 }

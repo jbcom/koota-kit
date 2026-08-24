@@ -1,0 +1,23 @@
+# koota-kit
+
+> Small, production-derived conventions for deterministic simulations built
+> with [Koota](https://github.com/pmndrs/koota): one lifecycle boundary, two
+> independent seeded RNG streams, safe object-valued traits, and
+> world-scoped event logs. Not a game engine — it doesn't hide Koota's
+> queries, entities, relations, or actions.
+
+## Docs
+
+- [Documentation site](https://jonbogaty.com/koota-kit/): the published,
+  browsable version of everything below.
+- [README](https://github.com/jbcom/koota-kit/blob/main/README.md): install,
+  quick start, core concepts, persistence boundary, error behavior.
+- [API reference](https://github.com/jbcom/koota-kit/blob/main/docs/API.md):
+  full signatures and validation behavior for every export.
+- [Architecture](https://github.com/jbcom/koota-kit/blob/main/docs/ARCHITECTURE.md):
+  module boundaries, invariants, performance choices, intentional limits.
+- [AGENTS.md](https://github.com/jbcom/koota-kit/blob/main/AGENTS.md):
+  toolchain, invariants not to violate, and doc/test sync obligations for
+  an autonomous coding agent working in this repository.
+- [CONTRIBUTING.md](https://github.com/jbcom/koota-kit/blob/main/CONTRIBUTING.md):
+  local setup, the `pnpm verify` gate, commit and release conventions.

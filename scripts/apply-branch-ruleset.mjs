@@ -30,7 +30,9 @@ const ruleset = {
         strict_required_status_checks_policy: true,
         required_status_checks: [
           { context: "CI / gate" },
-          { context: "Lint PR / title" },
+          // The live check run is named "title" (the workflow is "Lint PR").
+          // Required contexts bind to the check-run name, not workflow/name.
+          { context: "title" },
           { context: "Repository Policy / gate" },
           { context: "Dependency Review / gate" },
         ],

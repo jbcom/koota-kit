@@ -1,0 +1,23 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "koota-kit",
+  "description": "Deterministic Koota simulation conventions for world lifecycles, independent RNG streams, safe traits, and world-scoped event logs.",
+  "branch": "main",
+  "folders": ["docs", "src", "examples"],
+  "excludeFolders": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "docs/dist",
+    "docs/node_modules",
+    "docs/superpowers"
+  ],
+  "excludeFiles": ["CHANGELOG.md"],
+  "rules": [
+    "Keep world-generation and runtime-event randomness on independent PRNG streams.",
+    "Validate RNG parameters before drawing so invalid input never advances a stream.",
+    "Use factories for object- and array-valued traits; bare object or array literals are intentionally rejected.",
+    "Treat event logs as single-consumer: drain consumes, while peek returns a detached non-consuming copy.",
+    "Persist only the simulation header with snapshotWorld and restoreWorldHeader; entities and traits remain application-owned state."
+  ]
+}

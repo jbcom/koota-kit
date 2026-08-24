@@ -39,7 +39,7 @@ shared stream while iterating a query. Entity IDs include process-global and
 generation data; query order and entity churn can differ between runs.
 
 Instead, derive a temporary stream from the immutable generation seed and a
-stable domain key such as grid coordinates, a authored ID, or a content key:
+stable domain key such as grid coordinates, an authored ID, or a content key:
 
 ```ts
 import { createRng, nextU32 } from "koota-kit/rng";

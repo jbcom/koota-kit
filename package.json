@@ -84,7 +84,10 @@
     "verify": "pnpm run lint && pnpm run lint:docs && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run examples:check && pnpm run package:check",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "prepack": "node scripts/build.mjs"
+    "prepack": "node scripts/build.mjs",
+    "docs:dev": "pnpm --filter koota-kit-docs dev",
+    "docs:build": "pnpm --filter koota-kit-docs build",
+    "docs:check": "pnpm --filter koota-kit-docs check"
   },
   "dependencies": {
     "@types/seedrandom": "^3.0.8",

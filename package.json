@@ -106,14 +106,14 @@
     "@biomejs/biome": "^2.5.5",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
-    "@vitest/coverage-v8": "^3.2.7",
+    "@vitest/coverage-v8": "^4.1.11",
     "koota": "^0.6.6",
     "lint-staged": "^17.3.0",
     "markdownlint-cli2": "^0.23.2",
     "publint": "^0.3.24",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged",

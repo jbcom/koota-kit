@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/jbcom/koota-kit/compare/v0.2.0...v0.2.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* sync the lockfile with the docs sourcey range ([eab4ae1](https://github.com/jbcom/koota-kit/commit/eab4ae1df3194cc1157b2a59ea0b04c3bc5345eb))
+* sync the lockfile with the docs sourcey range ([be276e5](https://github.com/jbcom/koota-kit/commit/be276e52f7d58621fd3730a5762b8c4eccbc5cbb))
+
 ## [0.2.0](https://github.com/jbcom/koota-kit/compare/v0.1.1...v0.2.0) (2026-08-24)
 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/jbcom/koota-kit/compare/v0.2.1...v0.3.0) (2026-10-06)
+
+
+### Features
+
+* add named RNG substreams, seed derivation, and master seeds ([a120cb7](https://github.com/jbcom/koota-kit/commit/a120cb7209eac1d16b964c6f3af2d97061cfcfc3))
+
+
+### Bug Fixes
+
+* type EntropySource so Web Crypto implementations satisfy it ([7b8d3cb](https://github.com/jbcom/koota-kit/commit/7b8d3cb3ee8a5a994b1578f3000270d40b5295f9))
+
 ## [0.2.1](https://github.com/jbcom/koota-kit/compare/v0.2.0...v0.2.1) (2026-10-06)
 
 

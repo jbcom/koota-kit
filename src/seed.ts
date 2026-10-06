@@ -11,7 +11,11 @@
 export type SeedPart = string | number;
 
 /** The subset of Web Crypto that `createMasterSeed` needs. Inject one in tests. */
-export type EntropySource = { getRandomValues(array: Uint8Array): Uint8Array };
+// ArrayBuffer-backed, matching Web Crypto's signature: with DOM typings,
+// `Crypto.getRandomValues` rejects a bare `Uint8Array<ArrayBufferLike>`.
+export type EntropySource = {
+  getRandomValues(array: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer>;
+};
 
 /** Byte length of a master seed (128 bits). */
 export const MASTER_SEED_BYTES = 16;

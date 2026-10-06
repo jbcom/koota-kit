@@ -97,6 +97,23 @@ describe("createMasterSeed", () => {
     expect(isMasterSeed(seed)).toBe(true);
   });
 
+  it("accepts a Web Crypto implementation at the type level", () => {
+    // The exact DOM `Crypto.getRandomValues` signature (lib.dom.d.ts): this
+    // must type-check against EntropySource, so `tsc` (pnpm typecheck)
+    // is the real gate here.
+    type DomBufferSource = ArrayBufferView<ArrayBuffer>;
+    interface DomCrypto {
+      getRandomValues<T extends DomBufferSource | null>(array: T): T;
+    }
+    const domCrypto: DomCrypto = {
+      getRandomValues: (array) => {
+        if (array) new Uint8Array(array.buffer).fill(3);
+        return array;
+      },
+    };
+    expect(createMasterSeed(domCrypto)).toBe("03".repeat(16));
+  });
+
   it("uses globalThis.crypto by default and produces distinct seeds", () => {
     const first = createMasterSeed();
     const second = createMasterSeed();

@@ -118,7 +118,9 @@ function restoreSubstreams(snapshot: SubstreamsSnapshot): Substreams;
 
 ```ts
 type SeedPart = string | number;
-type EntropySource = { getRandomValues(array: Uint8Array): Uint8Array };
+type EntropySource = {
+  getRandomValues(array: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer>;
+}; // `globalThis.crypto` satisfies it, with or without DOM typings
 
 const MASTER_SEED_BYTES = 16;
 

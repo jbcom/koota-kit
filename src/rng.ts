@@ -262,7 +262,9 @@ export function snapshotSubstreams(substreams: Substreams): SubstreamsSnapshot {
   // "__proto__" is captured instead of hitting the prototype setter.
   const streams: Record<string, RngStreamSnapshot> = Object.fromEntries(
     [...substreams.streams.keys()]
-      .sort()
+      // UTF-16 code-unit order, never localeCompare: the order must not vary
+      // by runtime locale. Branch-free because names in a Map are unique.
+      .sort((left, right) => Number(left > right) - Number(left < right))
       .map((name) => [name, snapshotStream(substreams.streams.get(name) as RngStream)]),
   );
   return { seed: substreams.seed, streams };

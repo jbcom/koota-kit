@@ -30,19 +30,11 @@ function canonicalPart(value: unknown, label: string, api: string): string {
 /** UTF-8 encode, mapping lone surrogates to U+FFFD exactly like TextEncoder. */
 function utf8(text: string): number[] {
   const bytes: number[] = [];
-  for (let index = 0; index < text.length; index += 1) {
-    let code = text.charCodeAt(index);
-    if (code >= 0xd800 && code <= 0xdbff) {
-      const next = text.charCodeAt(index + 1);
-      if (next >= 0xdc00 && next <= 0xdfff) {
-        code = 0x10000 + ((code - 0xd800) << 10) + (next - 0xdc00);
-        index += 1;
-      } else {
-        code = 0xfffd;
-      }
-    } else if (code >= 0xdc00 && code <= 0xdfff) {
-      code = 0xfffd;
-    }
+  // String iteration yields whole code points; an unpaired surrogate arrives
+  // alone as its own code unit, so it is the only surrogate value seen here.
+  for (const char of text) {
+    let code = char.codePointAt(0) as number;
+    if (code >= 0xd800 && code <= 0xdfff) code = 0xfffd;
     if (code < 0x80) {
       bytes.push(code);
     } else if (code < 0x800) {
@@ -77,12 +69,21 @@ const rotr = (value: number, bits: number) => (value >>> bits) | (value << (32 -
 /** FIPS 180-4 SHA-256 of `message`, as eight big-endian 32-bit words. */
 function sha256(message: number[]): Uint32Array {
   const bitLength = message.length * 8;
-  const padded = message.slice();
-  padded.push(0x80);
-  while (padded.length % 64 !== 56) padded.push(0);
+  const zeroPadding = (55 - (message.length % 64) + 64) % 64;
   // Seed inputs are far below 2**32 bits, so the high length word is zero.
-  padded.push(0, 0, 0, 0, bitLength >>> 24, (bitLength >>> 16) & 0xff, (bitLength >>> 8) & 0xff);
-  padded.push(bitLength & 0xff);
+  const padded = [
+    ...message,
+    0x80,
+    ...new Array<number>(zeroPadding).fill(0),
+    0,
+    0,
+    0,
+    0,
+    bitLength >>> 24,
+    (bitLength >>> 16) & 0xff,
+    (bitLength >>> 8) & 0xff,
+    bitLength & 0xff,
+  ];
 
   const hash = new Uint32Array([
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
@@ -156,15 +157,19 @@ export function deriveSeed(parent: SeedPart, ...parts: SeedPart[]): string {
   parts.forEach((part, index) => {
     values.push(canonicalPart(part, `parts[${index}]`, "deriveSeed"));
   });
-  const message = utf8(DERIVE_DOMAIN);
+  const chunks = [utf8(DERIVE_DOMAIN)];
   for (const value of values) {
     const encoded = utf8(value);
     const length = encoded.length;
-    message.push((length >>> 24) & 0xff, (length >>> 16) & 0xff, (length >>> 8) & 0xff);
-    message.push(length & 0xff);
-    for (const byte of encoded) message.push(byte);
+    const prefix = [
+      (length >>> 24) & 0xff,
+      (length >>> 16) & 0xff,
+      (length >>> 8) & 0xff,
+      length & 0xff,
+    ];
+    chunks.push(prefix, encoded);
   }
-  const digest = sha256(message);
+  const digest = sha256(chunks.flat());
   return Array.from(digest.subarray(0, 4), (word) => word.toString(16).padStart(8, "0")).join("");
 }
 

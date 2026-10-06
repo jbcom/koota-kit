@@ -258,10 +258,13 @@ export function getSubstream(substreams: Substreams, name: string): RngStream {
  * sorted order. JSON-serializable and detached from later draws.
  */
 export function snapshotSubstreams(substreams: Substreams): SubstreamsSnapshot {
-  const streams: Record<string, RngStreamSnapshot> = {};
-  for (const name of [...substreams.streams.keys()].sort()) {
-    streams[name] = snapshotStream(substreams.streams.get(name) as RngStream);
-  }
+  // Object.fromEntries defines own data properties, so a stream named
+  // "__proto__" is captured instead of hitting the prototype setter.
+  const streams: Record<string, RngStreamSnapshot> = Object.fromEntries(
+    [...substreams.streams.keys()]
+      .sort()
+      .map((name) => [name, snapshotStream(substreams.streams.get(name) as RngStream)]),
+  );
   return { seed: substreams.seed, streams };
 }
 
@@ -280,11 +283,11 @@ export function restoreSubstreams(snapshot: SubstreamsSnapshot): Substreams {
     throw new TypeError("restoreSubstreams: streams must be an object keyed by stream name.");
   }
   const restored = new Map<string, RngStream>();
-  for (const name of Object.keys(entries).sort()) {
+  for (const [name, stream] of Object.entries(entries)) {
     if (name.length === 0) {
       throw new TypeError("restoreSubstreams: stream names must be non-empty strings.");
     }
-    restored.set(name, restoreStream(entries[name] as RngStreamSnapshot));
+    restored.set(name, restoreStream(stream));
   }
   return { seed: snapshot.seed, streams: restored };
 }

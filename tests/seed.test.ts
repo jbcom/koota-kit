@@ -5,7 +5,7 @@ import { createMasterSeed, deriveSeed, isMasterSeed, MASTER_SEED_BYTES } from ".
 // Independent reference for the documented encoding: a domain tag, then each
 // value as a 4-byte big-endian UTF-8 byte length followed by its UTF-8 bytes,
 // hashed with SHA-256 and truncated to the first 16 bytes. Built on
-// node:crypto so the noble implementation is checked against a second one.
+// node:crypto so the built-in SHA-256 is checked against a second one.
 function referenceDerive(...values: Array<string | number>): string {
   const chunks: Buffer[] = [Buffer.from("koota-kit:deriveSeed:v1", "utf8")];
   for (const value of values) {
@@ -25,6 +25,15 @@ describe("deriveSeed", () => {
     expect(deriveSeed("solo")).toBe(referenceDerive("solo"));
     expect(deriveSeed("ünïcødé", "🜏")).toBe(referenceDerive("ünïcødé", "🜏"));
     expect(deriveSeed("€ ankh ☥", "𓂀")).toBe(referenceDerive("€ ankh ☥", "𓂀"));
+  });
+
+  it("matches node:crypto across every SHA-256 padding boundary and multi-block input", () => {
+    // Message = 23-byte domain tag + 4-byte length + part; sweep the part so the
+    // message crosses 55/56/63/64 bytes mod 64 and spans several blocks.
+    for (let size = 0; size <= 200; size += 1) {
+      const part = "x".repeat(size);
+      expect(deriveSeed(part)).toBe(referenceDerive(part));
+    }
   });
 
   it("encodes lone surrogates as U+FFFD exactly like TextEncoder", () => {

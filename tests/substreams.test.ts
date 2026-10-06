@@ -102,6 +102,16 @@ describe("substream sets", () => {
     expect(draws(getSubstream(restored, "loot"))).toEqual(expectedLoot);
   });
 
+  it("captures and restores a stream named __proto__ as an own key", () => {
+    const set = createSubstreams("s");
+    nextU32(getSubstream(set, "__proto__"));
+    const snap = JSON.parse(JSON.stringify(snapshotSubstreams(set)));
+    expect(Object.keys(snap.streams)).toEqual(["__proto__"]);
+    expect(Object.getPrototypeOf(snapshotSubstreams(set).streams)).toBe(Object.prototype);
+    const expected = draws(getSubstream(set, "__proto__"));
+    expect(draws(getSubstream(restoreSubstreams(snap), "__proto__"))).toEqual(expected);
+  });
+
   it("detaches snapshots from later draws", () => {
     const set = createSubstreams("s");
     const stream = getSubstream(set, "a");

@@ -43,6 +43,16 @@
         "default": "./dist/cjs/rng.cjs"
       }
     },
+    "./seed": {
+      "import": {
+        "types": "./dist/esm/seed.d.ts",
+        "default": "./dist/esm/seed.js"
+      },
+      "require": {
+        "types": "./dist/cjs/seed.d.cts",
+        "default": "./dist/cjs/seed.cjs"
+      }
+    },
     "./traits": {
       "import": {
         "types": "./dist/esm/traits/index.d.ts",
@@ -146,6 +156,9 @@
       ],
       "rng": [
         "./dist/esm/rng.d.ts"
+      ],
+      "seed": [
+        "./dist/esm/seed.d.ts"
       ],
       "traits": [
         "./dist/esm/traits/index.d.ts"

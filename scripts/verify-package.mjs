@@ -84,21 +84,29 @@ try {
     "advanceClock",
     "chance",
     "createActions",
+    "createMasterSeed",
     "createRng",
     "createSimWorld",
+    "createSubstreams",
     "defineEventLog",
     "defineTrait",
+    "deriveSeed",
     "destroySimWorld",
+    "getSubstream",
+    "isMasterSeed",
     "nextFloat",
     "nextInt",
     "nextU32",
     "relation",
     "restoreLayers",
     "restoreStream",
+    "restoreSubstreams",
     "restoreWorldHeader",
     "snapshotLayers",
     "snapshotStream",
+    "snapshotSubstreams",
     "snapshotWorld",
+    "substream",
     "trait",
   ];
   for (const name of expectedRuntimeExports) {
@@ -112,6 +120,19 @@ try {
     Array.from({ length: 8 }, () => esm.nextU32(esmRng.events)),
     Array.from({ length: 8 }, () => cjs.nextU32(cjsRng.events)),
     "ESM and CommonJS builds produced different deterministic output",
+  );
+  assert.equal(esm.MASTER_SEED_BYTES, 16, "ESM export MASTER_SEED_BYTES is wrong");
+  assert.equal(cjs.MASTER_SEED_BYTES, 16, "CommonJS export MASTER_SEED_BYTES is wrong");
+  const esmDerived = esm.deriveSeed("package-check", "round", 3);
+  assert.equal(esmDerived, cjs.deriveSeed("package-check", "round", 3));
+  assert.deepEqual(
+    Array.from({ length: 8 }, (_, index) =>
+      esm.nextU32(esm.substream(esmDerived, `s${index % 2}`)),
+    ),
+    Array.from({ length: 8 }, (_, index) =>
+      cjs.nextU32(cjs.substream(esmDerived, `s${index % 2}`)),
+    ),
+    "ESM and CommonJS builds produced different substream output",
   );
 
   writeFileSync(

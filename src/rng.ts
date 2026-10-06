@@ -20,6 +20,7 @@
 // `nextFloat(rng.events)` depending on the layer.
 
 import seedrandom from "seedrandom";
+import { deriveSeed } from "./seed.js";
 
 type State = seedrandom.State.Arc4;
 type Stateful = seedrandom.StatefulPRNG<State>;
@@ -189,4 +190,101 @@ export function restoreLayers(snap: RngLayersSnapshot): RngLayers {
     throw new TypeError("restoreLayers: snapshot must contain gen and events stream states.");
   }
   return { gen: restoreStream(snap.gen), events: restoreStream(snap.events) };
+}
+
+// ─── Named substreams ────────────────────────────────────────────────────────
+//
+// A seed often feeds several independent generators (layout, roster, loot, …).
+// Sharing one stream couples them: adding a generator, or one more draw in an
+// early generator, shifts every later generator's output and silently changes
+// existing saves. A named substream is seeded by `deriveSeed(seed, name)`, so
+// its sequence depends only on the seed and its own name.
+
+export type Substreams = {
+  /** The seed every member stream is derived from. */
+  readonly seed: string | number;
+  /** Streams created so far, keyed by name. Create members with `getSubstream`. */
+  readonly streams: ReadonlyMap<string, RngStream>;
+};
+
+export type SubstreamsSnapshot = {
+  seed: string | number;
+  streams: Record<string, RngStreamSnapshot>;
+};
+
+function assertSubstreamName(name: unknown, api: string): asserts name is string {
+  if (typeof name !== "string" || name.length === 0) {
+    throw new TypeError(`${api}: name must be a non-empty string.`);
+  }
+}
+
+function assertSubstreamSeed(seed: unknown, api: string): asserts seed is string | number {
+  if (typeof seed !== "string" && !(typeof seed === "number" && Number.isFinite(seed))) {
+    throw new TypeError(`${api}: seed must be a string or finite number.`);
+  }
+}
+
+/**
+ * Create the stream named `name` under `seed`: a fresh stream seeded by
+ * `deriveSeed(seed, name)`. Creating or consuming any other substream never
+ * shifts this one.
+ */
+export function substream(seed: string | number, name: string): RngStream {
+  assertSubstreamName(name, "substream");
+  return makeStream(deriveSeed(seed, name));
+}
+
+/** Create an empty, lazily populated set of named substreams under `seed`. */
+export function createSubstreams(seed: string | number): Substreams {
+  assertSubstreamSeed(seed, "createSubstreams");
+  return { seed, streams: new Map() };
+}
+
+/**
+ * Return the set's stream for `name`, creating it from the set's seed on first
+ * use. The same name always returns the same live stream instance.
+ */
+export function getSubstream(substreams: Substreams, name: string): RngStream {
+  assertSubstreamName(name, "getSubstream");
+  const existing = substreams.streams.get(name);
+  if (existing) return existing;
+  const stream = substream(substreams.seed, name);
+  (substreams.streams as Map<string, RngStream>).set(name, stream);
+  return stream;
+}
+
+/**
+ * Capture the set's seed plus every stream created so far, with names in
+ * sorted order. JSON-serializable and detached from later draws.
+ */
+export function snapshotSubstreams(substreams: Substreams): SubstreamsSnapshot {
+  const streams: Record<string, RngStreamSnapshot> = {};
+  for (const name of [...substreams.streams.keys()].sort()) {
+    streams[name] = snapshotStream(substreams.streams.get(name) as RngStream);
+  }
+  return { seed: substreams.seed, streams };
+}
+
+/**
+ * Rebuild a substream set from `snapshotSubstreams` output. Validates the
+ * complete snapshot before building anything; streams that were never created
+ * restore lazily from the seed on first `getSubstream`.
+ */
+export function restoreSubstreams(snapshot: SubstreamsSnapshot): Substreams {
+  if (typeof snapshot !== "object" || snapshot === null) {
+    throw new TypeError("restoreSubstreams: snapshot must contain a seed and streams.");
+  }
+  assertSubstreamSeed(snapshot.seed, "restoreSubstreams");
+  const entries = snapshot.streams;
+  if (typeof entries !== "object" || entries === null || Array.isArray(entries)) {
+    throw new TypeError("restoreSubstreams: streams must be an object keyed by stream name.");
+  }
+  const restored = new Map<string, RngStream>();
+  for (const name of Object.keys(entries).sort()) {
+    if (name.length === 0) {
+      throw new TypeError("restoreSubstreams: stream names must be non-empty strings.");
+    }
+    restored.set(name, restoreStream(entries[name] as RngStreamSnapshot));
+  }
+  return { seed: snapshot.seed, streams: restored };
 }

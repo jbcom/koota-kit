@@ -43,6 +43,11 @@ class it was built to prevent. Full detail in `docs/ARCHITECTURE.md`.
    boundary is intentional (see "Persistence boundary" in the README).
 6. Restoring a header is atomic: validate the complete replacement before
    mutating the handle, never partially apply a restore.
+7. A named substream is seeded only by `deriveSeed(seed, name)`. Never let one
+   substream's creation or draws shift another's sequence.
+8. `deriveSeed`'s domain tag and byte encoding are a frozen contract; the
+   golden vector in `tests/seed.test.ts` must never be edited to make a change
+   pass.
 
 ## Keeping docs and tests in sync
 

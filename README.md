@@ -106,14 +106,19 @@ stream in query iteration order. Entity IDs contain process-global world and
 generation bits. Derive a local stream from a stable domain key instead:
 
 ```ts
-import { createRng, nextU32 } from "koota-kit/rng";
+import { nextU32, substream } from "koota-kit/rng";
+import { deriveSeed } from "koota-kit/seed";
 
-const tileRng = createRng({
-  gen: `${String(sim.seeds.gen)}/tile:12,8`,
-  events: 0,
-});
-const terrainVariant = nextU32(tileRng.gen);
+const tileSeed = deriveSeed(sim.seeds.gen, "tile", 12, 8);
+const terrainVariant = nextU32(substream(tileSeed, "terrain"));
 ```
+
+`deriveSeed` hashes length-prefixed parts into a 128-bit hex seed, so seed
+chains such as master seed → run → level never collide by accident.
+`substream(seed, name)` gives each generator its own stream; adding a new
+named substream never shifts an existing one. `createMasterSeed()` makes a
+128-bit root seed from `crypto.getRandomValues`, and accepts an injected
+entropy source for tests.
 
 ### Object-valued traits need factories
 
@@ -154,7 +159,8 @@ The root package exports the full API. Focused entry points are also available:
 | Entry point | Purpose |
 | --- | --- |
 | `koota-kit/world` | World lifecycle, clock, Koota facade, world snapshots |
-| `koota-kit/rng` | Seeded streams, bounded draws, snapshots |
+| `koota-kit/rng` | Seeded streams, named substreams, bounded draws, snapshots |
+| `koota-kit/seed` | Seed derivation and 128-bit master seeds |
 | `koota-kit/traits` | Safe trait declaration |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
 
@@ -169,7 +175,10 @@ For task-oriented usage, read the Sourcey guides on
 
 ## Errors and edge cases
 
-- Seeds must be strings or finite numbers.
+- Seeds must be strings or finite numbers. Substream names must be non-empty
+  strings.
+- `createMasterSeed` throws when no entropy source exists or the source leaves
+  the buffer all zero.
 - `advanceClock` accepts finite, non-negative `dt`; `0` is a valid paused tick.
 - `nextInt` requires safe-integer bounds with `maxExclusive > minInclusive` and
   a range no larger than `2**32`.

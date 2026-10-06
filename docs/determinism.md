@@ -42,18 +42,53 @@ Instead, derive a temporary stream from the immutable generation seed and a
 stable domain key such as grid coordinates, an authored ID, or a content key:
 
 ```ts
-import { createRng, nextU32 } from "koota-kit/rng";
+import { nextU32, substream } from "koota-kit/rng";
+import { deriveSeed } from "koota-kit/seed";
 
 function tileVariant(worldSeed: string | number, x: number, y: number) {
-  const local = createRng({ gen: `${String(worldSeed)}/tile:${x},${y}`, events: 0 });
-  return nextU32(local.gen) % 4;
+  return nextU32(substream(deriveSeed(worldSeed, "tile", x, y), "variant")) % 4;
 }
 
 const variant = tileVariant(sim.seeds.gen, 12, 8);
 ```
 
 This makes the tile's result independent of entity allocation, query order,
-and how many runtime events have happened.
+and how many runtime events have happened. `deriveSeed` length-prefixes every
+part, so `(1, 23)` and `(12, 3)` can never collide the way a hand-built
+`"1" + "23"` string key would.
+
+## Give each generator a named substream
+
+A seeded game usually has a chain of seeds and several generators per level.
+Derive each seed from its parent, then give every generator its own named
+substream:
+
+```ts
+import { createSubstreams, getSubstream, nextInt } from "koota-kit/rng";
+import { createMasterSeed, deriveSeed } from "koota-kit/seed";
+
+const masterSeed = createMasterSeed(); // 128 bits; store it in the save
+const runSeed = deriveSeed(masterSeed, "tier-1", 0);
+const levelSeed = deriveSeed(runSeed, 3);
+
+const streams = createSubstreams(levelSeed);
+const width = nextInt(getSubstream(streams, "layout"), 12, 20);
+const enemies = nextInt(getSubstream(streams, "roster"), 3, 7);
+```
+
+A substream's sequence depends only on its seed and its name. Adding a `loot`
+substream next month does not change a single `layout` or `roster` draw, so
+existing saves regenerate the same level. Snapshot the set with
+`snapshotSubstreams` when generators must resume mid-level.
+
+Pass an injected entropy source to `createMasterSeed` in tests so they stay
+deterministic:
+
+```ts
+const fixed = createMasterSeed({
+  getRandomValues: (bytes) => bytes.fill(7),
+});
+```
 
 ## Preserve draw positions
 

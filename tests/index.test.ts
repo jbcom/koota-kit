@@ -14,6 +14,7 @@ import { describe, expect, it } from "vitest";
 import * as eventLogModule from "../src/eventLog.js";
 import * as indexModule from "../src/index.js";
 import * as rngModule from "../src/rng.js";
+import * as seedModule from "../src/seed.js";
 import * as traitsModule from "../src/traits/index.js";
 import * as worldModule from "../src/world.js";
 
@@ -39,6 +40,18 @@ describe("root barrel (src/index.ts) re-exports", () => {
     expect(indexModule.restoreStream).toBe(rngModule.restoreStream);
     expect(indexModule.snapshotLayers).toBe(rngModule.snapshotLayers);
     expect(indexModule.restoreLayers).toBe(rngModule.restoreLayers);
+    expect(indexModule.substream).toBe(rngModule.substream);
+    expect(indexModule.createSubstreams).toBe(rngModule.createSubstreams);
+    expect(indexModule.getSubstream).toBe(rngModule.getSubstream);
+    expect(indexModule.snapshotSubstreams).toBe(rngModule.snapshotSubstreams);
+    expect(indexModule.restoreSubstreams).toBe(rngModule.restoreSubstreams);
+  });
+
+  it("re-exports every seed.js value by identity", () => {
+    expect(indexModule.deriveSeed).toBe(seedModule.deriveSeed);
+    expect(indexModule.createMasterSeed).toBe(seedModule.createMasterSeed);
+    expect(indexModule.isMasterSeed).toBe(seedModule.isMasterSeed);
+    expect(indexModule.MASTER_SEED_BYTES).toBe(seedModule.MASTER_SEED_BYTES);
   });
 
   it("re-exports defineEventLog from eventLog.js by identity", () => {

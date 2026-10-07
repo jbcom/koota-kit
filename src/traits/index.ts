@@ -1,8 +1,7 @@
 /**
  * `src/traits/` — trait-authoring conventions, kept in a LEAF sub-package.
  *
- * Packaging pattern (from medieval-hexagon-gameboard): trait declarations
- * live in a leaf sub-package with ZERO sibling imports — this file imports
+ * Trait declarations live in a leaf sub-package with ZERO sibling imports — this file imports
  * only `koota` (the npm dep) and pure types, never runtime values from
  * sibling modules like ./world or ./rng. That is what prevents the
  * koota ↔ world-facade ↔ game-scenario top-level evaluation cycle that a
@@ -11,8 +10,7 @@
  * from exactly one location so trait reference-identity holds regardless of
  * which subpath a consumer imports from.
  *
- * The AoS-aliasing footgun this module guards against (timber-town's
- * documented convention): object-valued fields in a SoA schema must use the
+ * Object-valued fields in a SoA schema must use the
  * AoS-factory pattern (`() => ({...})`) so each entity gets its own object
  * instance — koota's SoA pattern would otherwise alias state across
  * entities (one shared object literal mutated by every entity that has the

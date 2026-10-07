@@ -4,3 +4,11 @@ coverage/
 *.tgz
 .DS_Store
 docs/dist/
+.agent-state/
+.claude/
+CLAUDE.md
+.mcp.json
+opencode.json
+.augment/
+.agents/
+docs/superpowers/

@@ -24,7 +24,7 @@ describe("deriveSeed", () => {
     expect(seed).toBe(referenceDerive("master", "tier-1", 4));
     expect(deriveSeed("solo")).toBe(referenceDerive("solo"));
     expect(deriveSeed("ünïcødé", "🜏")).toBe(referenceDerive("ünïcødé", "🜏"));
-    expect(deriveSeed("€ ankh ☥", "𓂀")).toBe(referenceDerive("€ ankh ☥", "𓂀"));
+    expect(deriveSeed("€ text ☃", "𝄞")).toBe(referenceDerive("€ text ☃", "𝄞"));
   });
 
   it("matches node:crypto across every SHA-256 padding boundary and multi-block input", () => {
@@ -69,10 +69,10 @@ describe("deriveSeed", () => {
   });
 
   it("chains: a derived seed is a valid parent", () => {
-    const reign = deriveSeed("0123456789abcdef0123456789abcdef", "dynasty-1", 0);
-    const round = deriveSeed(reign, 3);
+    const level = deriveSeed("0123456789abcdef0123456789abcdef", "level-1", 0);
+    const round = deriveSeed(level, 3);
     expect(round).toMatch(/^[0-9a-f]{32}$/);
-    expect(round).toBe(referenceDerive(reign, 3));
+    expect(round).toBe(referenceDerive(level, 3));
   });
 
   it("rejects non-finite numbers and non-seed values", () => {

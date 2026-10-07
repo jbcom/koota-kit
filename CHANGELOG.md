@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/jbcom/koota-kit/compare/v0.3.0...v0.3.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* declare maintained Node support and align OSS protection gates ([20f6aa3](https://github.com/jbcom/koota-kit/commit/20f6aa37b971138d3d7fbca54152f44b99d1f2d8))
+* declare the supported Node lines and test each in CI ([94ed880](https://github.com/jbcom/koota-kit/commit/94ed8803242a43c055a9ae9333327b0856109bb5))
+
 ## [0.3.0](https://github.com/jbcom/koota-kit/compare/v0.2.1...v0.3.0) (2026-10-06)
 
 

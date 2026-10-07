@@ -5,7 +5,7 @@ Thanks for taking the time to contribute.
 ## Getting set up
 
 With [mise](https://mise.jdx.dev) (recommended — installs the Node and pnpm
-versions pinned in `mise.toml`):
+toolchain selected in `mise.toml`; Node selects a major, not an exact patch):
 
 ```sh
 mise install

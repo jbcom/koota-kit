@@ -5,6 +5,9 @@ covers what isn't obvious from reading the code alone.
 
 ## Toolchain
 
+- Supported Node.js lines are 22, 24 and 26 (`engines.node: >=22`). Local
+  selectors default to major 26; CI tests every supported line. Scripts and
+  hooks must accept the supported range, never require one exact patch.
 - Package manager: pnpm, pinned in `package.json#packageManager`. Use
   `mise install` (reads `mise.toml`) for a matching local Node/pnpm
   toolchain, or `corepack enable` if mise isn't available.
@@ -63,6 +66,11 @@ A change to `src/*.ts`'s public surface needs matching updates in all of:
 
 ## Commits and releases
 
+- `scripts/apply-branch-ruleset.mjs` is the canonical OSS ruleset installer,
+  preserved verbatim except for default repository and check arguments. Its
+  formatter override keeps that copy synchronized. It installs main integrity,
+  Conventional Commits on other branches, and immutable release tags, without
+  AI-billed review rules. Run it only with explicit authorization.
 - Conventional Commits only (`fix:`, `feat:`, `docs:`, `refactor:`,
   `test:`, `chore:`, …). A required CI check enforces conventional PR titles
   and Release Please parses the preserved merge-commit history to drive

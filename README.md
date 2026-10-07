@@ -34,7 +34,9 @@ pnpm add koota-kit koota
 
 Requirements:
 
-- Node.js 22 or newer (CI covers Node 22/24/26 on Linux and Node 24 on Windows)
+- Node.js 22, 24 and 26 (CI covers each on Linux and Node 24 on Windows).
+  The package declares `>=22`; support follows maintained Node lines rather
+  than requiring one exact patch release.
 - Koota `^0.6.6`, installed by the application as a peer dependency
 
 The package ships native ESM and CommonJS entry points with format-correct

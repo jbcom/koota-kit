@@ -9,7 +9,8 @@ description: Install koota-kit and apply its deterministic simulation convention
 pnpm add koota-kit koota
 ```
 
-Use Node.js 22 or newer. Install Koota `^0.6.6` in the application: it is a
+Use Node.js 22, 24 or 26 (`engines.node: >=22`). Support follows maintained
+Node lines, without an exact patch requirement. Install Koota `^0.6.6` in the application: it is a
 peer dependency. koota-kit ships native ESM and CommonJS entry points with
 format-correct TypeScript declarations.
 

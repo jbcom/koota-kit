@@ -5,5 +5,5 @@
 # `mise install` here gives a contributor's local environment the same
 # default toolchain without needing corepack.
 [tools]
-node = "24"
+node = "26"
 pnpm = "11"

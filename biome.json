@@ -9,6 +9,12 @@
     "lineWidth": 100
   },
   "linter": { "enabled": true, "rules": { "preset": "recommended" } },
+  "overrides": [
+    {
+      "includes": ["scripts/apply-branch-ruleset.mjs"],
+      "formatter": { "enabled": false }
+    }
+  ],
   "assist": {
     "actions": {
       "source": {

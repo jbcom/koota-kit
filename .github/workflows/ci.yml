@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Widest currently-supported Node range: both active LTS lines plus
+        # Maintained Node lines: maintenance LTS, active LTS, and
         # the current release. See https://nodejs.org/en/about/previous-releases
         # for status; engines.node in package.json is the floor (>=22).
         include:
@@ -59,7 +59,7 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version-file: .nvmrc
+          node-version: "lts/*"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm docs:build
@@ -77,7 +77,7 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version-file: .nvmrc
+          node-version: "lts/*"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm coverage
@@ -98,10 +98,7 @@ jobs:
   gate:
     name: CI / gate
     needs: [verify, docs, sonarcloud, pre-commit]
-    if: >-
-      always() && (github.event_name != 'pull_request' ||
-      !(startsWith(github.event.pull_request.head.ref, 'release-please--') ||
-      (github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.title, 'non-major'))))
+    if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Require every native validation job
@@ -111,7 +108,6 @@ jobs:
           SONARCLOUD_RESULT: ${{ needs.sonarcloud.result }}
           PRE_COMMIT_RESULT: ${{ needs.pre-commit.result }}
         run: |
-          test "$VERIFY_RESULT" = success
-          test "$DOCS_RESULT" = success
-          test "$SONARCLOUD_RESULT" = success || test "$SONARCLOUD_RESULT" = skipped
-          test "$PRE_COMMIT_RESULT" = success
+          for result in "$VERIFY_RESULT" "$DOCS_RESULT" "$SONARCLOUD_RESULT" "$PRE_COMMIT_RESULT"; do
+            test "$result" = success || test "$result" = skipped || exit 1
+          done

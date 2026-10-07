@@ -66,6 +66,11 @@ A change to `src/*.ts`'s public surface needs matching updates in all of:
 
 ## Commits and releases
 
+- `scripts/apply-branch-ruleset.mjs` is the canonical OSS ruleset installer,
+  preserved verbatim except for default repository and check arguments. Its
+  formatter override keeps that copy synchronized. It installs main integrity,
+  Conventional Commits on other branches, and immutable release tags, without
+  AI-billed review rules. Run it only with explicit authorization.
 - Conventional Commits only (`fix:`, `feat:`, `docs:`, `refactor:`,
   `test:`, `chore:`, …). A required CI check enforces conventional PR titles
   and Release Please parses the preserved merge-commit history to drive

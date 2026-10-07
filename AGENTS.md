@@ -5,6 +5,9 @@ covers what isn't obvious from reading the code alone.
 
 ## Toolchain
 
+- Supported Node.js lines are 22, 24 and 26 (`engines.node: >=22`). Local
+  selectors default to major 26; CI tests every supported line. Scripts and
+  hooks must accept the supported range, never require one exact patch.
 - Package manager: pnpm, pinned in `package.json#packageManager`. Use
   `mise install` (reads `mise.toml`) for a matching local Node/pnpm
   toolchain, or `corepack enable` if mise isn't available.

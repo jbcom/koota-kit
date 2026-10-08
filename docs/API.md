@@ -68,6 +68,8 @@ function nextU32(stream: RngStream): number;
 function nextFloat(stream: RngStream): number;
 function nextInt(stream: RngStream, minInclusive: number, maxExclusive: number): number;
 function chance(stream: RngStream, probability: number): boolean;
+function pick<T>(stream: RngStream, items: readonly T[]): T;
+function shuffle<T>(stream: RngStream, items: readonly T[]): T[];
 function snapshotStream(stream: RngStream): RngStreamSnapshot;
 function restoreStream(snapshot: RngStreamSnapshot): RngStream;
 function snapshotLayers(layers: RngLayers): RngLayersSnapshot;
@@ -79,6 +81,11 @@ function restoreLayers(snapshot: RngLayersSnapshot): RngLayers;
 - `nextInt` uses half-open bounds and exactly one float draw after validation.
 - `chance` consumes one draw for every valid probability, including `0` and
   `1`, keeping later draw positions predictable.
+- `pick` returns one element uniformly with exactly one `nextInt` draw and
+  rejects an empty array without drawing.
+- `shuffle` returns a Fisher–Yates shuffled copy (the input is never mutated)
+  and consumes exactly `length - 1` draws, so the draw count depends only on
+  the length, never on the contents.
 - Restore functions reject malformed ARC4 state and clone accepted state so a
   snapshot can seed multiple independent replays.
 

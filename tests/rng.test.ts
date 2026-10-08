@@ -5,8 +5,10 @@ import {
   nextFloat,
   nextInt,
   nextU32,
+  pick,
   restoreLayers,
   restoreStream,
+  shuffle,
   snapshotLayers,
   snapshotStream,
 } from "../src/rng.js";
@@ -190,5 +192,40 @@ describe("dual-layer seedrandom PRNG", () => {
     }
     expect(() => restoreLayers(null as never)).toThrow(/snapshot must contain/);
     expect(() => restoreLayers({ gen: valid, events: {} as never })).toThrow(/valid seedrandom/);
+  });
+});
+
+describe("pick and shuffle", () => {
+  it("pick draws exactly once, stays in range, and rejects an empty array without drawing", () => {
+    const a = createRng({ gen: "pick", events: "e" });
+    const b = createRng({ gen: "pick", events: "e" });
+    const items = ["a", "b", "c", "d"] as const;
+    const picked = pick(a.gen, items);
+    expect(items).toContain(picked);
+    expect(items[nextInt(b.gen, 0, items.length)]).toBe(picked);
+    expect(nextU32(a.gen)).toBe(nextU32(b.gen));
+    const before = snapshotStream(a.gen);
+    expect(() => pick(a.gen, [])).toThrow(/must not be empty/);
+    expect(snapshotStream(a.gen)).toEqual(before);
+  });
+
+  it("shuffle is a permutation, leaves its input alone, and draws length - 1 times", () => {
+    const a = createRng({ gen: "shuffle", events: "e" });
+    const b = createRng({ gen: "shuffle", events: "e" });
+    const input = [1, 2, 3, 4, 5, 6, 7, 8];
+    const out = shuffle(a.gen, input);
+    expect(input).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect([...out].sort((x, y) => x - y)).toEqual(input);
+    for (let i = 0; i < input.length - 1; i++) nextFloat(b.gen);
+    expect(nextU32(a.gen)).toBe(nextU32(b.gen));
+    expect(shuffle(a.gen, [])).toEqual([]);
+    expect(shuffle(a.gen, ["only"])).toEqual(["only"]);
+  });
+
+  it("shuffle is deterministic per seed and differs across seeds", () => {
+    const seq = (seed: string) =>
+      shuffle(createRng({ gen: seed, events: "e" }).gen, [...Array(12).keys()]);
+    expect(seq("s1")).toEqual(seq("s1"));
+    expect(seq("s1")).not.toEqual(seq("s2"));
   });
 });

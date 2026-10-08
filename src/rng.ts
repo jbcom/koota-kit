@@ -129,6 +129,35 @@ export function chance(stream: RngStream, p: number): boolean {
   return nextFloat(stream) < p;
 }
 
+/**
+ * Pick one element of `items` uniformly. Valid calls consume exactly one
+ * `nextInt` draw; an empty array is rejected without consuming the stream,
+ * so a caller can never silently skip a draw it meant to make.
+ */
+export function pick<T>(stream: RngStream, items: readonly T[]): T {
+  if (items.length === 0) {
+    throw new RangeError("pick: items must not be empty.");
+  }
+  return items[nextInt(stream, 0, items.length)] as T;
+}
+
+/**
+ * Return a uniformly shuffled copy of `items` (Fisher–Yates, from the last
+ * index down). The input is never mutated. Valid calls consume exactly
+ * `items.length - 1` draws (none for zero or one element), so the draw count
+ * depends only on the length — replay stays aligned whatever the contents.
+ */
+export function shuffle<T>(stream: RngStream, items: readonly T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = nextInt(stream, 0, i + 1);
+    const swap = out[i] as T;
+    out[i] = out[j] as T;
+    out[j] = swap;
+  }
+  return out;
+}
+
 export type RngStreamSnapshot = { state: State };
 export type RngLayersSnapshot = { gen: RngStreamSnapshot; events: RngStreamSnapshot };
 

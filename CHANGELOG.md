@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/jbcom/koota-kit/compare/v0.3.1...v0.4.0) (2026-10-08)
+
+
+### Features
+
+* **rng:** pick and shuffle over a stream ([7f6d508](https://github.com/jbcom/koota-kit/commit/7f6d5087f52be429d64f1117d69d535cbb2672c8))
+* **rng:** pick and shuffle over a stream ([167eb1c](https://github.com/jbcom/koota-kit/commit/167eb1c75fdb7aa2b78f9d9d4e2533c81e0b5230))
+
 ## [0.3.1](https://github.com/jbcom/koota-kit/compare/v0.3.0...v0.3.1) (2026-10-07)
 
 

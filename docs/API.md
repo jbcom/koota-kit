@@ -174,6 +174,63 @@ const Pose = defineTrait(() => ({ position: { x: 0, y: 0 } }));
 Bare object and array fields are rejected by `SafeSchema` and by the runtime
 guard.
 
+## `schedule`
+
+Import from `koota-kit/schedule` or the root.
+
+```ts
+type System = (handle: WorldHandle, dt: number) => void;
+
+type ScheduleOptions = {
+  step: number;     // seconds per step; finite, > 0
+  maxSteps: number; // safe integer >= 1: most steps one tick may run
+  key?: string;     // scratch key for the accumulator; unique by default
+};
+
+type Schedule = {
+  readonly step: number;
+  readonly maxSteps: number;
+  readonly key: string;
+  tick(handle: WorldHandle, frameDt: number): number;
+  remainder(handle: WorldHandle): number;
+};
+
+function createSchedule(systems: readonly System[], options: ScheduleOptions): Readonly<Schedule>;
+```
+
+`createSchedule` copies `systems` and validates `step`, `maxSteps`, `key` and
+every system before returning; bad configuration throws `TypeError` or
+`RangeError` naming `createSchedule`.
+
+`tick(handle, frameDt)` adds `frameDt` to an accumulator stored in
+`handle.scratch` under `key`, then, while at least one whole `step` is owed and
+fewer than `maxSteps` have run, calls `advanceClock(handle, step)` and then
+every system in order with `dt === step`. It returns the number of steps run.
+Systems read `dt`, never the frame's dt, so the same elapsed time gives the same
+run at any frame rate, provided no single tick owes more than `maxSteps` (the
+excess is dropped, so one long frame and many short ones then differ).
+
+- A `frameDt` that is negative, `NaN` or infinite counts as `0`. `0` is a valid
+  pause: no step runs and the clock does not move, even if a failed tick left
+  whole steps owed; those wait for the next frame that moves time.
+- When `maxSteps` is reached with whole steps still owed, those steps are
+  dropped, not carried. The sub-step fraction is kept, so phase is preserved.
+- Owed time saturates at the largest finite double instead of overflowing.
+- A billionth of a step of tolerance absorbs float drift, so 432 frames of
+  1/144 s run the same 180 steps as 180 frames of 1/60 s.
+- The accumulator lives in `scratch`, so it dies with the world and two
+  handles never share one. A `key` already holding something other than a
+  schedule accumulator throws `TypeError` before the clock moves. Two schedules
+  given the same explicit `key` share one accumulator, but an explicit `key`
+  may not equal another schedule's generated key, and a generated key skips any
+  explicit one.
+- If a system throws, the step it was in is already spent (the clock moved) and
+  the steps not yet started stay owed, so a retry does not replay spent time.
+
+`remainder(handle)` returns the seconds currently owed, in `[0, step)` between
+ticks (`0` on a handle that has not ticked). `remainder / step` is the
+interpolation alpha for a renderer drawing between sim states.
+
 ## `eventLog`
 
 ```ts

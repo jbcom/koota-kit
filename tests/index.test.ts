@@ -14,6 +14,7 @@ import { describe, expect, it } from "vitest";
 import * as eventLogModule from "../src/eventLog.js";
 import * as indexModule from "../src/index.js";
 import * as rngModule from "../src/rng.js";
+import * as scheduleModule from "../src/schedule.js";
 import * as seedModule from "../src/seed.js";
 import * as traitsModule from "../src/traits/index.js";
 import * as worldModule from "../src/world.js";
@@ -56,6 +57,10 @@ describe("root barrel (src/index.ts) re-exports", () => {
 
   it("re-exports defineEventLog from eventLog.js by identity", () => {
     expect(indexModule.defineEventLog).toBe(eventLogModule.defineEventLog);
+  });
+
+  it("re-exports createSchedule from schedule.js by identity", () => {
+    expect(indexModule.createSchedule).toBe(scheduleModule.createSchedule);
   });
 
   it("re-exports defineTrait from traits/index.js by identity", () => {

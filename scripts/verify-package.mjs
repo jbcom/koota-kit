@@ -51,7 +51,7 @@ function reachedPackages(entryFile) {
   return packages;
 }
 
-const reactFree = ["index", "world", "rng", "seed", "eventLog", "traits/index"];
+const reactFree = ["index", "world", "rng", "seed", "schedule", "eventLog", "traits/index"];
 for (const entry of reactFree) {
   for (const built of [`dist/esm/${entry}.js`, `dist/cjs/${entry}.cjs`]) {
     const file = path.join(packageRoot, built);

@@ -1,7 +1,8 @@
 // koota-kit — thin koota ECS conventions layer.
 //
-// Five modules, also importable as subpaths:
+// Six modules, also importable as subpaths:
 //   ./world    — WorldHandle lifecycle (world + dual-stream rng + clock + scratch)
+//   ./schedule — fixed-step system schedule (accumulator in scratch, step cap)
 //   ./rng      — dual-layer deterministic seedrandom PRNG and named substreams
 //                with byte-exact snapshot/restore
 //   ./seed     — length-prefixed SHA-256 seed derivation and 128-bit master
@@ -53,6 +54,9 @@ export type {
 
 export { createMasterSeed, deriveSeed, isMasterSeed, MASTER_SEED_BYTES } from "./seed.js";
 export type { EntropySource, SeedPart } from "./seed.js";
+
+export { createSchedule } from "./schedule.js";
+export type { Schedule, ScheduleOptions, System } from "./schedule.js";
 
 export { defineEventLog } from "./eventLog.js";
 export type { EventLog } from "./eventLog.js";

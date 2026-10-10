@@ -1,8 +1,9 @@
 # API reference
 
-All functions and types are exported from `koota-kit`. The
-module-specific import paths shown below can reduce coupling in larger
-codebases.
+All functions and types are exported from `koota-kit`, except the React
+bindings, which are only available from `koota-kit/react` so the root entry
+never loads React. The module-specific import paths shown below can reduce
+coupling in larger codebases.
 
 ## `world`
 
@@ -192,3 +193,27 @@ Logs are created once at module scope but store their arrays in each handle's
 scratch map. `drain` truncates the live array in place so an existing internal
 reference is not orphaned. Empty reads do not create a scratch entry. `peek`
 returns a detached array; `size` does not allocate.
+
+## `react`
+
+Import from `koota-kit/react`. Requires `react` (`>=18`), an optional peer
+dependency; no other entry point imports it.
+
+```ts
+type SimWorldProviderProps = {
+  readonly handle: WorldHandle;
+  readonly children?: ReactNode;
+};
+
+const SimWorldProvider: FunctionComponent<SimWorldProviderProps>;
+function useSimWorld(): WorldHandle;
+```
+
+`SimWorldProvider` supplies `handle` to the tree below it and renders
+`koota/react`'s `WorldProvider` for `handle.world`, so `useWorld`, `useTrait`,
+`useQuery` and `useActions` work under it without a second provider.
+`useSimWorld` returns the provided handle, including its `rng`, `seeds`,
+`clock` and `scratch`, and throws an `Error` when no `SimWorldProvider` is above
+it. Passing a different `handle` re-provides every consumer. The provider does
+not create or destroy the handle: pair `createSimWorld` with `destroySimWorld`
+yourself.

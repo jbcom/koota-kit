@@ -38,6 +38,8 @@ Requirements:
   The package declares `>=22`; support follows maintained Node lines rather
   than requiring one exact patch release.
 - Koota `^0.6.6`, installed by the application as a peer dependency
+- React `>=18`, only if you import `koota-kit/react`; it is an optional peer
+  dependency, and no other entry point loads it
 
 The package ships native ESM and CommonJS entry points with format-correct
 TypeScript declarations.
@@ -154,9 +156,48 @@ and restores atomically.
 Persist a version beside the header and your ECS state so the application can
 migrate its own schema.
 
+## React
+
+`koota/react` hooks reach only the Koota `World`. `koota-kit/react` adds a
+provider for the whole `WorldHandle`, so components can also reach its RNG
+streams, seeds, clock and scratch:
+
+```tsx
+import { useQuery } from "koota/react";
+import { createSimWorld, defineTrait, nextInt } from "koota-kit";
+import { SimWorldProvider, useSimWorld } from "koota-kit/react";
+
+const Position = defineTrait({ x: 0, y: 0 });
+const handle = createSimWorld({ gen: "world-7", events: "run-7" });
+
+function Scouts() {
+  const { rng } = useSimWorld(); // the handle: rng, seeds, clock, scratch
+  const scouts = useQuery(Position); // koota/react hooks share the same provider
+  return (
+    <button type="button" onClick={() => nextInt(rng.events, 1, 7)}>
+      Roll for {scouts.length} scouts
+    </button>
+  );
+}
+
+root.render(
+  <SimWorldProvider handle={handle}>
+    <Scouts />
+  </SimWorldProvider>,
+);
+```
+
+`SimWorldProvider` renders Koota's own `WorldProvider` for `handle.world`, so
+`useTrait`, `useQuery` and `useActions` need no second provider. `useSimWorld()`
+throws outside a provider. Passing a different `handle` re-provides every
+consumer; the provider does not create or destroy the handle, so pair
+`createSimWorld` with `destroySimWorld` yourself.
+
 ## API and architecture
 
-The root package exports the full API. Focused entry points are also available:
+The root package exports the full API except the React bindings, which live
+only at `koota-kit/react` so the root never loads React. Focused entry points
+are also available:
 
 | Entry point | Purpose |
 | --- | --- |
@@ -165,6 +206,7 @@ The root package exports the full API. Focused entry points are also available:
 | `koota-kit/seed` | Seed derivation and 128-bit master seeds |
 | `koota-kit/traits` | Safe trait declaration |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
+| `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 
 See the [API reference](./docs/API.md) for signatures and validation behavior,
 and [architecture notes](./docs/ARCHITECTURE.md) for module boundaries and

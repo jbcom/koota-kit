@@ -12,7 +12,8 @@ seed ─────────────────> (leaf: built-in SHA-25
 rng ──────────────────> seedrandom + seed
 world ────────────────> koota + rng
 eventLog ─────────────> WorldHandle scratch
-index ────────────────> public re-exports only
+react ────────────────> koota/react + react + world (type only)
+index ────────────────> public re-exports only (never react)
 ```
 
 `traits` is a leaf module: it imports Koota but no sibling runtime module. This
@@ -36,6 +37,16 @@ not own application entity serialization.
 `eventLog` uses the handle's scratch map so event lifetime matches world
 lifetime. It does not use a process-global queue.
 
+`react` is the only module that imports React, through `koota/react`. It is
+reachable only from the `koota-kit/react` subpath: `index` does not re-export it,
+and `react` is an optional peer dependency, so an application that never imports
+that subpath never needs React installed. It carries the `WorldHandle` through a
+context and mounts Koota's own `WorldProvider` for `handle.world`, which keeps
+one source of truth for the world. It imports `world` for types only and owns no
+lifecycle: creating and destroying the handle stays with the application.
+`pnpm package:check` walks every other built entry's import graph and fails if
+it reaches `react` or `koota/react`.
+
 ## Invariants
 
 1. Seed values on a handle are copied and frozen at creation.
@@ -47,6 +58,7 @@ lifetime. It does not use a process-global queue.
 7. World teardown clears facade-owned scratch state and releases the Koota ID.
 8. A named substream's sequence depends only on its seed and name; creating or
    consuming another substream never shifts it.
+9. Only `koota-kit/react` imports React; every other entry stays React-free.
 
 ## Performance choices
 

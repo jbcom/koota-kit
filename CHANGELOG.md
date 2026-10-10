@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/jbcom/koota-kit/compare/v0.5.0...v0.6.0) (2026-10-10)
+
+
+### Features
+
+* **schedule:** add createSchedule, a fixed-step system schedule ([bb69bd6](https://github.com/jbcom/koota-kit/commit/bb69bd638e7a3dc6315ede827e4c58820facea3a))
+* **schedule:** add createSchedule, a fixed-step system schedule ([21f6ffb](https://github.com/jbcom/koota-kit/commit/21f6ffbb2a6f4fae819f88197d02e30f50cc98ea))
+
+
+### Bug Fixes
+
+* **schedule:** pause means no steps, and a refused step is never debited ([e2fbfad](https://github.com/jbcom/koota-kit/commit/e2fbfadb363764bc8c43232e19862223ef250ee6))
+
 ## [0.5.0](https://github.com/jbcom/koota-kit/compare/v0.4.0...v0.5.0) (2026-10-10)
 
 

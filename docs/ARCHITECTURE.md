@@ -67,7 +67,9 @@ it reaches `react` or `koota/react`.
    consuming another substream never shifts it.
 9. Only `koota-kit/react` imports React; every other entry stays React-free.
 10. A schedule's systems only ever see `dt === step`; the same elapsed time
-    delivered at any frame rate runs the same steps in the same order.
+    delivered at any frame rate runs the same steps in the same order, as long
+    as no single tick owes more than `maxSteps` (beyond that, the excess is
+    dropped by design, so a one-second frame and sixty 1/60 s frames differ).
 
 ## Performance choices
 

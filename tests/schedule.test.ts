@@ -261,10 +261,59 @@ describe("createSchedule", () => {
     expect(() => schedule.tick(h, STEP * 3)).toThrow("system failed");
     expect(runs).toBe(1);
     boom = false;
-    // The two steps that never ran are still owed.
-    expect(schedule.tick(h, 0)).toBe(2);
-    expect(runs).toBe(3);
+    // A pause does not run them; they wait for a frame that moves time.
+    expect(schedule.tick(h, 0)).toBe(0);
+    expect(runs).toBe(1);
+    // The two steps that never ran are still owed, ahead of this frame's own.
+    expect(schedule.tick(h, STEP)).toBe(3);
+    expect(runs).toBe(4);
     destroySimWorld(h);
+  });
+
+  it("does not debit a step the clock refused", () => {
+    const h = world();
+    let runs = 0;
+    const schedule = createSchedule([() => runs++], { step: STEP, maxSteps: 6 });
+
+    h.clock.tickIndex = Number.MAX_SAFE_INTEGER;
+    expect(() => schedule.tick(h, STEP * 2)).toThrow(RangeError);
+    expect(runs).toBe(0);
+    expect(schedule.remainder(h)).toBeCloseTo(STEP * 2, 12);
+    destroySimWorld(h);
+  });
+
+  it("saturates instead of overflowing the accumulator on huge finite frames", () => {
+    const h = world();
+    const schedule = createSchedule([() => {}], { step: 1e308, maxSteps: 1 });
+
+    schedule.tick(h, 1.7e308);
+    h.clock.simSeconds = 0; // the clock has its own range; keep it out of this test
+    expect(() => schedule.tick(h, 1.7e308)).not.toThrow();
+    expect(Number.isFinite(schedule.remainder(h))).toBe(true);
+    h.clock.simSeconds = 0;
+    expect(() => schedule.tick(h, 1)).not.toThrow();
+    destroySimWorld(h);
+  });
+
+  it("never gives a default-keyed schedule a key a caller already named", () => {
+    const h = world();
+    // Name the key the NEXT default schedule would have been given.
+    const probe = createSchedule([() => {}], { step: STEP, maxSteps: 6 });
+    const next = `schedule:${Number(probe.key.split(":")[1]) + 1}`;
+    const named = createSchedule([() => {}], { step: STEP, maxSteps: 6, key: next });
+    const other = createSchedule([() => {}], { step: STEP, maxSteps: 6 });
+
+    expect(other.key).not.toBe(named.key);
+    named.tick(h, STEP / 2);
+    expect(other.remainder(h)).toBe(0);
+    destroySimWorld(h);
+  });
+
+  it("refuses an explicit key that is another schedule's generated key", () => {
+    const generated = createSchedule([() => {}], { step: STEP, maxSteps: 6 });
+    expect(() =>
+      createSchedule([() => {}], { step: STEP, maxSteps: 6, key: generated.key }),
+    ).toThrow(TypeError);
   });
 
   it("snapshots its systems: later mutation of the array changes nothing", () => {

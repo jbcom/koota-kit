@@ -207,18 +207,23 @@ every system before returning; bad configuration throws `TypeError` or
 fewer than `maxSteps` have run, calls `advanceClock(handle, step)` and then
 every system in order with `dt === step`. It returns the number of steps run.
 Systems read `dt`, never the frame's dt, so the same elapsed time gives the same
-run at any frame rate.
+run at any frame rate, provided no single tick owes more than `maxSteps` (the
+excess is dropped, so one long frame and many short ones then differ).
 
 - A `frameDt` that is negative, `NaN` or infinite counts as `0`. `0` is a valid
-  pause: no step runs and the clock does not move.
+  pause: no step runs and the clock does not move, even if a failed tick left
+  whole steps owed; those wait for the next frame that moves time.
 - When `maxSteps` is reached with whole steps still owed, those steps are
   dropped, not carried. The sub-step fraction is kept, so phase is preserved.
+- Owed time saturates at the largest finite double instead of overflowing.
 - A billionth of a step of tolerance absorbs float drift, so 432 frames of
   1/144 s run the same 180 steps as 180 frames of 1/60 s.
 - The accumulator lives in `scratch`, so it dies with the world and two
   handles never share one. A `key` already holding something other than a
   schedule accumulator throws `TypeError` before the clock moves. Two schedules
-  given the same explicit `key` share one accumulator.
+  given the same explicit `key` share one accumulator, but an explicit `key`
+  may not equal another schedule's generated key, and a generated key skips any
+  explicit one.
 - If a system throws, the step it was in is already spent (the clock moved) and
   the steps not yet started stay owed, so a retry does not replay spent time.
 

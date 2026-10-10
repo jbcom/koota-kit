@@ -73,6 +73,11 @@ export type Schedule = {
 };
 
 let nextScheduleId = 0;
+// Keys are process-wide because schedules are declared once at module scope and
+// used on many handles. An explicit key may be shared on purpose; a generated
+// one must stay private to its schedule.
+const claimedKeys = new Set<string>();
+const generatedKeys = new Set<string>();
 
 // Float accumulation: 432 frames of 1/144 add up to a hair under 3 s, and
 // without a tolerance the sim would owe — and run — one step fewer than the
@@ -121,7 +126,22 @@ export function createSchedule(
       throw new TypeError("createSchedule: every system must be a function.");
     }
   }
-  const key = options.key ?? `schedule:${nextScheduleId++}`;
+  let key: string;
+  if (options.key === undefined) {
+    // Skip any key a caller has already named, so a default never lands on one.
+    do {
+      key = `schedule:${nextScheduleId++}`;
+    } while (claimedKeys.has(key));
+    generatedKeys.add(key);
+  } else {
+    if (generatedKeys.has(options.key)) {
+      throw new TypeError(
+        `createSchedule: key "${options.key}" is already the generated key of another schedule.`,
+      );
+    }
+    key = options.key;
+  }
+  claimedKeys.add(key);
   const tolerance = step * STEP_TOLERANCE;
 
   function read(handle: WorldHandle): number {
@@ -136,15 +156,23 @@ export function createSchedule(
   }
 
   function tick(handle: WorldHandle, frameDt: number): number {
-    let owed = read(handle) + (Number.isFinite(frameDt) && frameDt > 0 ? frameDt : 0);
+    const previous = read(handle);
+    // A pause (and any frame dt that counts as 0) runs nothing, even if a
+    // failed tick left whole steps owed: those wait for a frame that moves time.
+    if (!(Number.isFinite(frameDt) && frameDt > 0)) return 0;
+    const sum = previous + frameDt;
+    // Two huge finite frames can sum past the double range; saturate instead of
+    // letting Infinity poison the stored accumulator.
+    let owed = Number.isFinite(sum) ? sum : Number.MAX_VALUE;
     let ran = 0;
     try {
       while (owed + tolerance >= step && ran < maxSteps) {
-        // Spend the step before running it: if a system throws, this step's
-        // time is gone with the clock tick it already caused.
+        // The clock moves first, so a step it refuses (an exhausted clock) is
+        // never debited. After that the step is spent before any system runs:
+        // if one throws, this step's time is gone with the tick it caused.
+        advanceClock(handle, step);
         owed = Math.max(0, owed - step);
         ran++;
-        advanceClock(handle, step);
         for (const system of ordered) system(handle, step);
       }
       if (owed + tolerance >= step) {

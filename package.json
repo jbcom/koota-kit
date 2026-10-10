@@ -63,6 +63,16 @@
         "default": "./dist/cjs/traits/index.cjs"
       }
     },
+    "./schedule": {
+      "import": {
+        "types": "./dist/esm/schedule.d.ts",
+        "default": "./dist/esm/schedule.js"
+      },
+      "require": {
+        "types": "./dist/cjs/schedule.d.cts",
+        "default": "./dist/cjs/schedule.cjs"
+      }
+    },
     "./eventLog": {
       "import": {
         "types": "./dist/esm/eventLog.d.ts",
@@ -187,6 +197,9 @@
       ],
       "traits": [
         "./dist/esm/traits/index.d.ts"
+      ],
+      "schedule": [
+        "./dist/esm/schedule.d.ts"
       ],
       "eventLog": [
         "./dist/esm/eventLog.d.ts"

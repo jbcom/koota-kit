@@ -137,6 +137,26 @@ defineTrait({ storage: { logs: 0 } });         // TypeError: shared object footg
 Declare traits once in a leaf module and export each trait from one location.
 Koota identifies traits by reference, not by a string name.
 
+### A fixed-step schedule removes the frame rate from the sim
+
+`createSchedule(systems, { step, maxSteps })` returns a `tick(handle, frameDt)`
+for your frame loop. The frame's dt fills an accumulator kept in `handle.scratch`
+(so it dies with the run); each whole `step` advances the clock, then calls every
+system in order with `dt === step`. At most `maxSteps` run per tick and any
+excess is dropped, so one huge dt after a backgrounded tab cannot cause a
+catch-up storm. `tick(handle, 0)` is a valid pause and returns the steps run.
+
+```ts
+import { createSchedule } from "koota-kit";
+
+const schedule = createSchedule([stove, mixer, serving], { step: 1 / 60, maxSteps: 6 });
+// once per rendered frame:
+const steps = schedule.tick(sim, frameDt);
+```
+
+Sixty frames of 1/60 s and thirty of 1/30 s run the same sixty steps.
+`schedule.remainder(sim) / schedule.step` is the interpolation alpha.
+
 ### Event logs have one consuming owner
 
 `push` appends, `drain` returns every pending event and empties the log, and
@@ -205,6 +225,7 @@ are also available:
 | `koota-kit/rng` | Seeded streams, named substreams, bounded draws, snapshots |
 | `koota-kit/seed` | Seed derivation and 128-bit master seeds |
 | `koota-kit/traits` | Safe trait declaration |
+| `koota-kit/schedule` | Fixed-step system schedule with a step cap |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
 | `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 
@@ -224,6 +245,8 @@ For task-oriented usage, read the Sourcey guides on
 - `createMasterSeed` throws when no entropy source exists or the source leaves
   the buffer all zero.
 - `advanceClock` accepts finite, non-negative `dt`; `0` is a valid paused tick.
+- `createSchedule` needs a finite `step > 0` and a safe-integer `maxSteps >= 1`;
+  a negative, `NaN` or infinite `frameDt` counts as `0`.
 - `nextInt` requires safe-integer bounds with `maxExclusive > minInclusive` and
   a range no larger than `2**32`.
 - `chance` accepts only finite probabilities in `[0, 1]`.

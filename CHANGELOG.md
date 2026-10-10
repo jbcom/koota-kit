@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/jbcom/koota-kit/compare/v0.4.0...v0.5.0) (2026-10-10)
+
+
+### Features
+
+* **react:** add koota-kit/react with SimWorldProvider and useSimWorld ([3a9aeee](https://github.com/jbcom/koota-kit/commit/3a9aeee17d67af90bb8be925fd123bfba32f2968))
+* **react:** add koota-kit/react with SimWorldProvider and useSimWorld ([74a5f1c](https://github.com/jbcom/koota-kit/commit/74a5f1c683246797dfa60010375a3a4f6333d37c))
+
 ## [0.4.0](https://github.com/jbcom/koota-kit/compare/v0.3.1...v0.4.0) (2026-10-08)
 
 

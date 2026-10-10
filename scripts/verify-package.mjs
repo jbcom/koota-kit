@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -25,6 +25,51 @@ const npmEnvironment = {
   ),
   SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1",
 };
+
+// `react` is an OPTIONAL peer dependency used only by `koota-kit/react`. Walk
+// each built entry's relative-import graph and collect the bare specifiers it
+// reaches, so a stray React import in any other module fails the package check
+// instead of surfacing as a missing-peer crash in a consumer that never opted
+// in to React.
+function reachedPackages(entryFile) {
+  const seen = new Set();
+  const packages = new Set();
+  const visit = (file) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    const source = readFileSync(file, "utf8");
+    const specifiers = [
+      ...source.matchAll(/\b(?:from\s*|import\s*\(\s*|require\(\s*)["']([^"']+)["']/g),
+      ...source.matchAll(/^import\s+["']([^"']+)["']/gm),
+    ].map((match) => match[1]);
+    for (const specifier of specifiers) {
+      if (specifier.startsWith(".")) visit(path.resolve(path.dirname(file), specifier));
+      else packages.add(specifier);
+    }
+  };
+  visit(entryFile);
+  return packages;
+}
+
+const reactFree = ["index", "world", "rng", "seed", "eventLog", "traits/index"];
+for (const entry of reactFree) {
+  for (const built of [`dist/esm/${entry}.js`, `dist/cjs/${entry}.cjs`]) {
+    const file = path.join(packageRoot, built);
+    assert(existsSync(file), `${built} is missing`);
+    const reached = [...reachedPackages(file)].filter(
+      (name) => name === "react" || name.startsWith("react/") || name.startsWith("react-dom"),
+    );
+    assert.deepEqual(reached, [], `${built} must not reach React (found ${reached.join(", ")})`);
+    assert(
+      ![...reachedPackages(file)].includes("koota/react"),
+      `${built} must not reach koota/react`,
+    );
+  }
+}
+assert(
+  reachedPackages(path.join(packageRoot, "dist/esm/react.js")).has("react"),
+  "dist/esm/react.js no longer imports react — the React-free check above is vacuous",
+);
 
 const consumerRoot = mkdtempSync(path.join(tmpdir(), "koota-kit-package-"));
 
@@ -67,6 +112,10 @@ try {
     "dist/esm/index.d.ts",
     "dist/cjs/index.cjs",
     "dist/cjs/index.d.cts",
+    "dist/esm/react.js",
+    "dist/esm/react.d.ts",
+    "dist/cjs/react.cjs",
+    "dist/cjs/react.d.cts",
   ]) {
     assert(packedPaths.has(required), `packed artifact is missing ${required}`);
   }
@@ -167,6 +216,51 @@ try {
     { cwd: consumerRoot, encoding: "utf8" },
   );
   assert.equal(esmInstalledDraw, cjsInstalledDraw, "installed ESM and CommonJS draws differ");
+
+  // The React entry only works once the consumer opts in by installing React.
+  // Install it now and render a provider through each module format.
+  execFileSync(npm, ["install", "--no-audit", "--no-fund", "react", "react-dom"], {
+    cwd: consumerRoot,
+    env: npmEnvironment,
+    shell: npmNeedsShell,
+    stdio: "pipe",
+  });
+  const reactProbe =
+    "const { createSimWorld, destroySimWorld } = %ROOT%; " +
+    "const { SimWorldProvider, useSimWorld } = %REACT%; " +
+    "const { createElement } = %REACT_LIB%; " +
+    "const { renderToStaticMarkup } = %SERVER%; " +
+    "const handle = createSimWorld({ gen: 'g', events: 'e' }); " +
+    "const Probe = () => createElement('i', null, String(useSimWorld() === handle)); " +
+    "process.stdout.write(renderToStaticMarkup(" +
+    "createElement(SimWorldProvider, { handle }, createElement(Probe)))); " +
+    "destroySimWorld(handle);";
+  const esmReactProbe = reactProbe
+    .replace("%ROOT%", "await import('koota-kit')")
+    .replace("%REACT%", "await import('koota-kit/react')")
+    .replace("%REACT_LIB%", "await import('react')")
+    .replace("%SERVER%", "await import('react-dom/server')");
+  const cjsReactProbe = reactProbe
+    .replace("%ROOT%", "require('koota-kit')")
+    .replace("%REACT%", "require('koota-kit/react')")
+    .replace("%REACT_LIB%", "require('react')")
+    .replace("%SERVER%", "require('react-dom/server')");
+  assert.equal(
+    execFileSync(process.execPath, ["--input-type=module", "--eval", esmReactProbe], {
+      cwd: consumerRoot,
+      encoding: "utf8",
+    }),
+    "<i>true</i>",
+    "installed ESM koota-kit/react did not provide the handle",
+  );
+  assert.equal(
+    execFileSync(process.execPath, ["--input-type=commonjs", "--eval", cjsReactProbe], {
+      cwd: consumerRoot,
+      encoding: "utf8",
+    }),
+    "<i>true</i>",
+    "installed CommonJS koota-kit/react did not provide the handle",
+  );
 
   console.log(
     `koota-kit: installed ${pack.entryCount} intentional files; ESM and CommonJS APIs agree`,

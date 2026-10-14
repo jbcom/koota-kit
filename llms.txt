@@ -22,6 +22,9 @@
   header-only save boundary and atomic restore contract.
 - [Event-log guide](https://jonbogaty.com/koota-kit/event-logs/): single-owner
   consumption, non-consuming observation, and scratch-key ownership.
+- [Coordination API](https://github.com/jbcom/koota-kit/blob/main/docs/API.md):
+  borrowed-World registration, completed metadata publication, and narrow
+  ownership-safe disposal.
 - [AGENTS.md](https://github.com/jbcom/koota-kit/blob/main/AGENTS.md):
   toolchain, invariants not to violate, and doc/test sync obligations for
   an autonomous coding agent working in this repository.

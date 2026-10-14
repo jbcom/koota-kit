@@ -25,6 +25,7 @@ Full documentation: **[jonbogaty.com/koota-kit](https://jonbogaty.com/koota-kit/
 | Object state leaks between entities | `defineTrait` requires per-entity factories |
 | A HUD or test consumes an event before its real system sees it | Single-consumer `drain`, non-consuming `peek` |
 | Replaced worlds retain caches or process-global Koota IDs | `createSimWorld` / idempotent `destroySimWorld` lifecycle |
+| Two producers publish half-updated model facts | `koota-kit/coordination` commits an immutable completed metadata projection |
 
 ## Install
 
@@ -99,6 +100,41 @@ scratch map and releases Koota's world ID; it is safe to call more than once.
 The scratch map is for derived, non-serializable caches and short-lived
 coordination state. Namespace keys by system, for example `pathfinding:grid`
 or `combat:hits`.
+
+### Coordinate existing model entities without another World
+
+`koota-kit/coordination` binds to a caller-owned raw Koota `World`; it does
+not create, reset, or destroy one. Register existing entities with stable
+caller-authored IDs and capability labels, then publish completed producer
+revisions as a batch. The snapshot is immutable, ordered by ID, and changes
+only after the complete batch validates.
+
+```ts
+import { bindCoordination } from "koota-kit/coordination";
+
+const coordination = bindCoordination(sim.world);
+const ava = sim.world.spawn(Position({ x: 4, y: 9 }));
+const token = coordination.register(ava, {
+  id: "figure:ava",
+  capabilities: ["presence", "geometry"],
+});
+
+coordination.publish(token, {
+  revisions: { geometry: 12, pose: 8, transform: 31 },
+});
+
+const completed = coordination.getSnapshot();
+coordination.dispose(); // removes only koota-kit's coordination traits
+```
+
+The three producer revisions are independent values; a coordination snapshot
+revision only identifies a committed observer view. This entry does not copy
+or freeze provider buffers, choose a geometry backend, evaluate a pose, or
+answer spatial queries. Those facts belong to later producer/query adapters.
+Call `prune()` after an entity is removed externally before reusing its stable
+ID. Listener errors occur after a committed publication; retrieve a token with
+`getRegistration(id)` if registration notification threw before `register`
+could return it.
 
 ### Randomness has two jobs
 

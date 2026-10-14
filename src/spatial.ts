@@ -558,6 +558,8 @@ export function queryPointClearance(
         !Number.isFinite(distance) ||
         distance < 0 ||
         distance > query.searchDistance ||
+        !Number.isFinite(actualDistance) ||
+        actualDistance > query.searchDistance ||
         !sameDistance(distance, actualDistance) ||
         !pointIsInside(witnessPoint, candidate.record.topology[topology].bounds)
       )

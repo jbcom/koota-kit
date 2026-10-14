@@ -485,4 +485,57 @@ describe("queryPointClearance", () => {
       ),
     ).toMatchObject({ status: "unsupported", reason: "provider-contract-invalid" });
   });
+
+  it("rejects a finite witness whose computed common-metric distance exceeds the search bound", () => {
+    const current = record("body");
+    const witness = (point: { x: number; y: number; z: number }, distance: number) => ({
+      nearest: ({
+        record,
+        topology,
+      }: {
+        record: SpatialPartRecord;
+        topology: "full" | "visible";
+      }) => ({
+        kind: "nearest" as const,
+        witness: {
+          triangleId: "body:1",
+          point,
+          distance,
+          frame,
+          consumed: {
+            identity: record.identity,
+            frame: record.frame,
+            topology: { selection: topology, id: record.topology[topology].id },
+            revisions: record.revisions,
+          },
+        },
+      }),
+    });
+    expect(
+      queryPointClearance(provider(current), witness({ x: 0.75, y: 0, z: 0 }, 0.75), {
+        ...baseQuery(),
+        searchDistance: 0.5,
+      }),
+    ).toMatchObject({ status: "unsupported", reason: "provider-contract-invalid" });
+    const huge = record("huge", {
+      topology: {
+        full: {
+          id: "huge:full",
+          bounds: {
+            min: { x: -Number.MAX_VALUE, y: -Number.MAX_VALUE, z: -Number.MAX_VALUE },
+            max: { x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: Number.MAX_VALUE },
+          },
+          enclosesSurface: true,
+        },
+        visible: record("huge").topology.visible,
+      },
+    });
+    expect(
+      queryPointClearance(
+        provider(huge),
+        witness({ x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 }, 2),
+        { ...baseQuery(), searchDistance: 0.5 },
+      ),
+    ).toMatchObject({ status: "unsupported", reason: "provider-contract-invalid" });
+  });
 });

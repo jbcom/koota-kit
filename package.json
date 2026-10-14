@@ -83,14 +83,14 @@
         "default": "./dist/cjs/eventLog.cjs"
       }
     },
-    "./coordination": {
+    "./spatial": {
       "import": {
-        "types": "./dist/esm/coordination.d.ts",
-        "default": "./dist/esm/coordination.js"
+        "types": "./dist/esm/spatial.d.ts",
+        "default": "./dist/esm/spatial.js"
       },
       "require": {
-        "types": "./dist/cjs/coordination.d.cts",
-        "default": "./dist/cjs/coordination.cjs"
+        "types": "./dist/cjs/spatial.d.cts",
+        "default": "./dist/cjs/spatial.cjs"
       }
     },
     "./react": {
@@ -103,7 +103,17 @@
         "default": "./dist/cjs/react.cjs"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./coordination": {
+      "import": {
+        "types": "./dist/esm/coordination.d.ts",
+        "default": "./dist/esm/coordination.js"
+      },
+      "require": {
+        "types": "./dist/cjs/coordination.d.cts",
+        "default": "./dist/cjs/coordination.cjs"
+      }
+    }
   },
   "files": [
     "CHANGELOG.md",
@@ -215,14 +225,17 @@
       "eventLog": [
         "./dist/esm/eventLog.d.ts"
       ],
-      "coordination": [
-        "./dist/esm/coordination.d.ts"
+      "spatial": [
+        "./dist/esm/spatial.d.ts"
       ],
       "react": [
         "./dist/esm/react.d.ts"
       ],
       "*": [
         "./dist/esm/index.d.ts"
+      ],
+      "coordination": [
+        "./dist/esm/coordination.d.ts"
       ]
     }
   },

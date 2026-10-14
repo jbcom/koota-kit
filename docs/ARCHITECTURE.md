@@ -13,6 +13,7 @@ rng ──────────────────> seedrandom + seed
 world ────────────────> koota + rng
 schedule ─────────────> world (advanceClock) + WorldHandle scratch
 eventLog ─────────────> WorldHandle scratch
+spatial ──────────────> (leaf: caller-provided provider + exact oracle)
 coordination ─────────> koota (borrowed World, no sibling runtime dependency)
 react ────────────────> koota/react + react + world (type only)
 index ────────────────> public re-exports only (never react)
@@ -45,6 +46,20 @@ than carrying it, so one huge dt cannot cause a catch-up storm.
 `eventLog` uses the handle's scratch map so event lifetime matches world
 lifetime. It does not use a process-global queue.
 
+`spatial` is a renderer-neutral leaf entry. Providers publish immutable,
+completed records with caller-owned source/instance/part/registration identity,
+common frame/unit, separate geometry/topology/pose/transform revisions, full
+and visible topology identities, and certified enclosing AABBs. The module
+sorts records deterministically, does only conservative AABB filtering, and
+delegates exact nearest-surface work to an injected oracle. It retains neither
+provider records nor buffers, so producer-owned buffers cannot be aliased by a
+core cache. Full topology is the default; a visible selection is explicit.
+Sparse provider slots and capability lists fail closed; copied query thresholds stay fixed through
+callbacks. Foreign-frame peers remain unresolved while compatible candidates
+are evaluated, preserving exact violation precedence. Satisfaction involving
+any AABB-only evidence remains conservative.
+Point clearance establishes distance to open surfaces only. It deliberately
+does not infer solid containment or nonpenetration from triangle proximity.
 `coordination` accepts an existing raw Koota `World` and attaches only its
 own ownership and registration traits. Its immutable snapshot is a completed
 metadata projection, not a second World or ECS serializer. The World retains
@@ -90,9 +105,12 @@ it reaches `react` or `koota/react`.
     delivered at any frame rate runs the same steps in the same order, as long
     as no single tick owes more than `maxSteps` (beyond that, the excess is
     dropped by design, so a one-second frame and sixty 1/60 s frames differ).
-11. A coordination snapshot publishes only fully validated completed metadata;
+11. Spatial query results are stamped with the provider's full identity,
+    selected topology, frame/unit, and independent completed revisions. A
+    mismatched expected or oracle-consumed tuple is stale, never exact.
+12. A coordination snapshot publishes only fully validated completed metadata;
     failed batch preparation leaves the prior projection visible.
-12. Coordination disposal never destroys or resets a caller-owned World,
+13. Coordination disposal never destroys or resets a caller-owned World,
     entity, caller trait, provider, or geometry buffer.
 
 ## Performance choices
@@ -102,6 +120,10 @@ it reaches `react` or `koota/react`.
   through JSON.
 - Event logs allocate on first push, leave scratch untouched for empty reads,
   truncate in place on drain, and expose a non-allocating `size` operation.
+- Spatial expected stamps use a per-query map keyed by the complete encoded
+  identity tuple. Matching all expectations takes linear lookup work after
+  preparing the snapshot, before any exclusions; no map is retained between
+  queries. Queries without expected stamps do not allocate this map.
 - Coordination snapshots are rebuilt only after a completed registration,
   publication, removal, or explicit prune. Equal completed revisions retain
   the prior snapshot identity and do not notify subscribers.

@@ -620,6 +620,93 @@ describe("queryPointClearance", () => {
     ).toMatchObject({ status: "unsupported", reason: "provider-contract-invalid" });
   });
 
+  it("fails closed on sparse provider snapshots and rejects sparse caller lists", () => {
+    const sparse = new Array<SpatialPartRecord>(1);
+    for (const snapshot of [sparse, [record("body"), ...sparse]]) {
+      expect(
+        queryPointClearance({ snapshot: () => snapshot }, oracle(0.1), baseQuery()),
+      ).toMatchObject({
+        status: "unsupported",
+        reason: "provider-contract-invalid",
+      });
+    }
+    sparse[1] = record("body");
+    expect(queryPointClearance({ snapshot: () => sparse }, oracle(0.1), baseQuery())).toMatchObject(
+      {
+        status: "unsupported",
+        reason: "provider-contract-invalid",
+      },
+    );
+    expect(() =>
+      queryPointClearance(provider(), oracle(0.1), {
+        ...baseQuery(),
+        exclusions: new Array(1),
+      }),
+    ).toThrow(TypeError);
+    expect(() =>
+      queryPointClearance(provider(), oracle(0.1), {
+        ...baseQuery(),
+        expected: new Array(1),
+      }),
+    ).toThrow(TypeError);
+  });
+
+  it("labels satisfaction using both exact oracle and AABB evidence conservative", () => {
+    const near = record("near");
+    const far = record("far", {
+      topology: { full: near.topology.visible, visible: near.topology.visible },
+    });
+    const calls: string[] = [];
+    expect(queryPointClearance(provider(far, near), oracle(0.5, calls), baseQuery())).toMatchObject(
+      {
+        status: "satisfied",
+        exactness: "conservative",
+      },
+    );
+    expect(calls).toEqual(["near:full"]);
+  });
+
+  it("snapshots distance thresholds before provider and oracle callbacks", () => {
+    for (const phase of ["provider", "oracle"]) {
+      const query = { ...baseQuery() };
+      const mutate = () => {
+        query.minimumDistance = 0;
+        query.searchDistance = 0;
+      };
+      const close = oracle(0.25);
+      const maximumDistances: number[] = [];
+      expect(
+        queryPointClearance(
+          {
+            snapshot: () => {
+              if (phase === "provider") mutate();
+              return [record("body")];
+            },
+          },
+          {
+            nearest: (request) => {
+              maximumDistances.push(request.maximumDistance);
+              if (phase === "oracle") mutate();
+              return close.nearest(request);
+            },
+          },
+          query,
+        ),
+      ).toMatchObject({ status: "violated", exactness: "exact" });
+      expect(maximumDistances).toEqual([2]);
+    }
+  });
+
+  it("preserves exact violations across foreign-frame peers in any provider order", () => {
+    const foreign = record("a", { frame: { ...frame, unit: "foot" } });
+    const compatible = record("z");
+    const forward = queryPointClearance(provider(foreign, compatible), oracle(0.25), baseQuery());
+    const reverse = queryPointClearance(provider(compatible, foreign), oracle(0.25), baseQuery());
+    expect(forward).toEqual(reverse);
+    expect(forward).toMatchObject({ status: "violated", exactness: "exact" });
+    expect(forward.witnesses[0]?.triangleId).toBe("z:7");
+  });
+
   it("returns the computed metric distance when an accepted oracle tolerance crosses clearance", () => {
     const actualDistance = 0.5 - 5e-10;
     const roundedOracle: SpatialNearestSurfaceOracle = {

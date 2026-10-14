@@ -395,9 +395,11 @@ export function queryPointClearance(
     throw new TypeError("spatial: query must be an object.");
   const point = finitePoint(query.point, "query.point");
   const frame = copyFrame(query.frame, "query.frame");
-  if (!Number.isFinite(query.minimumDistance) || query.minimumDistance < 0)
+  const minimumDistance = query.minimumDistance;
+  const searchDistance = query.searchDistance;
+  if (!Number.isFinite(minimumDistance) || minimumDistance < 0)
     throw new RangeError("spatial: query.minimumDistance must be finite and non-negative.");
-  if (!Number.isFinite(query.searchDistance) || query.searchDistance < query.minimumDistance)
+  if (!Number.isFinite(searchDistance) || searchDistance < minimumDistance)
     throw new RangeError(
       "spatial: query.searchDistance must be finite and at least minimumDistance.",
     );
@@ -408,13 +410,13 @@ export function queryPointClearance(
     throw new TypeError("spatial: query.exclusions must be an array.");
   if (query.expected !== undefined && !Array.isArray(query.expected))
     throw new TypeError("spatial: query.expected must be an array.");
-  const exclusions = (query.exclusions ?? [])
-    .map((value, index) => copyIdentity(value, `query.exclusions[${index}]`))
-    .sort(compareIdentity);
+  const exclusions = Array.from(query.exclusions ?? [], (value, index) =>
+    copyIdentity(value, `query.exclusions[${index}]`),
+  ).sort(compareIdentity);
   const exclusionKeys = new Set(exclusions.map(identityKey));
   if (exclusionKeys.size !== exclusions.length)
     throw new TypeError("spatial: query.exclusions must not contain duplicates.");
-  const expected = (query.expected ?? []).map((value, index) =>
+  const expected = Array.from(query.expected ?? [], (value, index) =>
     copyStamp(value, `query.expected[${index}]`),
   );
   const expectedKeys = new Set(expected.map((stamp) => identityKey(stamp.identity)));
@@ -426,7 +428,9 @@ export function queryPointClearance(
     throw new TypeError("spatial: provider.snapshot() must return an array.");
   let records: SpatialPartRecord[];
   try {
-    records = snapshot.map((record, index) => copyRecord(record, `provider.snapshot()[${index}]`));
+    records = Array.from(snapshot, (record, index) =>
+      copyRecord(record, `provider.snapshot()[${index}]`),
+    );
   } catch {
     return result("unsupported", "provider-contract-invalid", "none", topology, [], exclusions, []);
   }
@@ -452,18 +456,16 @@ export function queryPointClearance(
   const selected = records.filter((record) => !exclusionKeys.has(identityKey(record.identity)));
   const stamps = selected.map((record) => makeStamp(record, topology));
 
+  let unresolved:
+    | "nearest-surface-unsupported"
+    | "provider-contract-invalid"
+    | "oracle-unknown"
+    | undefined;
   const prepared: PreparedRecord[] = [];
   for (const record of selected) {
     if (!sameFrame(record.frame, frame)) {
-      return result(
-        "unsupported",
-        "provider-contract-invalid",
-        "none",
-        topology,
-        stamps,
-        exclusions,
-        [],
-      );
+      unresolved = "provider-contract-invalid";
+      continue;
     }
     const stamp = makeStamp(record, topology);
     prepared.push(
@@ -474,26 +476,9 @@ export function queryPointClearance(
       }),
     );
   }
-  const candidates = prepared.filter(
-    ({ boundsDistance }) => boundsDistance < query.minimumDistance,
-  );
-  if (candidates.length === 0)
-    return result(
-      "satisfied",
-      "clearance-satisfied",
-      "conservative",
-      topology,
-      stamps,
-      exclusions,
-      [],
-    );
+  const candidates = prepared.filter(({ boundsDistance }) => boundsDistance < minimumDistance);
 
   const witnesses: SpatialNearestWitness[] = [];
-  let unresolved:
-    | "nearest-surface-unsupported"
-    | "provider-contract-invalid"
-    | "oracle-unknown"
-    | undefined;
   for (const candidate of candidates) {
     if (!candidate.record.capabilities.includes("nearest-surface")) {
       if (unresolved !== "provider-contract-invalid") unresolved = "nearest-surface-unsupported";
@@ -504,7 +489,7 @@ export function queryPointClearance(
         record: candidate.record,
         topology,
         point,
-        maximumDistance: query.searchDistance,
+        maximumDistance: searchDistance,
       }),
     );
     if (reply === undefined) {
@@ -547,9 +532,9 @@ export function queryPointClearance(
       if (
         !Number.isFinite(distance) ||
         distance < 0 ||
-        distance > query.searchDistance ||
+        distance > searchDistance ||
         !Number.isFinite(actualDistance) ||
-        actualDistance > query.searchDistance ||
+        actualDistance > searchDistance ||
         !sameDistance(distance, actualDistance) ||
         !pointIsInside(witnessPoint, candidate.record.topology[topology].bounds)
       )
@@ -569,7 +554,7 @@ export function queryPointClearance(
     }
     witnesses.push(witness);
   }
-  const violation = witnesses.find((witness) => witness.distance < query.minimumDistance);
+  const violation = witnesses.find((witness) => witness.distance < minimumDistance);
   if (violation)
     return result(
       "violated",
@@ -605,7 +590,7 @@ export function queryPointClearance(
   return result(
     "satisfied",
     "clearance-satisfied",
-    "exact",
+    candidates.length > 0 && candidates.length === selected.length ? "exact" : "conservative",
     topology,
     stamps,
     exclusions,

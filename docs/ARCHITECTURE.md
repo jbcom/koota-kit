@@ -54,6 +54,10 @@ sorts records deterministically, does only conservative AABB filtering, and
 delegates exact nearest-surface work to an injected oracle. It retains neither
 provider records nor buffers, so producer-owned buffers cannot be aliased by a
 core cache. Full topology is the default; a visible selection is explicit.
+Sparse provider slots fail closed; copied query thresholds stay fixed through
+callbacks. Foreign-frame peers remain unresolved while compatible candidates
+are evaluated, preserving exact violation precedence. Satisfaction involving
+any AABB-only evidence remains conservative.
 Point clearance establishes distance to open surfaces only. It deliberately
 does not infer solid containment or nonpenetration from triangle proximity.
 `coordination` accepts an existing raw Koota `World` and attaches only its

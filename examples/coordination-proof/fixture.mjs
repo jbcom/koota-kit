@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 
+import { assertMesh, sourceFaceIds } from "./mesh-input.mjs";
+export { assertMesh, sourceFaceIds } from "./mesh-input.mjs";
+
 const types = {
   Float32Array: [Float32Array, 4, "getFloat32"],
   Uint32Array: [Uint32Array, 4, "getUint32"],
@@ -31,34 +34,6 @@ export function decodeArray(bytes, descriptor) {
     if (!Number.isFinite(array[index])) throw new Error("fixture: nonfinite array value");
   }
   return array;
-}
-
-export function assertMesh(positions, indices, vertexCount) {
-  if (positions.length !== vertexCount * 3 || indices.length % 3 !== 0) {
-    throw new Error("fixture: malformed mesh layout");
-  }
-  for (const index of indices) {
-    if (!Number.isInteger(index) || index < 0 || index >= vertexCount) {
-      throw new Error("fixture: index out of range");
-    }
-  }
-}
-
-/** Preserve authored full-source face ordinals even for render-visible selection. */
-export function sourceFaceIds(full, visible) {
-  const faces = new Map();
-  for (let offset = 0; offset < full.length; offset += 3) {
-    const key = `${full[offset]},${full[offset + 1]},${full[offset + 2]}`;
-    if (faces.has(key)) throw new Error("fixture: duplicate full source face");
-    faces.set(key, offset / 3);
-  }
-  const selected = new Uint32Array(visible.length / 3);
-  for (let offset = 0; offset < visible.length; offset += 3) {
-    const id = faces.get(`${visible[offset]},${visible[offset + 1]},${visible[offset + 2]}`);
-    if (id === undefined) throw new Error("fixture: visible face absent from full source");
-    selected[offset / 3] = id;
-  }
-  return selected;
 }
 
 /** Fixture transport only: this does not evaluate poses or claim a live HK adapter. */

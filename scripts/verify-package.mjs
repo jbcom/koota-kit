@@ -257,6 +257,12 @@ try {
     readFileSync(path.join(packageRoot, "scripts/coordination-realm-check.mjs")),
   );
   const realmFailures = [];
+  // Node 22.0 introduced synchronous ESM require behind this flag. Only the
+  // fresh callback fixtures need it to load the opposite peer synchronously;
+  // the library itself supports either ordinary import or require unchanged.
+  const realmNodeArguments = process.versions.node.startsWith("22.")
+    ? ["--experimental-require-module"]
+    : [];
   for (const format of ["esm", "cjs"]) {
     for (const scenario of [
       "single",
@@ -278,7 +284,7 @@ try {
       "metadata-noop",
     ]) {
       try {
-        execFileSync(process.execPath, [realmCheck, format, scenario], {
+        execFileSync(process.execPath, [...realmNodeArguments, realmCheck, format, scenario], {
           cwd: consumerRoot,
           stdio: "pipe",
         });

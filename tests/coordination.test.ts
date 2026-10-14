@@ -618,6 +618,8 @@ describe("borrowed-world coordination", () => {
     register(coordinator, callerWorld.spawn(), "a");
     callerWorld.destroy();
     expect(callerWorld.isInitialized).toBe(false);
+    expect(coordinator.getEntity("a")).toBeUndefined();
+    expect(coordinator.getRegistration("a")).toBeUndefined();
     expect(coordinator.prune().entries).toEqual([]);
     expect(() => coordinator.register(0 as Entity, { id: "b", capabilities: [] })).toThrow(
       /World marker/,
@@ -642,6 +644,8 @@ describe("borrowed-world coordination", () => {
     expect(entity.has(CoordinationRegistration)).toBe(false);
     expect(callerWorld.has(CoordinationBinding)).toBe(false);
     expect(coordinator.getSnapshot().entries).toEqual([]);
+    expect(coordinator.getEntity("a")).toBeUndefined();
+    expect(coordinator.getRegistration("a")).toBeUndefined();
     expect(() => coordinator.publish(token, completed())).toThrow(/disposed/);
     expect(() => coordinator.subscribe(() => {})).toThrow(/disposed/);
     expect(() => coordinator.subscribe(null as never)).toThrow(/disposed/);

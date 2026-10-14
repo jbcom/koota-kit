@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.1 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump handlebars from 4.7.9 to 4.7.10 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/40
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.0...v0.8.1
+
 ## 0.8.0 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

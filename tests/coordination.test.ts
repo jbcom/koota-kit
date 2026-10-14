@@ -124,6 +124,73 @@ describe("borrowed-world coordination", () => {
     });
   });
 
+  it.each(["single hole", "mixed hole", "inherited slot", "inherited getter"])(
+    "rejects capability arrays with a %s before any mutation",
+    (kind) => {
+      const capabilities = new Array<string>(kind === "mixed hole" ? 2 : 1);
+      if (kind === "mixed hole") capabilities[1] = "pose";
+      const inheritedRead = vi.fn(() => "geometry");
+      if (kind === "inherited slot" || kind === "inherited getter") {
+        const prototype = Object.create(Array.prototype);
+        Object.defineProperty(
+          prototype,
+          "0",
+          kind === "inherited slot" ? { value: "geometry" } : { get: inheritedRead },
+        );
+        Object.setPrototypeOf(capabilities, prototype);
+      }
+      // biome-ignore lint/suspicious/noPrototypeBuiltins: The supported TypeScript lib is ES2021.
+      expect(Object.prototype.hasOwnProperty.call(capabilities, 0)).toBe(false);
+      const callerWorld = world();
+      const entity = callerWorld.spawn(CallerState({ value: 7 }));
+      const coordinator = bindCoordination(callerWorld);
+      const before = coordinator.getSnapshot();
+      const markers = callerWorld.get(CoordinationBinding)?.markers;
+      const listener = vi.fn();
+      const onAdd = vi.fn();
+      const onChange = vi.fn();
+      coordinator.subscribe(listener);
+      callerWorld.onAdd(CoordinationRegistration, onAdd);
+      callerWorld.onChange(CoordinationBinding, onChange);
+
+      expect(() => register(coordinator, entity, "retry", capabilities)).toThrow(TypeError);
+      expect(inheritedRead).not.toHaveBeenCalled();
+      expect(coordinator.getSnapshot()).toBe(before);
+      expect(coordinator.getRegistration("retry")).toBeUndefined();
+      expect(coordinator.getEntity("retry")).toBeUndefined();
+      expect(callerWorld.get(CoordinationBinding)?.markers).toBe(markers);
+      expect(callerWorld.isInitialized).toBe(true);
+      expect(callerWorld.has(entity)).toBe(true);
+      expect(entity.get(CallerState)?.value).toBe(7);
+      expect(entity.has(CoordinationRegistration)).toBe(false);
+      expect(listener).not.toHaveBeenCalled();
+      expect(onAdd).not.toHaveBeenCalled();
+      expect(onChange).not.toHaveBeenCalled();
+
+      register(coordinator, entity, "retry", []);
+      expect(coordinator.getSnapshot()).toEqual({
+        revision: 1,
+        entries: [{ id: "retry", capabilities: [], completed: undefined }],
+      });
+      expect(entity.get(CoordinationRegistration)?.generation).toBe(1);
+      expect(listener).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("copies dense capabilities into a sorted frozen detached array", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const capabilities = ["pose", "geometry"];
+    register(coordinator, callerWorld.spawn(), "dense", capabilities);
+    const copy = coordinator.getSnapshot().entries[0]?.capabilities;
+    expect(copy).toEqual(["geometry", "pose"]);
+    expect(copy).not.toBe(capabilities);
+    expect(Object.isFrozen(copy)).toBe(true);
+    expect(capabilities).toEqual(["pose", "geometry"]);
+    capabilities[0] = "changed";
+    expect(copy).toEqual(["geometry", "pose"]);
+  });
+
   it("rejects invalid and conflicting registrations before visible mutation", () => {
     const callerWorld = world();
     const otherWorld = world();

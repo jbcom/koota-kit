@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.7 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(spatial): reject inherited values in sparse snapshot and query arrays by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/71
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.6...v0.8.7
+
 ## 0.8.6 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

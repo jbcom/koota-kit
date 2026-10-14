@@ -36,7 +36,7 @@ an oracle witness or a stamped bounded `no-hit` is exact. Satisfaction that
 combines AABB and oracle evidence is conservative. A stale expected/provider
 tuple wins before the result can be trusted; otherwise an exact violating
 witness wins over an unavailable or foreign-frame peer. Sparse provider
-snapshots fail closed. Validated query thresholds are captured before any
+snapshots and capability lists fail closed. Validated query thresholds are captured before any
 provider or oracle callback and cannot change during evaluation.
 
 There is no geometry kernel, BVH, renderer, model, physics, Koota, or React

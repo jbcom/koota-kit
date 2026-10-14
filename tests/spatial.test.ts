@@ -651,6 +651,23 @@ describe("queryPointClearance", () => {
     ).toThrow(TypeError);
   });
 
+  it("rejects sparse capabilities before far-AABB satisfaction while accepting an empty capability list", () => {
+    const bounds = record("far").topology.visible;
+    const far = record("far", {
+      topology: { full: bounds, visible: bounds },
+      capabilities: new Array(1),
+    });
+    const calls: string[] = [];
+    expect(queryPointClearance(provider(far), oracle(0.1, calls), baseQuery())).toMatchObject({
+      status: "unsupported",
+      reason: "provider-contract-invalid",
+    });
+    expect(
+      queryPointClearance(provider({ ...far, capabilities: [] }), oracle(0.1, calls), baseQuery()),
+    ).toMatchObject({ status: "satisfied", exactness: "conservative" });
+    expect(calls).toEqual([]);
+  });
+
   it("labels satisfaction using both exact oracle and AABB evidence conservative", () => {
     const near = record("near");
     const far = record("far", {

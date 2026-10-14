@@ -270,10 +270,12 @@ function copyRecord(value: unknown, label: string): SpatialPartRecord {
   const record = value as SpatialPartRecord;
   if (typeof record.topology !== "object" || record.topology === null)
     throw new TypeError(`spatial: ${label}.topology must be an object.`);
+  if (!Array.isArray(record.capabilities))
+    throw new TypeError(`spatial: ${label}.capabilities must be an array.`);
+  const capabilities = Array.from(record.capabilities);
   if (
-    !Array.isArray(record.capabilities) ||
-    record.capabilities.some((capability) => capability !== "nearest-surface") ||
-    new Set(record.capabilities).size !== record.capabilities.length
+    capabilities.some((capability) => capability !== "nearest-surface") ||
+    new Set(capabilities).size !== capabilities.length
   ) {
     throw new TypeError(`spatial: ${label}.capabilities may only contain nearest-surface.`);
   }
@@ -285,7 +287,7 @@ function copyRecord(value: unknown, label: string): SpatialPartRecord {
       full: copyTopology(record.topology.full, `${label}.topology.full`),
       visible: copyTopology(record.topology.visible, `${label}.topology.visible`),
     }),
-    capabilities: Object.freeze([...record.capabilities]),
+    capabilities: Object.freeze(capabilities),
   });
 }
 

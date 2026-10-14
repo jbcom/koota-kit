@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat(integration): extract browser-compatible caller adapters by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/80
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.8...v0.9.0
+
 ## 0.8.8 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

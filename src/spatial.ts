@@ -436,15 +436,18 @@ export function queryPointClearance(
   }
   records.sort((left, right) => compareIdentity(left.identity, right.identity));
   const allStamps = records.map((record) => makeStamp(record, topology));
-  if (
-    expected.some((stamp) => {
-      const current = allStamps.find((candidate) =>
-        sameIdentity(candidate.identity, stamp.identity),
-      );
-      return !current || !sameStamp(current, stamp);
-    })
-  ) {
-    return result("stale", "revision-mismatch", "none", topology, allStamps, exclusions, []);
+  if (expected.length > 0) {
+    const stampsByIdentity = new Map(
+      allStamps.map((stamp) => [identityKey(stamp.identity), stamp]),
+    );
+    if (
+      expected.some((stamp) => {
+        const current = stampsByIdentity.get(identityKey(stamp.identity));
+        return !current || !sameStamp(current, stamp);
+      })
+    ) {
+      return result("stale", "revision-mismatch", "none", topology, allStamps, exclusions, []);
+    }
   }
   const selected = records.filter((record) => !exclusionKeys.has(identityKey(record.identity)));
   const stamps = selected.map((record) => makeStamp(record, topology));

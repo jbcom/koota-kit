@@ -116,6 +116,10 @@ it reaches `react` or `koota/react`.
   through JSON.
 - Event logs allocate on first push, leave scratch untouched for empty reads,
   truncate in place on drain, and expose a non-allocating `size` operation.
+- Spatial expected stamps use a per-query map keyed by the complete encoded
+  identity tuple. Matching all expectations takes linear lookup work after
+  preparing the snapshot, before any exclusions; no map is retained between
+  queries. Queries without expected stamps do not allocate this map.
 - Coordination snapshots are rebuilt only after a completed registration,
   publication, removal, or explicit prune. Equal completed revisions retain
   the prior snapshot identity and do not notify subscribers.

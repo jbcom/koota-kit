@@ -262,6 +262,63 @@ describe("queryPointClearance", () => {
     expect(result).toMatchObject({ status: "satisfied", exactness: "conservative", checked: [] });
   });
 
+  it("matches expected tuples by complete collision-safe identity regardless of input order", () => {
+    const first = record("body", {
+      identity: {
+        sourceId: "fixture|ava",
+        instanceId: "other",
+        partId: "body",
+        registration: { id: "binding", generation: 3 },
+      },
+    });
+    const second = record("body", {
+      identity: { ...first.identity, sourceId: "fixture", instanceId: "ava|other" },
+      revisions: { ...first.revisions, geometry: 9 },
+    });
+    const third = record("body", {
+      identity: { ...second.identity, registration: { id: "binding", generation: 4 } },
+      revisions: { ...second.revisions, transform: 7 },
+    });
+    const stamp = (value: SpatialPartRecord): SpatialRecordStamp => ({
+      identity: value.identity,
+      frame: value.frame,
+      topology: { selection: "full", id: value.topology.full.id },
+      revisions: value.revisions,
+    });
+    const query = {
+      ...baseQuery(),
+      expected: [stamp(third), stamp(first), stamp(second)],
+      exclusions: [third.identity],
+    };
+    const forward = queryPointClearance(provider(first, second, third), oracle(0.5), query);
+    const reversed = queryPointClearance(provider(third, second, first), oracle(0.5), query);
+    expect(forward).toEqual(reversed);
+    expect(forward.status).toBe("satisfied");
+    expect(forward.checked.map((value) => value.identity)).toEqual([
+      second.identity,
+      first.identity,
+    ]);
+
+    const calls: string[] = [];
+    for (const expected of [
+      { ...stamp(third), revisions: { ...third.revisions, pose: 99 } },
+      { ...stamp(third), identity: { ...third.identity, partId: "missing" } },
+    ]) {
+      expect(
+        queryPointClearance(provider(first, second, third), oracle(0.1, calls), {
+          ...query,
+          expected: [stamp(first), stamp(second), expected],
+        }),
+      ).toMatchObject({
+        status: "stale",
+        reason: "revision-mismatch",
+        checked: [stamp(second), stamp(third), stamp(first)],
+        witnesses: [],
+      });
+    }
+    expect(calls).toEqual([]);
+  });
+
   it("rejects an oracle reply consumed from a different completed tuple", () => {
     const current = record("body");
     const staleOracle: SpatialNearestSurfaceOracle = {
@@ -561,6 +618,30 @@ describe("queryPointClearance", () => {
         baseQuery(),
       ),
     ).toMatchObject({ status: "unsupported", reason: "provider-contract-invalid" });
+  });
+
+  it("returns the computed metric distance when an accepted oracle tolerance crosses clearance", () => {
+    const actualDistance = 0.5 - 5e-10;
+    const roundedOracle: SpatialNearestSurfaceOracle = {
+      nearest: ({ record, topology }) => ({
+        kind: "nearest",
+        witness: {
+          triangleId: "body:1",
+          point: { x: actualDistance, y: 0, z: 0 },
+          distance: 0.5,
+          frame,
+          consumed: {
+            identity: record.identity,
+            frame,
+            topology: { selection: topology, id: record.topology[topology].id },
+            revisions: record.revisions,
+          },
+        },
+      }),
+    };
+    const result = queryPointClearance(provider(record("body")), roundedOracle, baseQuery());
+    expect(result).toMatchObject({ status: "violated", exactness: "exact" });
+    expect(result.witnesses[0]?.distance).toBe(actualDistance);
   });
 
   it("rejects a finite witness whose computed common-metric distance exceeds the search bound", () => {

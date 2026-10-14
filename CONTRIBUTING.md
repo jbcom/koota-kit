@@ -31,7 +31,8 @@ pnpm verify
 3. Run `pnpm verify`. A change is not ready while any part of that is red.
 4. Commit with [Conventional Commits](https://www.conventionalcommits.org):
    `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`. Release Please uses
-   these commits to drive the changelog and next version number.
+   these commits to select the next version; GitHub release notes list each
+   merged pull request once in the changelog.
 5. Open a pull request describing what changed and why.
 
 ## What gets reviewed

@@ -20,8 +20,9 @@ Sourcey site.
 Branch from `main`, make a focused Conventional Commit, open an upstream pull
 request, and keep the branch current by merging `main` into it when necessary.
 The protected path uses automated checks rather than a routine human approval;
-merge commits preserve the constituent history. Do not hand-edit versions or
-`CHANGELOG.md`: Release Please owns them.
+merge commits preserve the constituent history and GitHub release notes list
+each merged pull request once. Do not hand-edit versions or `CHANGELOG.md`:
+Release Please owns them.
 
 Read the repository [contribution guide](https://github.com/jbcom/koota-kit/blob/main/CONTRIBUTING.md)
 and [agent instructions](https://github.com/jbcom/koota-kit/blob/main/AGENTS.md)

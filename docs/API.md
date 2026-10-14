@@ -5,6 +5,42 @@ bindings, which are only available from `koota-kit/react` so the root entry
 never loads React. The module-specific import paths shown below can reduce
 coupling in larger codebases.
 
+## `spatial`
+
+Import from `koota-kit/spatial` or the root:
+
+```ts
+function queryPointClearance(
+  provider: SpatialProvider,
+  oracle: SpatialNearestSurfaceOracle,
+  query: SpatialClearanceQuery,
+): SpatialClearanceResult;
+```
+
+`queryPointClearance` decides one explicit predicate: the query point is at
+least `minimumDistance` from every selected **open surface**. The default
+selection is each part's `full` topology; callers must explicitly request
+`visible` topology. A provider record carries stable source, instance, part,
+and provider-local registration identity; a common Euclidean frame and unit;
+independent geometry, topology, pose, and transform revisions; and certified
+enclosing AABBs for both topology selections.
+
+The core performs deterministic AABB broadphase only. It invokes the supplied
+nearest-surface oracle for overlapping candidates and validates that its
+witness is in the selected certified bound, in the same frame/unit, and was
+computed from the exact consumed identity/topology/revision tuple. Results
+include those checked tuples, ordered witnesses, exclusions, one of
+`satisfied`, `violated`, `unknown`, `unsupported`, or `stale`, and an
+exactness label. An AABB rejection can conservatively satisfy the threshold;
+an oracle witness is exact. A stale expected/provider tuple wins before the
+result can be trusted; otherwise an exact violating witness wins over an
+unavailable peer.
+
+There is no geometry kernel, BVH, renderer, model, physics, Koota, or React
+dependency in this entry. It does not prove containment or solid
+nonpenetration: an open-surface nearest query has no watertightness/thickness
+semantics. A future solid query needs an injected containment-capable oracle.
+
 ## `world`
 
 ### `createSimWorld(seeds)`

@@ -61,5 +61,28 @@ export type { Schedule, ScheduleOptions, System } from "./schedule.js";
 export { defineEventLog } from "./eventLog.js";
 export type { EventLog } from "./eventLog.js";
 
+export { queryPointClearance } from "./spatial.js";
+export type {
+  SpatialAabb,
+  SpatialClearanceQuery,
+  SpatialClearanceResult,
+  SpatialFrame,
+  SpatialIdentity,
+  SpatialNearestSurfaceOracle,
+  SpatialNearestWitness,
+  SpatialOracleReply,
+  SpatialPartRecord,
+  SpatialPoint,
+  SpatialProvider,
+  SpatialQueryExactness,
+  SpatialQueryReason,
+  SpatialQueryStatus,
+  SpatialRecordStamp,
+  SpatialRegistrationIdentity,
+  SpatialRevision,
+  SpatialTopology,
+  SpatialTopologySelection,
+} from "./spatial.js";
+
 export { defineTrait } from "./traits/index.js";
 export type { SafeSchema } from "./traits/index.js";

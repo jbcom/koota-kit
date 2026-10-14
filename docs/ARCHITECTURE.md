@@ -13,6 +13,7 @@ rng ──────────────────> seedrandom + seed
 world ────────────────> koota + rng
 schedule ─────────────> world (advanceClock) + WorldHandle scratch
 eventLog ─────────────> WorldHandle scratch
+spatial ──────────────> (leaf: caller-provided provider + exact oracle)
 react ────────────────> koota/react + react + world (type only)
 index ────────────────> public re-exports only (never react)
 ```
@@ -44,6 +45,17 @@ than carrying it, so one huge dt cannot cause a catch-up storm.
 `eventLog` uses the handle's scratch map so event lifetime matches world
 lifetime. It does not use a process-global queue.
 
+`spatial` is a renderer-neutral leaf entry. Providers publish immutable,
+completed records with caller-owned source/instance/part/registration identity,
+common frame/unit, separate geometry/topology/pose/transform revisions, full
+and visible topology identities, and certified enclosing AABBs. The module
+sorts records deterministically, does only conservative AABB filtering, and
+delegates exact nearest-surface work to an injected oracle. It retains neither
+provider records nor buffers, so producer-owned buffers cannot be aliased by a
+core cache. Full topology is the default; a visible selection is explicit.
+Point clearance establishes distance to open surfaces only. It deliberately
+does not infer solid containment or nonpenetration from triangle proximity.
+
 `react` is the only module that imports React, through `koota/react`. It is
 reachable only from the `koota-kit/react` subpath: `index` does not re-export it,
 and `react` is an optional peer dependency, so an application that never imports
@@ -70,6 +82,9 @@ it reaches `react` or `koota/react`.
     delivered at any frame rate runs the same steps in the same order, as long
     as no single tick owes more than `maxSteps` (beyond that, the excess is
     dropped by design, so a one-second frame and sixty 1/60 s frames differ).
+11. Spatial query results are stamped with the provider's full identity,
+    selected topology, frame/unit, and independent completed revisions. A
+    mismatched expected or oracle-consumed tuple is stale, never exact.
 
 ## Performance choices
 

@@ -51,7 +51,16 @@ function reachedPackages(entryFile) {
   return packages;
 }
 
-const reactFree = ["index", "world", "rng", "seed", "schedule", "eventLog", "traits/index"];
+const reactFree = [
+  "index",
+  "world",
+  "rng",
+  "seed",
+  "schedule",
+  "eventLog",
+  "spatial",
+  "traits/index",
+];
 for (const entry of reactFree) {
   for (const built of [`dist/esm/${entry}.js`, `dist/cjs/${entry}.cjs`]) {
     const file = path.join(packageRoot, built);
@@ -116,6 +125,10 @@ try {
     "dist/esm/react.d.ts",
     "dist/cjs/react.cjs",
     "dist/cjs/react.d.cts",
+    "dist/esm/spatial.js",
+    "dist/esm/spatial.d.ts",
+    "dist/cjs/spatial.cjs",
+    "dist/cjs/spatial.d.cts",
   ]) {
     assert(packedPaths.has(required), `packed artifact is missing ${required}`);
   }
@@ -157,6 +170,7 @@ try {
     "snapshotWorld",
     "substream",
     "trait",
+    "queryPointClearance",
   ];
   for (const name of expectedRuntimeExports) {
     assert.equal(typeof esm[name], "function", `ESM export ${name} is missing`);
@@ -216,6 +230,31 @@ try {
     { cwd: consumerRoot, encoding: "utf8" },
   );
   assert.equal(esmInstalledDraw, cjsInstalledDraw, "installed ESM and CommonJS draws differ");
+
+  const spatialProbe =
+    "const { queryPointClearance } = %SPATIAL%; " +
+    "const f = { id: 'f', unit: 'metre', metric: 'euclidean' }; " +
+    "const p = { snapshot: () => [] }; " +
+    "const o = { nearest: () => undefined }; " +
+    "process.stdout.write(queryPointClearance(p, o, { point: { x: 0, y: 0, z: 0 }, frame: f, minimumDistance: 1, searchDistance: 1 }).status);";
+  const esmSpatialProbe = spatialProbe.replace("%SPATIAL%", "await import('koota-kit/spatial')");
+  const cjsSpatialProbe = spatialProbe.replace("%SPATIAL%", "require('koota-kit/spatial')");
+  assert.equal(
+    execFileSync(process.execPath, ["--input-type=module", "--eval", esmSpatialProbe], {
+      cwd: consumerRoot,
+      encoding: "utf8",
+    }),
+    "satisfied",
+    "installed ESM koota-kit/spatial did not run",
+  );
+  assert.equal(
+    execFileSync(process.execPath, ["--input-type=commonjs", "--eval", cjsSpatialProbe], {
+      cwd: consumerRoot,
+      encoding: "utf8",
+    }),
+    "satisfied",
+    "installed CommonJS koota-kit/spatial did not run",
+  );
 
   // The React entry only works once the consumer opts in by installing React.
   // Install it now and render a provider through each module format.

@@ -506,6 +506,8 @@ describe("queryPointClearance", () => {
         },
       },
     });
+    check({ ...current, capabilities: null });
+    check({ ...current, capabilities: ["unrecognized"] });
     check({ ...current, capabilities: ["nearest-surface", "nearest-surface"] });
     expect(() => queryPointClearance(null as never, oracle(0.1), baseQuery())).toThrow(/provider/);
     expect(() => queryPointClearance(provider(current), null as never, baseQuery())).toThrow(

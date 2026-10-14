@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.2 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(release): accept generated GitHub changelog by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/52
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.6.1...v0.6.2
+
 ## 0.6.1 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

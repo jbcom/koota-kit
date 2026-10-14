@@ -315,12 +315,19 @@ the coordinator mutates its projection. The opaque token is scoped to one
 binding and to the entity generation. `publish` and `unregister` reject a
 stale token. If an entity is destroyed or the owned registration trait is
 removed externally, call `prune()` to publish its removal before reusing the
-stable ID. `getEntity` and `getRegistration` return `undefined` for a stale
+stable ID. If Koota rejects the binding marker during construction or rejects an
+add callback during `register`, the binding removes only its just-added marker or
+trait before rethrowing, so an existing peer binding remains intact and the
+caller may retry registration. `getEntity` and `getRegistration` return `undefined` for a stale
 registration.
 
 `publishBatch` validates every token and metadata value before it changes any
-owned trait or snapshot. A completed snapshot is immutable, detached from the
-caller input, and sorted by stable ID. `revision` is a binding-local committed
+owned trait or snapshot. Its completed projection changes only after every raw
+Koota trait write succeeds; a Koota callback error can leave partial raw mirror
+writes, which are outside that projection. A completed snapshot is immutable,
+detached from the caller input, and sorted by stable ID. Producers that need a
+cross-producer atomic cohort must publish through the same binding; disjoint
+bindings are independent cohorts. `revision` is a binding-local committed
 publication generation, not a geometry, pose, transform, source-hash, or
 provider freshness claim. It deliberately does not serialize entities or join
 the RNG/clock `WorldSnapshot` boundary.

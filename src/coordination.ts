@@ -139,7 +139,7 @@ function copyCapabilities(value: unknown): readonly string[] {
     );
   }
   const capabilities = value.map((capability) => requireNonEmptyString(capability, "capability"));
-  capabilities.sort();
+  capabilities.sort((left, right) => Number(left > right) - Number(left < right));
   for (let index = 1; index < capabilities.length; index += 1) {
     if (capabilities[index] === capabilities[index - 1]) {
       throw new TypeError(`coordination: duplicate capability "${capabilities[index]}".`);
@@ -233,8 +233,18 @@ export function bindCoordination(world: World): Coordination {
   const marker = Object.freeze({});
   const existingMarkers = world.get(CoordinationBinding)?.markers ?? [];
   const markers = [...existingMarkers, marker];
-  if (world.has(CoordinationBinding)) world.set(CoordinationBinding, { markers });
-  else world.add(CoordinationBinding({ markers }));
+  try {
+    if (world.has(CoordinationBinding)) world.set(CoordinationBinding, { markers });
+    else world.add(CoordinationBinding({ markers }));
+  } catch (error) {
+    const currentMarkers = world.get(CoordinationBinding)?.markers;
+    if (world.isInitialized && currentMarkers?.includes(marker)) {
+      const remaining = currentMarkers.filter((candidate) => candidate !== marker);
+      if (remaining.length === 0) world.remove(CoordinationBinding);
+      else world.set(CoordinationBinding, { markers: remaining });
+    }
+    throw error;
+  }
 
   let disposed = false;
   let notifying = false;
@@ -356,7 +366,15 @@ export function bindCoordination(world: World): Coordination {
     // deliberately outside the atomic committed-snapshot contract.
     mutating = true;
     try {
-      entity.add(CoordinationRegistration(state));
+      try {
+        entity.add(CoordinationRegistration(state));
+      } catch (error) {
+        const current = entity.get(CoordinationRegistration) as RegistrationState | undefined;
+        if (stateIsOwned(current, marker, registrationGeneration)) {
+          entity.remove(CoordinationRegistration);
+        }
+        throw error;
+      }
       nextRegistrationGeneration = registrationGeneration;
       registrationsById.set(id, registration);
       registrationsByToken.set(token, registration);
@@ -392,18 +410,24 @@ export function bindCoordination(world: World): Coordination {
     if (!changed) return snapshot;
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
 
-    // Preparation completed for every update. Mirror the new revisions onto
-    // owned traits before replacing the observer projection as one commit.
+    // Raw traits can expose individual mirror writes to Koota callbacks, but
+    // the committed projection changes only after every mirror write succeeds.
+    const preparedStates = prepared.map(({ registration, completed }) => ({
+      registration,
+      completed,
+      state: Object.freeze({
+        ...registration.state,
+        geometryRevision: completed.revisions.geometry,
+        poseRevision: completed.revisions.pose,
+        transformRevision: completed.revisions.transform,
+      }) as RegistrationState,
+    }));
     mutating = true;
     try {
-      for (const { registration, completed } of prepared) {
-        const state: RegistrationState = Object.freeze({
-          ...registration.state,
-          geometryRevision: completed.revisions.geometry,
-          poseRevision: completed.revisions.pose,
-          transformRevision: completed.revisions.transform,
-        });
+      for (const { registration, state } of preparedStates) {
         registration.entity.set(CoordinationRegistration, state);
+      }
+      for (const { registration, completed } of preparedStates) {
         registration.completed = completed;
       }
       return commit(snapshotRevision);

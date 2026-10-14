@@ -107,7 +107,9 @@ or `combat:hits`.
 not create, reset, or destroy one. Register existing entities with stable
 caller-authored IDs and capability labels, then publish completed producer
 revisions as a batch. The snapshot is immutable, ordered by ID, and changes
-only after the complete batch validates.
+only after the complete batch validates and its raw Koota trait writes succeed.
+Producers needing one atomic cohort publish through the same binding; disjoint
+bindings are independent cohorts.
 
 ```ts
 import { bindCoordination } from "koota-kit/coordination";

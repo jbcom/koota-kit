@@ -55,6 +55,33 @@ describe("borrowed-world coordination", () => {
     first.dispose();
   });
 
+  it("cleans an initial failed World-marker bind", () => {
+    const callerWorld = world();
+    callerWorld.onAdd(CoordinationBinding, () => {
+      throw new Error("initial marker callback failure");
+    });
+
+    expect(() => bindCoordination(callerWorld)).toThrow(/initial marker callback failure/);
+    expect(callerWorld.has(CoordinationBinding)).toBe(false);
+  });
+
+  it("cleans a failed World-marker bind without removing a peer binding", () => {
+    const callerWorld = world();
+    const peer = bindCoordination(callerWorld);
+    let throws = true;
+    callerWorld.onChange(CoordinationBinding, () => {
+      if (throws) {
+        throws = false;
+        throw new Error("marker callback failure");
+      }
+    });
+
+    expect(() => bindCoordination(callerWorld)).toThrow(/marker callback failure/);
+    expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(1);
+    peer.dispose();
+    expect(callerWorld.has(CoordinationBinding)).toBe(false);
+  });
+
   it("registers existing entities in the caller World without touching caller traits", () => {
     const callerWorld = world();
     const first = callerWorld.spawn(CallerState({ value: 1 }));
@@ -201,6 +228,54 @@ describe("borrowed-world coordination", () => {
     expect(before).not.toBe(afterTransform);
     expect(coordinator.getSnapshot()).toBe(afterTransform);
     expect(received).toEqual([3, 4]);
+  });
+
+  it("keeps completed metadata atomic when Koota callbacks reject raw mirror writes", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const a = register(coordinator, callerWorld.spawn(), "a");
+    const b = register(coordinator, callerWorld.spawn(), "b");
+    const before = coordinator.getSnapshot();
+    let changes = 0;
+    callerWorld.onChange(CoordinationRegistration, () => {
+      changes += 1;
+      if (changes === 2) throw new Error("mirror callback failure");
+    });
+
+    expect(() =>
+      coordinator.publishBatch([
+        { token: a, completed: completed(1, 0, 0) },
+        { token: b, completed: completed(0, 1, 0) },
+      ]),
+    ).toThrow(/mirror callback failure/);
+    expect(coordinator.getSnapshot()).toBe(before);
+    expect(coordinator.getSnapshot().entries.map((entry) => entry.completed)).toEqual([
+      undefined,
+      undefined,
+    ]);
+
+    coordinator.publish(b, completed(0, 0, 1));
+    expect(coordinator.getSnapshot().entries).toEqual([
+      { id: "a", capabilities: ["presence"], completed: undefined },
+      { id: "b", capabilities: ["presence"], completed: completed(0, 0, 1) },
+    ]);
+  });
+
+  it("cleans a failed registration trait so registration can retry", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn();
+    let throws = true;
+    callerWorld.onAdd(CoordinationRegistration, () => {
+      if (throws) {
+        throws = false;
+        throw new Error("registration callback failure");
+      }
+    });
+
+    expect(() => register(coordinator, entity, "a")).toThrow(/registration callback failure/);
+    expect(entity.has(CoordinationRegistration)).toBe(false);
+    expect(() => register(coordinator, entity, "a")).not.toThrow();
   });
 
   it("keeps listener delivery independent, ordered, and committed when listeners fail", () => {

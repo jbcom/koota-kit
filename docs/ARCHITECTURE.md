@@ -56,8 +56,10 @@ module format; consumers should not mix package formats in a single Koota World.
 
 Before a publication, coordination validates every update and produces a new
 immutable view sorted by caller-authored stable ID. Koota raw trait callbacks
-may see the individual mirror writes, so the completed view is the sole atomic
-observer boundary. Listener callbacks cannot mutate the registry while delivery
+may see the individual mirror writes, so the completed view changes only after
+all mirror writes succeed and is the sole atomic observer boundary. Producers
+share a binding to form one atomic cohort; disjoint bindings are independent
+cohorts. Listener callbacks cannot mutate the registry while delivery
 is active. There is no event-log drain: every coordination subscriber is
 independent. Entity destruction is detected by `World.has` and becomes a
 published removal only when the caller explicitly invokes `prune`.

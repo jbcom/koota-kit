@@ -32,9 +32,9 @@ computed from the exact consumed identity/topology/revision tuple. Results
 include those checked tuples, ordered witnesses, exclusions, one of
 `satisfied`, `violated`, `unknown`, `unsupported`, or `stale`, and an
 exactness label. An AABB rejection can conservatively satisfy the threshold;
-an oracle witness is exact. A stale expected/provider tuple wins before the
-result can be trusted; otherwise an exact violating witness wins over an
-unavailable peer.
+an oracle witness or a stamped bounded `no-hit` is exact. A stale
+expected/provider tuple wins before the result can be trusted; otherwise an
+exact violating witness wins over an unavailable peer.
 
 There is no geometry kernel, BVH, renderer, model, physics, Koota, or React
 dependency in this entry. It does not prove containment or solid

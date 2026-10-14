@@ -69,6 +69,7 @@ export type SpatialNearestWitness = Readonly<{
 
 export type SpatialOracleReply =
   | Readonly<{ kind: "nearest"; witness: SpatialNearestWitness }>
+  | Readonly<{ kind: "no-hit"; consumed: SpatialRecordStamp }>
   | Readonly<{ kind: "unknown"; reason: string; consumed: SpatialRecordStamp }>;
 
 export type SpatialNearestSurfaceOracle = Readonly<{
@@ -350,7 +351,7 @@ function pointIsInside(point: SpatialPoint, bounds: SpatialAabb): boolean {
 }
 
 function sameDistance(left: number, right: number): boolean {
-  return Math.abs(left - right) <= Math.max(1e-9, Math.max(Math.abs(left), Math.abs(right)) * 1e-9);
+  return Math.abs(left - right) <= Math.max(1e-9, Math.max(Math.abs(left), Math.abs(right)) / 1e9);
 }
 
 function result(
@@ -471,7 +472,7 @@ export function queryPointClearance(
     );
   }
   const candidates = prepared.filter(
-    ({ boundsDistance }) => boundsDistance <= query.minimumDistance,
+    ({ boundsDistance }) => boundsDistance < query.minimumDistance,
   );
   if (candidates.length === 0)
     return result(
@@ -485,10 +486,14 @@ export function queryPointClearance(
     );
 
   const witnesses: SpatialNearestWitness[] = [];
-  let unresolved: "unsupported" | "unknown" | undefined;
+  let unresolved:
+    | "nearest-surface-unsupported"
+    | "provider-contract-invalid"
+    | "oracle-unknown"
+    | undefined;
   for (const candidate of candidates) {
     if (!candidate.record.capabilities.includes("nearest-surface")) {
-      unresolved = "unsupported";
+      if (unresolved !== "provider-contract-invalid") unresolved = "nearest-surface-unsupported";
       continue;
     }
     const reply = oracle.nearest(
@@ -500,23 +505,16 @@ export function queryPointClearance(
       }),
     );
     if (reply === undefined) {
-      unresolved = "unsupported";
+      if (unresolved !== "provider-contract-invalid") unresolved = "nearest-surface-unsupported";
       continue;
     }
     if (
       typeof reply !== "object" ||
       reply === null ||
-      (reply.kind !== "nearest" && reply.kind !== "unknown")
+      (reply.kind !== "nearest" && reply.kind !== "no-hit" && reply.kind !== "unknown")
     ) {
-      return result(
-        "unsupported",
-        "provider-contract-invalid",
-        "none",
-        topology,
-        stamps,
-        exclusions,
-        witnesses,
-      );
+      unresolved = "provider-contract-invalid";
+      continue;
     }
     let consumed: SpatialRecordStamp;
     try {
@@ -525,33 +523,19 @@ export function queryPointClearance(
         "oracle.consumed",
       );
     } catch {
-      return result(
-        "unsupported",
-        "provider-contract-invalid",
-        "none",
-        topology,
-        stamps,
-        exclusions,
-        witnesses,
-      );
+      unresolved = "provider-contract-invalid";
+      continue;
     }
     if (!sameStamp(consumed, candidate.stamp)) {
       return result("stale", "oracle-stale", "none", topology, stamps, exclusions, witnesses);
     }
     if (reply.kind === "unknown") {
       if (typeof reply.reason !== "string" || reply.reason.length === 0)
-        return result(
-          "unsupported",
-          "provider-contract-invalid",
-          "none",
-          topology,
-          stamps,
-          exclusions,
-          witnesses,
-        );
-      unresolved ??= "unknown";
+        unresolved = "provider-contract-invalid";
+      else unresolved ??= "oracle-unknown";
       continue;
     }
+    if (reply.kind === "no-hit") continue;
     let witness: SpatialNearestWitness;
     try {
       const witnessPoint = finitePoint(reply.witness.point, "oracle.witness.point");
@@ -577,15 +561,8 @@ export function queryPointClearance(
         consumed: candidate.stamp,
       });
     } catch {
-      return result(
-        "unsupported",
-        "provider-contract-invalid",
-        "none",
-        topology,
-        stamps,
-        exclusions,
-        witnesses,
-      );
+      unresolved = "provider-contract-invalid";
+      continue;
     }
     witnesses.push(witness);
   }
@@ -600,7 +577,17 @@ export function queryPointClearance(
       exclusions,
       witnesses,
     );
-  if (unresolved === "unsupported")
+  if (unresolved === "provider-contract-invalid")
+    return result(
+      "unsupported",
+      "provider-contract-invalid",
+      "none",
+      topology,
+      stamps,
+      exclusions,
+      witnesses,
+    );
+  if (unresolved === "nearest-surface-unsupported")
     return result(
       "unsupported",
       "nearest-surface-unsupported",
@@ -610,7 +597,7 @@ export function queryPointClearance(
       exclusions,
       witnesses,
     );
-  if (unresolved === "unknown")
+  if (unresolved === "oracle-unknown")
     return result("unknown", "oracle-unknown", "none", topology, stamps, exclusions, witnesses);
   return result(
     "satisfied",

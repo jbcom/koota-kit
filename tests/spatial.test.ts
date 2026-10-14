@@ -122,6 +122,66 @@ describe("queryPointClearance", () => {
     expect(result.witnesses[0]?.triangleId).toBe("z:7");
   });
 
+  it("preserves an exact violation when a different oracle reply is malformed", () => {
+    const invalidThenClose: SpatialNearestSurfaceOracle = {
+      nearest: ({ record, topology, point }) => {
+        if (record.identity.partId === "a") return { kind: "bad" } as never;
+        return {
+          kind: "nearest",
+          witness: {
+            triangleId: "z:1",
+            point: { x: point.x + 0.25, y: point.y, z: point.z },
+            distance: 0.25,
+            frame,
+            consumed: {
+              identity: record.identity,
+              frame,
+              topology: { selection: topology, id: record.topology[topology].id },
+              revisions: record.revisions,
+            },
+          },
+        };
+      },
+    };
+    expect(
+      queryPointClearance(provider(record("a"), record("z")), invalidThenClose, baseQuery()),
+    ).toMatchObject({ status: "violated", reason: "clearance-violated" });
+  });
+
+  it("accepts an exact bounded no-hit and an AABB exactly on the clearance threshold", () => {
+    const current = record("body");
+    const noHit: SpatialNearestSurfaceOracle = {
+      nearest: ({ record, topology }) => ({
+        kind: "no-hit",
+        consumed: {
+          identity: record.identity,
+          frame: record.frame,
+          topology: { selection: topology, id: record.topology[topology].id },
+          revisions: record.revisions,
+        },
+      }),
+    };
+    expect(queryPointClearance(provider(current), noHit, baseQuery())).toMatchObject({
+      status: "satisfied",
+      exactness: "exact",
+    });
+    const boundary = record("boundary", {
+      capabilities: [],
+      topology: {
+        full: {
+          id: "boundary:full",
+          bounds: { min: { x: 0.5, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
+          enclosesSurface: true,
+        },
+        visible: record("boundary").topology.visible,
+      },
+    });
+    expect(queryPointClearance(provider(boundary), noHit, baseQuery())).toMatchObject({
+      status: "satisfied",
+      exactness: "conservative",
+    });
+  });
+
   it("uses visible topology only when explicitly requested and returns exact satisfaction", () => {
     const calls: string[] = [];
     const result = queryPointClearance(provider(record("body")), oracle(0.5, calls), {

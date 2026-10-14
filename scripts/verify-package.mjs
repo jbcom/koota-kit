@@ -296,8 +296,9 @@ try {
   );
 
   // The React entry only works once the consumer opts in by installing React.
-  // Install it now and render a provider through each module format.
-  execFileSync(npm, ["install", "--no-audit", "--no-fund", "react", "react-dom"], {
+  // Install the matching supported pair and render a provider through each
+  // module format; npm may otherwise resolve incompatible latest patch releases.
+  execFileSync(npm, ["install", "--no-audit", "--no-fund", "react@19.3.0", "react-dom@19.3.0"], {
     cwd: consumerRoot,
     env: npmEnvironment,
     shell: npmNeedsShell,

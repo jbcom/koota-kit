@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.1 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(types): explicitly include Node ambient types for TypeScript 7 toolchain by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/83
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.0...v0.9.1
+
 ## 0.9.0 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

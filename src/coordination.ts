@@ -208,7 +208,7 @@ function makeSnapshot(
           completed: registration.completed,
         }),
     )
-    .sort((left, right) => (left.id < right.id ? -1 : 1));
+    .sort((left, right) => Number(left.id > right.id) - Number(left.id < right.id));
   return Object.freeze({ revision, entries: Object.freeze(entries) });
 }
 
@@ -472,7 +472,6 @@ export function bindCoordination(world: World): Coordination {
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
     mutating = true;
     try {
-      disposed = true;
       listeners.clear();
       for (const registration of registrationsById.values()) {
         if (isCurrent(registration)) registration.entity.remove(CoordinationRegistration);
@@ -487,6 +486,7 @@ export function bindCoordination(world: World): Coordination {
       }
       nextSnapshotRevision = snapshotRevision;
       snapshot = makeSnapshot(nextSnapshotRevision, []);
+      disposed = true;
     } finally {
       mutating = false;
     }

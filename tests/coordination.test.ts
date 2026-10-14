@@ -368,6 +368,21 @@ describe("borrowed-world coordination", () => {
     rebound.dispose();
   });
 
+  it("allows disposal to retry after raw cleanup fails", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const remove = vi.spyOn(callerWorld, "remove").mockImplementationOnce(() => {
+      throw new Error("transient cleanup failure");
+    });
+
+    expect(() => coordinator.dispose()).toThrow(/transient cleanup failure/);
+    expect(callerWorld.has(CoordinationBinding)).toBe(true);
+    remove.mockRestore();
+
+    coordinator.dispose();
+    expect(callerWorld.has(CoordinationBinding)).toBe(false);
+  });
+
   it("prunes an externally removed owned trait instead of assuming it is still current", () => {
     const callerWorld = world();
     const coordinator = bindCoordination(callerWorld);

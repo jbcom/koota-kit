@@ -42,6 +42,12 @@ function provider(...records: SpatialPartRecord[]): SpatialProvider {
   return { snapshot: () => records };
 }
 
+function inheritedSparse<T>(protoValues: T[]): readonly T[] {
+  const sparse = new Array<T>(protoValues.length);
+  Object.setPrototypeOf(sparse, protoValues);
+  return Object.freeze(sparse) as readonly T[];
+}
+
 const baseQuery = (): SpatialClearanceQuery => ({
   point: { x: 0, y: 0, z: 0 },
   frame,
@@ -804,11 +810,6 @@ describe("queryPointClearance", () => {
   });
 
   it("rejects sparse provider snapshot arrays with inherited prototype values", () => {
-    function inheritedSparse<T>(protoValues: T[]): readonly T[] {
-      const sparse = new Array<T>(protoValues.length);
-      Object.setPrototypeOf(sparse, protoValues);
-      return Object.freeze(sparse) as readonly T[];
-    }
     const farBounds = record("far").topology.visible;
     const farRecord = record("far", {
       topology: { full: farBounds, visible: farBounds },
@@ -823,11 +824,6 @@ describe("queryPointClearance", () => {
   });
 
   it("rejects sparse capability arrays with inherited prototype values", () => {
-    function inheritedSparse<T>(protoValues: T[]): readonly T[] {
-      const sparse = new Array<T>(protoValues.length);
-      Object.setPrototypeOf(sparse, protoValues);
-      return Object.freeze(sparse) as readonly T[];
-    }
     const farBounds = record("far").topology.visible;
     const farWithInheritedCaps = record("far", {
       topology: { full: farBounds, visible: farBounds },
@@ -842,11 +838,6 @@ describe("queryPointClearance", () => {
   });
 
   it("rejects sparse query exclusion arrays with inherited prototype values", () => {
-    function inheritedSparse<T>(protoValues: T[]): readonly T[] {
-      const sparse = new Array<T>(protoValues.length);
-      Object.setPrototypeOf(sparse, protoValues);
-      return Object.freeze(sparse) as readonly T[];
-    }
     const violating = record("body");
     const sparseExclusions = inheritedSparse([violating.identity]);
     expect(() =>
@@ -858,11 +849,6 @@ describe("queryPointClearance", () => {
   });
 
   it("rejects sparse query expected stamp arrays with inherited prototype values", () => {
-    function inheritedSparse<T>(protoValues: T[]): readonly T[] {
-      const sparse = new Array<T>(protoValues.length);
-      Object.setPrototypeOf(sparse, protoValues);
-      return Object.freeze(sparse) as readonly T[];
-    }
     const violating = record("body");
     const stamp: SpatialRecordStamp = {
       identity: violating.identity,

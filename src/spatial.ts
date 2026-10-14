@@ -264,6 +264,22 @@ function copyTopology(value: unknown, label: string): SpatialTopology {
   });
 }
 
+function copyDenseArray<T, R>(
+  array: readonly T[],
+  mapper: (item: T, index: number) => R,
+  label: string,
+): R[] {
+  const hasOwn = Object.prototype.hasOwnProperty;
+  const result: R[] = new Array(array.length);
+  for (let i = 0; i < array.length; i++) {
+    if (!hasOwn.call(array, i)) {
+      throw new TypeError(`spatial: ${label}[${i}] is sparse.`);
+    }
+    result[i] = mapper(array[i] as T, i);
+  }
+  return result;
+}
+
 function copyRecord(value: unknown, label: string): SpatialPartRecord {
   if (typeof value !== "object" || value === null)
     throw new TypeError(`spatial: ${label} must be a part record.`);
@@ -272,7 +288,11 @@ function copyRecord(value: unknown, label: string): SpatialPartRecord {
     throw new TypeError(`spatial: ${label}.topology must be an object.`);
   if (!Array.isArray(record.capabilities))
     throw new TypeError(`spatial: ${label}.capabilities must be an array.`);
-  const capabilities = Array.from(record.capabilities);
+  const capabilities = copyDenseArray(
+    record.capabilities,
+    (capability) => capability,
+    `${label}.capabilities`,
+  );
   if (
     capabilities.some((capability) => capability !== "nearest-surface") ||
     new Set(capabilities).size !== capabilities.length
@@ -412,14 +432,18 @@ export function queryPointClearance(
     throw new TypeError("spatial: query.exclusions must be an array.");
   if (query.expected !== undefined && !Array.isArray(query.expected))
     throw new TypeError("spatial: query.expected must be an array.");
-  const exclusions = Array.from(query.exclusions ?? [], (value, index) =>
-    copyIdentity(value, `query.exclusions[${index}]`),
+  const exclusions = copyDenseArray(
+    query.exclusions ?? [],
+    (value, index) => copyIdentity(value, `query.exclusions[${index}]`),
+    "query.exclusions",
   ).sort(compareIdentity);
   const exclusionKeys = new Set(exclusions.map(identityKey));
   if (exclusionKeys.size !== exclusions.length)
     throw new TypeError("spatial: query.exclusions must not contain duplicates.");
-  const expected = Array.from(query.expected ?? [], (value, index) =>
-    copyStamp(value, `query.expected[${index}]`),
+  const expected = copyDenseArray(
+    query.expected ?? [],
+    (value, index) => copyStamp(value, `query.expected[${index}]`),
+    "query.expected",
   );
   const expectedKeys = new Set(expected.map((stamp) => identityKey(stamp.identity)));
   if (expectedKeys.size !== expected.length)
@@ -430,8 +454,10 @@ export function queryPointClearance(
     throw new TypeError("spatial: provider.snapshot() must return an array.");
   let records: SpatialPartRecord[];
   try {
-    records = Array.from(snapshot, (record, index) =>
-      copyRecord(record, `provider.snapshot()[${index}]`),
+    records = copyDenseArray(
+      snapshot,
+      (record, index) => copyRecord(record, `provider.snapshot()[${index}]`),
+      "provider.snapshot()",
     );
   } catch {
     return result("unsupported", "provider-contract-invalid", "none", topology, [], exclusions, []);

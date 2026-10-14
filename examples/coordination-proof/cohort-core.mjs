@@ -31,7 +31,7 @@ export function hashValues(hashBytes, ...values) {
   const encoder = new TextEncoder();
   const chunks = values.map((value) => {
     if (ArrayBuffer.isView(value))
-      return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+      return new Uint8Array(value.buffer, value.byteOffset, value.byteLength).slice();
     const json = JSON.stringify(value);
     if (json === undefined) throw new TypeError("proof: value has no JSON serialization");
     return encoder.encode(json);

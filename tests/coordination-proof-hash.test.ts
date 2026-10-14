@@ -98,3 +98,20 @@ it("rejects asynchronous/invalid hashing before publishing any completed tuple",
     }
   }
 });
+
+it("snapshots earlier typed bytes before a later JSON serializer can mutate them", () => {
+  function values() {
+    const storage = new Uint8Array([99, 1, 98]);
+    const view = storage.subarray(1, 2);
+    return [
+      view,
+      {
+        toJSON() {
+          view[0] = 2;
+          return { ok: true };
+        },
+      },
+    ];
+  }
+  expect(hashValues(hashBytes, ...values())).toBe(original(...values()));
+});

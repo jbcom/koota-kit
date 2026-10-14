@@ -49,4 +49,6 @@ pnpm verify
 
 Releases are automated. Merging a conventional commit to `main` opens a
 release pull request; merging that publishes to npm with provenance. Do not
-hand-edit versions or the changelog.
+hand-edit versions or the changelog. Publication runs use an independent
+`npm-publish` concurrency group with `queue: max` to prevent cancellation by
+concurrent site deployments.

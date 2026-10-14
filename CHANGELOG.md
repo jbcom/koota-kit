@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.6 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(coordination): reject missing own capability slots by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/74
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.5...v0.8.6
+
 ## 0.8.5 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

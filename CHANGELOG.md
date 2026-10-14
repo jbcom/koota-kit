@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.2 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* test(spatial): preserve invalid-provider diagnostic precedence by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/85
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.1...v0.9.2
+
 ## 0.9.1 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

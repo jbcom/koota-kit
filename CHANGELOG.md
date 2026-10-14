@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.5 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump js-yaml from 4.3.1 to 4.3.2 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/21
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.4...v0.8.5
+
 ## 0.8.4 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

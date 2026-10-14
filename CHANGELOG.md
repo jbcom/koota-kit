@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.1 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(test): restore explicit Node type visibility for dependency-update verification by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/58
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.7.0...v0.7.1
+
 ## 0.7.0 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

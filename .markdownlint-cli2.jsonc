@@ -10,10 +10,14 @@
       "filter": ["CHANGELOG.md"],
       "combine": "merge",
       "config": {
-        // Release Please prepends a generated section that uses this layout.
+        // Release Please prepends GitHub-generated notes whose layout and
+        // comparison links are outside the authored documentation format.
         "MD004": false,
         "MD012": false,
-        "MD024": false
+        "MD022": false,
+        "MD024": false,
+        "MD032": false,
+        "MD034": false
       }
     }
   ]

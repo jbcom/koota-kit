@@ -1,9 +1,10 @@
+import { createHash } from "node:crypto";
 import { createWorld, trait } from "koota";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bindCoordination, CoordinationRegistration } from "../src/coordination";
 import { queryPointClearance } from "../src/spatial";
 
-vi.mock("../examples/coordination-proof/fixture.mjs", async (importOriginal) => {
+vi.mock("../examples/coordination-proof/mesh-input.mjs", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -14,8 +15,8 @@ vi.mock("../examples/coordination-proof/fixture.mjs", async (importOriginal) => 
 });
 
 const cohortModule = "../examples/coordination-proof/cohort.mjs";
-const { createProofCohort, PROOF_FRAME } = await import(cohortModule);
-const fixtureModule = "../examples/coordination-proof/fixture.mjs";
+const { createProofCohort: createNodeCohort, PROOF_FRAME } = await import(cohortModule);
+const fixtureModule = "../examples/coordination-proof/mesh-input.mjs";
 const { sourceFaceIds: mappedFaces } = await import(fixtureModule);
 const worlds: ReturnType<typeof createWorld>[] = [];
 afterEach(() => {
@@ -44,7 +45,7 @@ function firstPart(value: ReturnType<typeof update>) {
   if (!part) throw new Error("test setup has no first part");
   return part;
 }
-function setup() {
+function setup(createProofCohort: typeof createNodeCohort) {
   const world = createWorld();
   worlds.push(world);
   const Custom = trait({ keep: 42 });
@@ -80,7 +81,29 @@ function selected(cohort: {
   }
 }
 
-describe("caller geometry versions selected by the committed binding", () => {
+const browserModule = "../examples/coordination-proof/browser-cohort.mjs";
+const { createBrowserProofCohort } = await import(browserModule);
+const sha256 = {
+  create() {
+    const hash = createHash("sha256");
+    return {
+      update(chunk: Uint8Array) {
+        hash.update(chunk);
+      },
+      digest() {
+        return new Uint8Array(hash.digest());
+      },
+    };
+  },
+};
+describe.each([
+  ["Node", createNodeCohort],
+  [
+    "browser caller injection",
+    (coordination: unknown, specifications: unknown) =>
+      createBrowserProofCohort(coordination, specifications, sha256),
+  ],
+])("%s caller geometry versions selected by the committed binding", (_name, createProofCohort) => {
   it("rejects pending model absence until every owned model completes, including explicit empty models", () => {
     const world = createWorld();
     worlds.push(world);
@@ -135,7 +158,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     }
   });
   it("keeps invalid views stable for React after a cached valid view loses its entity", () => {
-    const { a, cohort } = setup();
+    const { a, cohort } = setup(createProofCohort);
     const valid = cohort.getSnapshot();
     a.destroy();
     const invalid = cohort.getSnapshot();
@@ -158,7 +181,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     }
   });
   it("returns stamped unknown for unsupported numerical range without claiming a witness", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const replacement = update("a", 1);
     replacement.toWorld = [...identity];
     replacement.toWorld[0] = replacement.toWorld[5] = replacement.toWorld[10] = 1e100;
@@ -193,7 +216,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     }
   });
   it("reuses only the committed same-part correspondence across verified identical topology", () => {
-    const { coordination, cohort } = setup();
+    const { coordination, cohort } = setup(createProofCohort);
     expect(mappedFaces).toHaveBeenCalledTimes(2);
     const pose = update("a");
     pose.revisions.pose = 1;
@@ -212,7 +235,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("reorders full source faces legally and retains old leased visible witness ordinals", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const part = {
       id: "surface",
       positions: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0, 0, 11, 0, 0, 10, 1, 0]),
@@ -255,7 +278,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("matches reused parts by identity and misses on topology IDs/epochs or visible bytes", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const base = update("a", 1);
     base.parts.push({
       ...firstPart(base),
@@ -293,7 +316,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("still validates mutated caller arrays and rejects bad topology after warm reuse", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const before = cohort.getSnapshot();
     const position = update("a");
     firstPart(position).positions[0] = 0.5;
@@ -310,7 +333,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     expect(cohort.getSnapshot()).toBe(before);
   });
   it("native callbacks read both OLD models and committed subscribers both NEW models", () => {
-    const { world, coordination, cohort } = setup();
+    const { world, coordination, cohort } = setup(createProofCohort);
     const raw: unknown[] = [],
       committed: unknown[] = [];
     world.onChange(CoordinationRegistration, () => raw.push(selected(cohort)));
@@ -335,7 +358,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("a second raw write failure keeps the old completed snapshot and geometry", () => {
-    const { world, coordination, cohort } = setup();
+    const { world, coordination, cohort } = setup(createProofCohort);
     const before = coordination.getSnapshot();
     let writes = 0;
     const stop = world.onChange(CoordinationRegistration, () => {
@@ -358,7 +381,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("listener exceptions are postcommit, keep new resources, and deliver later listeners", () => {
-    const { coordination, cohort } = setup();
+    const { coordination, cohort } = setup(createProofCohort);
     const remove = coordination.subscribe(() => {
       throw new Error("listener fault");
     });
@@ -379,7 +402,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("rejects topology-only and same-tuple mutations while an identical repeat is a no-op", () => {
-    const { coordination, cohort } = setup();
+    const { coordination, cohort } = setup(createProofCohort);
     const before = cohort.getSnapshot();
     const topology = update("a");
     topology.revisions.topology = 1;
@@ -405,7 +428,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("keeps leased old geometry after publication/disposal and resolves copied records by full stamp", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const old = cohort.capture();
     const record = structuredClone(old.provider.snapshot()[0]);
     const request = {
@@ -426,7 +449,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("rejects publication/disposal reentry before state changes", () => {
-    const { coordination, cohort } = setup();
+    const { coordination, cohort } = setup(createProofCohort);
     coordination.subscribe(() => {
       expect(() => cohort.publish([update("a", 2)])).toThrow("reentry");
       expect(() => cohort.dispose()).toThrow("reentry");
@@ -439,7 +462,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("attempts every cleanup, preserves custom state, and retries only failed owned cleanup", () => {
-    const { world, coordination, cohort, a, b, Custom } = setup();
+    const { world, coordination, cohort, a, b, Custom } = setup(createProofCohort);
     const original = coordination.unregister;
     let failed = false;
     const faulty = {
@@ -472,7 +495,7 @@ describe("caller geometry versions selected by the committed binding", () => {
   });
 
   it("does not remove replacement registrations after destroyed entity ID reuse", () => {
-    const { world, a, coordination, cohort } = setup();
+    const { world, a, coordination, cohort } = setup(createProofCohort);
     a.destroy();
     expect(cohort.capture().snapshot.valid).toBe(false);
     coordination.prune();
@@ -502,7 +525,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     expect(world.has(entity)).toBe(true);
   });
   it("isolates unrelated binding entries and rejects an unprepared owned tuple", () => {
-    const { world, coordination, cohort } = setup();
+    const { world, coordination, cohort } = setup(createProofCohort);
     const token = coordination.register(world.spawn(), { id: "unrelated", capabilities: [] });
     coordination.publish(token, { revisions: { geometry: 5, pose: 0, transform: 0 } });
     expect(selected(cohort)).toEqual([
@@ -534,7 +557,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     expect(coordination.getEntity("caller")).toBe(entity);
   });
   it("does not validate a cached historical snapshot after its unleased geometry was collected", () => {
-    const { coordination, cohort } = setup();
+    const { coordination, cohort } = setup(createProofCohort);
     const historical = coordination.getSnapshot();
     cohort.getSnapshot();
     cohort.publish([update("a", 1, 1)]);
@@ -543,7 +566,7 @@ describe("caller geometry versions selected by the committed binding", () => {
     capture.release();
   });
   it("rejects fresh captures after disposal while retaining a previously acquired lease", () => {
-    const { cohort } = setup();
+    const { cohort } = setup(createProofCohort);
     const held = cohort.capture();
     cohort.dispose();
     expect(() => cohort.capture()).toThrow("disposed");

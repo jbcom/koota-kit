@@ -119,3 +119,40 @@ The pinned 0.8.6 composition uses dense arrays with own indexed entries. The
 prototype-filled sparse-array defect tracked in [issue 68](https://github.com/jbcom/koota-kit/issues/68)
 is outside this legitimate-input proof; this guide does not claim that defect
 has been repaired in the installed release.
+
+## Browser caller boundary
+
+The packed example source has browser-safe siblings, without adding package
+runtime exports or dependencies. `mesh-input.mjs` contains the unchanged mesh
+validation and authored face mapping. `cohort-core.mjs` retains the resource
+ledger and requires synchronous `hashBytes(chunks)` returning lowercase SHA256
+hex. `cohort.mjs` preserves the Node API with `node:crypto`; the fixture disk
+transport and JSDOM observer remain Node-only.
+
+The protocol hashes ordered chunks without delimiters. Typed views contribute
+exactly their buffer offset and byte length in native byte order. Other values
+contribute UTF-8 bytes of unchanged `JSON.stringify`, including insertion order.
+Undefined serialization and cycles reject before hashing. Promise or malformed
+hex results reject before publication; asynchronous Web Crypto is unsuitable.
+
+A private browser caller imports `sha256` from its pinned
+`@noble/hashes/sha2.js` 2.4.0 install and supplies that primitive to
+`createBrowserProofCohort(coordination, specifications, sha256)` in
+`browser-cohort.mjs`. The package itself does not resolve or depend on Noble.
+The caller must compare its actual installed primitive with the original Node
+hashes for empty, ordered multichunk, offset, Unicode and typed-array vectors.
+
+`react-inspector.mjs` supplies the same component to both observers. It checks
+`useWorld()` against the exact raw World and subscribes to the committed cohort.
+`browser-observer.mjs` mounts it in an existing native DOM container using the
+caller's installed React, `createRoot`, raw `WorldProvider` and `useWorld`.
+Its returned cleanup only unmounts React. The private Humanoid route retains
+ownership of its evaluator, producer, rendering and GPU evidence.
+
+Resolve example source from hash-verified physical files in the installed
+registry package, or an explicitly recorded immutable source transport. These
+files are packed caller examples, not runtime export subpaths. No workspace
+alias, additional geometry registry or private fixture publication is needed.
+Browser digest equality, same-World observation and retained leases must be
+verified in the actual browser realm; Node adapter tests alone do not establish
+live rendered acceptance.

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createProofInspector } from "./react-inspector.mjs";
 
 /** A headless mounted observer; neither the component nor its unmount owns the World. */
 export async function observeCommittedUpdate({ registryImport, cohort, world, publish }) {
@@ -19,26 +20,16 @@ export async function observeCommittedUpdate({ registryImport, cohort, world, pu
   const observations = [];
   const container = dom.window.document.getElementById("proof");
   const root = createRoot(container);
-  function Inspector() {
-    assert.equal(useWorld(), world);
-    const snapshot = React.useSyncExternalStore(
-      cohort.subscribe,
-      cohort.getSnapshot,
-      cohort.getSnapshot,
-    );
-    observations.push(snapshot);
-    return React.createElement(
-      "output",
-      null,
-      snapshot.coordination.entries
-        .map((entry) => `${entry.id}:${entry.completed?.revisions.pose ?? "pending"}`)
-        .join(","),
-    );
-  }
+  const Inspector = createProofInspector({ React, useWorld });
+  const inspector = React.createElement(Inspector, {
+    cohort,
+    world,
+    onObservation: (snapshot) => observations.push(snapshot),
+  });
   let unmounted = false;
   try {
     await React.act(async () =>
-      root.render(React.createElement(WorldProvider, { world }, React.createElement(Inspector))),
+      root.render(React.createElement(WorldProvider, { world }, inspector)),
     );
     const before = container.textContent;
     const previous = cohort.getSnapshot();

@@ -1,6 +1,7 @@
 import { createWorld, trait } from "koota";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bindCoordination, CoordinationRegistration } from "../src/coordination";
+import { queryPointClearance } from "../src/spatial";
 
 vi.mock("../examples/coordination-proof/fixture.mjs", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
@@ -13,7 +14,7 @@ vi.mock("../examples/coordination-proof/fixture.mjs", async (importOriginal) => 
 });
 
 const cohortModule = "../examples/coordination-proof/cohort.mjs";
-const { createProofCohort } = await import(cohortModule);
+const { createProofCohort, PROOF_FRAME } = await import(cohortModule);
 const fixtureModule = "../examples/coordination-proof/fixture.mjs";
 const { sourceFaceIds: mappedFaces } = await import(fixtureModule);
 const worlds: ReturnType<typeof createWorld>[] = [];
@@ -80,6 +81,117 @@ function selected(cohort: {
 }
 
 describe("caller geometry versions selected by the committed binding", () => {
+  it("rejects pending model absence until every owned model completes, including explicit empty models", () => {
+    const world = createWorld();
+    worlds.push(world);
+    const a = world.spawn(),
+      b = world.spawn();
+    const coordination = bindCoordination(world);
+    const cohort = createProofCohort(coordination, [
+      { id: "a", entity: a, sourceId: "a", instanceId: "a", providerGeneration: 1 },
+      { id: "b", entity: b, sourceId: "b", instanceId: "b", providerGeneration: 1 },
+    ]);
+    const query = {
+      point: { x: 0, y: 0, z: 0 },
+      frame: PROOF_FRAME,
+      minimumDistance: 1,
+      searchDistance: 2,
+    };
+    const status = () => {
+      const capture = cohort.capture();
+      try {
+        return queryPointClearance(capture.provider, capture.oracle, query).status;
+      } finally {
+        capture.release();
+      }
+    };
+    const initial = cohort.getSnapshot();
+    expect(initial.valid).toBe(false);
+    expect(cohort.getSnapshot()).toBe(initial);
+    expect(status()).toBe("unsupported");
+    cohort.publish([update("a")]);
+    const partial = cohort.getSnapshot();
+    expect(partial.valid).toBe(false);
+    expect(cohort.getSnapshot()).toBe(partial);
+    expect(status()).toBe("unsupported");
+    cohort.publish([update("b", 0, 10)]);
+    const complete = cohort.getSnapshot();
+    expect(complete.valid).toBe(true);
+    expect(complete.records).toHaveLength(2);
+    expect(status()).toBe("violated");
+    const old = cohort.capture();
+    try {
+      cohort.publish([{ ...update("b", 1), parts: [] }]);
+      expect(cohort.getSnapshot().valid).toBe(true);
+      expect(cohort.getSnapshot().records).toHaveLength(1);
+      expect(status()).toBe("violated");
+      expect(old.provider.snapshot()).toHaveLength(2);
+      cohort.publish([{ ...update("a", 1), parts: [] }]);
+      expect(cohort.getSnapshot().valid).toBe(true);
+      expect(status()).toBe("satisfied");
+    } finally {
+      old.release();
+      cohort.dispose();
+    }
+  });
+  it("keeps invalid views stable for React after a cached valid view loses its entity", () => {
+    const { a, cohort } = setup();
+    const valid = cohort.getSnapshot();
+    a.destroy();
+    const invalid = cohort.getSnapshot();
+    expect(invalid.valid).toBe(false);
+    expect(invalid).not.toBe(valid);
+    expect(cohort.getSnapshot()).toBe(invalid);
+    const capture = cohort.capture();
+    try {
+      expect(capture.snapshot).toBe(invalid);
+      expect(
+        queryPointClearance(capture.provider, capture.oracle, {
+          point: { x: 0, y: 0, z: 0 },
+          frame: PROOF_FRAME,
+          minimumDistance: 1,
+          searchDistance: 2,
+        }).status,
+      ).toBe("unsupported");
+    } finally {
+      capture.release();
+    }
+  });
+  it("returns stamped unknown for unsupported numerical range without claiming a witness", () => {
+    const { cohort } = setup();
+    const replacement = update("a", 1);
+    replacement.toWorld = [...identity];
+    replacement.toWorld[0] = replacement.toWorld[5] = replacement.toWorld[10] = 1e100;
+    cohort.publish([replacement]);
+    const capture = cohort.capture();
+    try {
+      const record = capture.provider
+        .snapshot()
+        .find((r: ProofRecord) => r.identity.registration.id === "a");
+      const query = {
+        point: { x: 2.5e99, y: 2.5e99, z: 1e100 },
+        frame: PROOF_FRAME,
+        minimumDistance: 1.01e100,
+        searchDistance: 1e101,
+      };
+      const reply = capture.oracle.nearest({
+        record,
+        topology: "full",
+        point: query.point,
+        maximumDistance: query.searchDistance,
+      });
+      expect(reply.kind).toBe("unknown");
+      expect(reply.reason).toBe("numerical-oracle-range");
+      expect(reply.consumed.revisions).toEqual(replacement.revisions);
+      const result = queryPointClearance({ snapshot: () => [record] }, capture.oracle, query);
+      expect(result.status).toBe("unknown");
+      expect(result.exactness).toBe("none");
+      expect(result.witnesses).toEqual([]);
+      expect(capture.getDiagnostics()).toEqual([]);
+    } finally {
+      capture.release();
+    }
+  });
   it("reuses only the committed same-part correspondence across verified identical topology", () => {
     const { coordination, cohort } = setup();
     expect(mappedFaces).toHaveBeenCalledTimes(2);

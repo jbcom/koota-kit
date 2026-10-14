@@ -71,6 +71,9 @@ subscribers select the new completed cohort. Failed preparation or a raw-write
 failure retains the old selected version. A listener exception occurs after
 commit and retains the new selected version. Identical publication is a no-op;
 changed bytes or provenance under the same completed tuple are rejected.
+Pending owned models invalidate the view until every model has a completed
+retained version. A completed model with an explicit empty part list represents
+known absence. Invalid views remain stable for React and fail closed in queries.
 
 The private proof can reuse a selected part's visible-to-full face correspondence
 after validating fresh copies and comparing its explicit topology epoch, source,
@@ -88,8 +91,11 @@ and keeps failed cleanup retryable without touching a replacement registration.
 
 ## Evidence boundary
 
-The exact reference oracle exhaustively evaluates indexed triangles after
-transforming all vertices into the declared world Euclidean metric. It does not
+The reference oracle exhaustively evaluates indexed triangles in its supported
+numerical range after transforming all vertices into the declared world Euclidean
+metric. It returns stamped `unknown` for overflow, underflow, subnormal arithmetic
+or thin triangles whose squared aspect ratio falls below its roundoff margin.
+It does not
 convert a local nearest winner into a world answer. Witness diagnostics retain
 full source face IDs, barycentric coordinates and geometric normals; degenerate
 faces retain segment/point witnesses without inventing a normal. This is a
@@ -109,7 +115,7 @@ No containment, solid penetration, traversability or line-of-sight result is
 claimed. The receipts report bounded measurements without a comparative
 performance claim.
 
-The pinned 0.8.0 composition uses dense arrays with own indexed entries. The
+The pinned 0.8.6 composition uses dense arrays with own indexed entries. The
 prototype-filled sparse-array defect tracked in [issue 68](https://github.com/jbcom/koota-kit/issues/68)
 is outside this legitimate-input proof; this guide does not claim that defect
 has been repaired in the installed release.

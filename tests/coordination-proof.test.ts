@@ -34,6 +34,61 @@ describe("caller-side copied-buffer proof", () => {
     );
   });
 
+  it("fails closed when finite world coordinates exceed the reference oracle arithmetic range", () => {
+    const positions = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
+    const indices = new Uint32Array([0, 1, 2]);
+    for (const scale of [1e100, 1e200, 1e-100, 1e-200]) {
+      const matrix = [...IDENTITY];
+      matrix[0] = scale;
+      matrix[5] = scale;
+      matrix[10] = scale;
+      const world = worldPositions(positions, matrix);
+      expect(() =>
+        nearestOpenSurface(world, indices, { x: scale / 4, y: scale / 4, z: scale }),
+      ).toThrow("numerical oracle range");
+    }
+  });
+
+  it("rejects nonzero subnormal arithmetic instead of moving an interior point to an edge", () => {
+    const scale = 1e-80;
+    const matrix = [...IDENTITY];
+    matrix[0] = matrix[5] = scale;
+    const world = worldPositions(new Float32Array([0, 0, 0, 1, 0, 0, 1, 1, 0]), matrix);
+    expect(() =>
+      nearestOpenSurface(world, new Uint32Array([0, 1, 2]), {
+        x: scale / 2,
+        y: scale * 1e-4,
+        z: 0,
+      }),
+    ).toThrow("numerical oracle range");
+  });
+
+  it("preserves ordinary degenerate segment and point witnesses", () => {
+    const indices = new Uint32Array([0, 1, 2]);
+    const segment = nearestOpenSurface(new Float32Array([0, 0, 0, 1, 0, 0, 2, 0, 0]), indices, {
+      x: 0.5,
+      y: 1,
+      z: 0,
+    });
+    expect(segment.distance).toBe(1);
+    expect(segment.point).toEqual({ x: 0.5, y: 0, z: 0 });
+    expect(segment.geometricNormal).toBeUndefined();
+    const collapsed = nearestOpenSurface(new Float32Array(9), indices, { x: 0, y: 1, z: 0 });
+    expect(collapsed.distance).toBe(1);
+    expect(collapsed.point).toEqual({ x: 0, y: 0, z: 0 });
+    expect(collapsed.geometricNormal).toBeUndefined();
+  });
+
+  it("rejects a thin normal-range triangle whose region products lose its interior", () => {
+    expect(() =>
+      nearestOpenSurface(
+        new Float64Array([0, 0, 0, 1, 0, 0, 1, 1e-9, 0]),
+        new Uint32Array([0, 1, 2]),
+        { x: 0.5, y: 1e-10, z: 0 },
+      ),
+    ).toThrow("numerical oracle range");
+  });
+
   it("ranks all transformed triangles in the actual nonuniform world metric", () => {
     const positions = new Float32Array([
       1, -1, -1, 1, 1, -1, 1, 0, 1, -1, 2, -1, 1, 2, -1, 0, 2, 1,

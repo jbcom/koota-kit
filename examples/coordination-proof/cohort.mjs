@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 import { assertMesh, sourceFaceIds } from "./fixture.mjs";
-import { indexedBounds, nearestOpenSurface, worldPositions } from "./open-surface.mjs";
+import {
+  indexedBounds,
+  nearestOpenSurface,
+  NumericalOracleRangeError,
+  worldPositions,
+} from "./open-surface.mjs";
 
 export const PROOF_FRAME = Object.freeze({
   id: "caller-proof-world",
@@ -61,26 +66,31 @@ export function createProofCohort(coordination, specifications) {
     }
   }
   function view(s) {
-    if ([...models.values()].some((m) => !m.removed && !current(m)))
-      return freeze({ coordination: s, records: freeze([]), valid: false });
+    function invalid() {
+      const cached = views.get(s);
+      if (cached?.valid === false) return cached;
+      const result = freeze({ coordination: s, records: freeze([]), valid: false });
+      views.set(s, result);
+      return result;
+    }
+    if ([...models.values()].some((m) => !m.removed && !current(m))) return invalid();
     // Cached metadata does not lease buffers; verify retained versions before using it.
     if (
       [...models.values()].some(
         (m) =>
           !m.removed &&
-          s.entries.find((entry) => entry.id === m.id)?.completed &&
-          !selectedVersion(m, s),
+          (!s.entries.find((entry) => entry.id === m.id)?.completed || !selectedVersion(m, s)),
       )
     )
-      return freeze({ coordination: s, records: freeze([]), valid: false });
+      return invalid();
     const cached = views.get(s);
-    if (cached) return cached;
+    if (cached?.valid === true) return cached;
     const records = [];
     for (const m of models.values()) {
       if (m.removed) continue;
       const v = selectedVersion(m, s);
       if (s.entries.find((entry) => entry.id === m.id)?.completed && !v) {
-        return freeze({ coordination: s, records: freeze([]), valid: false });
+        return invalid();
       }
       if (v) records.push(...v.parts.map((p) => p.record));
     }
@@ -322,12 +332,19 @@ export function createProofCohort(coordination, specifications) {
             topology: freeze({ selection: topology, id: record.topology[topology].id }),
             revisions: record.revisions,
           });
-          const hit = nearestOpenSurface(
-            p.positions,
-            p[topology],
-            point,
-            topology === "visible" ? p.visibleFaces : undefined,
-          );
+          let hit;
+          try {
+            hit = nearestOpenSurface(
+              p.positions,
+              p[topology],
+              point,
+              topology === "visible" ? p.visibleFaces : undefined,
+            );
+          } catch (error) {
+            if (error instanceof NumericalOracleRangeError)
+              return freeze({ kind: "unknown", reason: "numerical-oracle-range", consumed });
+            throw error;
+          }
           if (!hit || hit.distance > maximumDistance) return freeze({ kind: "no-hit", consumed });
           diagnostics.push(freeze({ identity: record.identity, ...hit, consumed }));
           return freeze({

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join, relative, sep } from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createProofCohort, PROOF_FRAME } from "./cohort.mjs";
@@ -20,7 +20,10 @@ const { registryImport: importInstalled, registryResolve } = await import(
 const importedFiles = new Map();
 async function registryImport(specifier) {
   const path = relative(consumerDirectory, fileURLToPath(registryResolve(specifier)));
-  assert.ok(path.startsWith("node_modules/"), "registry import escaped the independent consumer");
+  assert.ok(
+    path.split(sep)[0] === "node_modules",
+    "registry import escaped the independent consumer",
+  );
   const module = await importInstalled(specifier);
   importedFiles.set(specifier, path);
   return module;
@@ -260,9 +263,11 @@ figureUpdate = {
 };
 publish([figureUpdate]);
 const selectedRecords = cohort.getSnapshot().records;
-const bodyIdentity = selectedRecords.find(
+const bodyRecord = selectedRecords.find(
   (record) => record.identity.instanceId === "figure-b" && record.identity.partId === "body",
-).identity;
+);
+assert.ok(bodyRecord, "expected a body record for figure-b");
+const bodyIdentity = bodyRecord.identity;
 const partExclusion = clearance({ ...query, exclusions: [...exclusions, bodyIdentity] });
 assert.equal(partExclusion.status, "violated");
 assert.equal(partExclusion.checked.length, 1);
@@ -361,7 +366,10 @@ const report = {
   lifecyclePreserved: true,
   sameRawWorldObserved: true,
 };
-if (output) await writeFile(output, `${JSON.stringify(report, null, 2)}\n`);
+if (output) {
+  await mkdir(dirname(output), { recursive: true });
+  await writeFile(output, `${JSON.stringify(report, null, 2)}\n`);
+}
 console.log(
   JSON.stringify(
     {

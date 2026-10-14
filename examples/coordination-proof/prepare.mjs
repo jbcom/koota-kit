@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { loadFigureFixture } from "./fixture.mjs";
 import { IDENTITY, indexedBounds, nearestOpenSurface, worldPositions } from "./open-surface.mjs";
 
@@ -68,7 +69,10 @@ assert.equal(report.parts[0].fullTriangles, 107024);
 assert.equal(report.parts[0].visibleTriangles, 80112);
 assert.equal(report.parts[1].fullTriangles, 66688);
 assert.equal(report.parts[1].visibleTriangles, 66688);
-if (process.argv[3]) await writeFile(process.argv[3], `${JSON.stringify(report, null, 2)}\n`);
+if (process.argv[3]) {
+  await mkdir(dirname(process.argv[3]), { recursive: true });
+  await writeFile(process.argv[3], `${JSON.stringify(report, null, 2)}\n`);
+}
 console.log(
   JSON.stringify(
     { scope: report.scope, inputCount: report.inputs.length, parts: report.parts },

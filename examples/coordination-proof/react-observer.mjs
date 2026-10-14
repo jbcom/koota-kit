@@ -35,6 +35,7 @@ export async function observeCommittedUpdate({ registryImport, cohort, world, pu
         .join(","),
     );
   }
+  let unmounted = false;
   try {
     await React.act(async () =>
       root.render(React.createElement(WorldProvider, { world }, React.createElement(Inspector))),
@@ -47,6 +48,7 @@ export async function observeCommittedUpdate({ registryImport, cohort, world, pu
     const after = container.textContent;
     assert.notEqual(after, before);
     await React.act(async () => root.unmount());
+    unmounted = true;
     assert.ok(world.isInitialized);
     return {
       before,
@@ -56,8 +58,8 @@ export async function observeCommittedUpdate({ registryImport, cohort, world, pu
       unmountPreservedWorld: true,
     };
   } finally {
-    // Keep the cleanup idempotent if an assertion fails before the normal unmount.
-    await React.act(async () => root.unmount());
+    // Clean up an assertion failure before the normal unmount.
+    if (!unmounted) await React.act(async () => root.unmount());
     dom.window.close();
     for (const [name, descriptor] of descriptors) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor);

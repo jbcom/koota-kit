@@ -1,6 +1,30 @@
-const point = (x, y, z) => Object.freeze({ x, y, z });
-const sub = (a, b) => [a.x - b.x, a.y - b.y, a.z - b.z];
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+export class NumericalOracleRangeError extends RangeError {
+  constructor() {
+    super("proof: numerical oracle range exceeded");
+    this.name = "NumericalOracleRangeError";
+  }
+}
+const MIN_NORMAL = 2 ** -1022;
+const checked = (value) => {
+  if (!Number.isFinite(value) || (value !== 0 && Math.abs(value) < MIN_NORMAL))
+    throw new NumericalOracleRangeError();
+  return value;
+};
+const sum = (...values) => values.reduce((total, value) => checked(total + value), 0);
+const product = (left, right) => {
+  const value = checked(left * right);
+  if (value === 0 && left !== 0 && right !== 0) throw new NumericalOracleRangeError();
+  return value;
+};
+const quotient = (numerator, denominator) => {
+  if (denominator === 0) throw new NumericalOracleRangeError();
+  const value = checked(numerator / denominator);
+  if (value === 0 && numerator !== 0) throw new NumericalOracleRangeError();
+  return value;
+};
+const point = (x, y, z) => Object.freeze({ x: checked(x), y: checked(y), z: checked(z) });
+const sub = (a, b) => [checked(a.x - b.x), checked(a.y - b.y), checked(a.z - b.z)];
+const dot = (a, b) => sum(product(a[0], b[0]), product(a[1], b[1]), product(a[2], b[2]));
 
 export const IDENTITY = Object.freeze([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
@@ -19,9 +43,24 @@ export function worldPositions(positions, matrix) {
   const output = new Float64Array(positions.length);
   for (let i = 0; i < positions.length; i += 3) {
     const [x, y, z] = positions.subarray(i, i + 3);
-    output[i] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
-    output[i + 1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
-    output[i + 2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+    output[i] = sum(
+      product(matrix[0], x),
+      product(matrix[4], y),
+      product(matrix[8], z),
+      matrix[12],
+    );
+    output[i + 1] = sum(
+      product(matrix[1], x),
+      product(matrix[5], y),
+      product(matrix[9], z),
+      matrix[13],
+    );
+    output[i + 2] = sum(
+      product(matrix[2], x),
+      product(matrix[6], y),
+      product(matrix[10], z),
+      matrix[14],
+    );
   }
   if (output.some((value) => !Number.isFinite(value))) throw new Error("proof: transform overflow");
   return output;
@@ -52,29 +91,32 @@ function closestTriangle(p, a, b, c) {
     d3 = dot(ab, bp),
     d4 = dot(ac, bp);
   if (d3 >= 0 && d4 <= d3) return [0, 1, 0];
-  const vc = d1 * d4 - d3 * d2;
+  const vc = checked(product(d1, d4) - product(d3, d2));
   if (vc <= 0 && d1 >= 0 && d3 <= 0) {
-    const v = d1 / (d1 - d3);
-    return [1 - v, v, 0];
+    const v = quotient(d1, checked(d1 - d3));
+    return [checked(1 - v), v, 0];
   }
   const cp = sub(p, c),
     d5 = dot(ab, cp),
     d6 = dot(ac, cp);
   if (d6 >= 0 && d5 <= d6) return [0, 0, 1];
-  const vb = d5 * d2 - d1 * d6;
+  const vb = checked(product(d5, d2) - product(d1, d6));
   if (vb <= 0 && d2 >= 0 && d6 <= 0) {
-    const w = d2 / (d2 - d6);
-    return [1 - w, 0, w];
+    const w = quotient(d2, checked(d2 - d6));
+    return [checked(1 - w), 0, w];
   }
-  const va = d3 * d6 - d5 * d4;
+  const va = checked(product(d3, d6) - product(d5, d4));
   if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
-    const w = (d4 - d3) / (d4 - d3 + d5 - d6);
-    return [0, 1 - w, w];
+    const numerator = checked(d4 - d3);
+    const w = quotient(numerator, sum(numerator, checked(d5 - d6)));
+    return [0, checked(1 - w), w];
   }
-  const inverse = 1 / (va + vb + vc),
-    v = vb * inverse,
-    w = vc * inverse;
-  return [1 - v - w, v, w];
+  const denominator = sum(va, vb, vc);
+  if (denominator <= 0) throw new NumericalOracleRangeError();
+  const inverse = quotient(1, denominator),
+    v = product(vb, inverse),
+    w = product(vc, inverse);
+  return [sum(1, -v, -w), v, w];
 }
 
 export function nearestOpenSurface(positions, indices, query, sourceFaceIds) {
@@ -88,11 +130,11 @@ export function nearestOpenSurface(positions, indices, query, sourceFaceIds) {
       ab = sub(b, a),
       ac = sub(c, a);
     const cross = [
-      ab[1] * ac[2] - ab[2] * ac[1],
-      ab[2] * ac[0] - ab[0] * ac[2],
-      ab[0] * ac[1] - ab[1] * ac[0],
+      checked(product(ab[1], ac[2]) - product(ab[2], ac[1])),
+      checked(product(ab[2], ac[0]) - product(ab[0], ac[2])),
+      checked(product(ab[0], ac[1]) - product(ab[1], ac[0])),
     ];
-    const area = Math.hypot(...cross);
+    const area = checked(Math.hypot(...cross));
     let barycentric;
     if (area === 0) {
       const candidates = [
@@ -105,28 +147,38 @@ export function nearestOpenSurface(positions, indices, query, sourceFaceIds) {
         const t =
           length === 0
             ? 0
-            : Math.max(0, Math.min(1, dot(sub(query, vertices[start]), edge) / length));
+            : Math.max(0, Math.min(1, quotient(dot(sub(query, vertices[start]), edge), length)));
         const weights = [0, 0, 0];
-        weights[start] = 1 - t;
+        weights[start] = checked(1 - t);
         weights[end] = t;
         const projected = point(
-          ...["x", "y", "z"].map(
-            (axis) => vertices[start][axis] + t * (vertices[end][axis] - vertices[start][axis]),
+          ...["x", "y", "z"].map((axis) =>
+            sum(
+              vertices[start][axis],
+              product(t, checked(vertices[end][axis] - vertices[start][axis])),
+            ),
           ),
         );
-        return { weights, distance: Math.hypot(...sub(query, projected)) };
+        return { weights, distance: checked(Math.hypot(...sub(query, projected))) };
       });
       candidates.sort((left, right) => left.distance - right.distance);
       barycentric = candidates[0].weights;
     } else {
+      // Gram-region classification squares the aspect ratio. Below this
+      // conservative roundoff margin, this bounded oracle cannot certify it.
+      const longestEdge = checked(
+        Math.max(Math.hypot(...ab), Math.hypot(...ac), Math.hypot(...sub(c, b))),
+      );
+      const quality = quotient(quotient(area, longestEdge), longestEdge);
+      if (quality <= Math.sqrt(64 * Number.EPSILON)) throw new NumericalOracleRangeError();
       barycentric = closestTriangle(query, a, b, c);
     }
     const hit = point(
       ...["x", "y", "z"].map((axis) =>
-        vertices.reduce((sum, vertex, corner) => sum + vertex[axis] * barycentric[corner], 0),
+        sum(...vertices.map((vertex, corner) => product(vertex[axis], barycentric[corner]))),
       ),
     );
-    const distance = Math.hypot(...sub(query, hit));
+    const distance = checked(Math.hypot(...sub(query, hit)));
     const face = sourceFaceIds?.[offset / 3] ?? offset / 3;
     if (!best || distance < best.distance || (distance === best.distance && face < best.face)) {
       best = Object.freeze({
@@ -134,7 +186,8 @@ export function nearestOpenSurface(positions, indices, query, sourceFaceIds) {
         point: hit,
         distance,
         barycentric: Object.freeze(barycentric),
-        geometricNormal: area === 0 ? undefined : point(...cross.map((value) => value / area)),
+        geometricNormal:
+          area === 0 ? undefined : point(...cross.map((value) => quotient(value, area))),
       });
     }
   }

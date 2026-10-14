@@ -138,6 +138,13 @@ ID. Listener errors occur after a committed publication; retrieve a token with
 `getRegistration(id)` if registration notification threw before `register`
 could return it.
 
+Use one Koota runtime and module format per process. Koota 0.6.6 replaces numeric
+entity dispatch when the opposite ESM/CommonJS peer format loads. Coordination
+then rejects live reads, writes, and cleanup with a dispatch-realm error;
+`getSnapshot()` still returns its last committed view. Raw callback writes may
+already have happened, but failed cleanup never reports successful disposal.
+The independent `koota-kit/spatial` entry can be imported in either format.
+
 The [caller composition proof](docs/INTEGRATION_PROOF.md) documents the optional
 registry consumer, copied figure inputs, immutable geometry captures and the
 limits of open-surface integration evidence.

@@ -251,6 +251,43 @@ try {
     shell: npmNeedsShell,
     stdio: "pipe",
   });
+  const realmCheck = path.join(consumerRoot, "coordination-realm-check.mjs");
+  writeFileSync(
+    realmCheck,
+    readFileSync(path.join(packageRoot, "scripts/coordination-realm-check.mjs")),
+  );
+  const realmFailures = [];
+  for (const format of ["esm", "cjs"]) {
+    for (const scenario of [
+      "single",
+      "spatial",
+      "destroyed",
+      "import",
+      "alias",
+      "preimport",
+      "foreign",
+      "marker-add",
+      "marker-change",
+      "register-add",
+      "callback-publish",
+      "callback-unregister",
+      "callback-dispose",
+      "callback-marker-remove",
+      "subscriber",
+      "subscriber-silent",
+      "metadata-noop",
+    ]) {
+      try {
+        execFileSync(process.execPath, [realmCheck, format, scenario], {
+          cwd: consumerRoot,
+          stdio: "pipe",
+        });
+      } catch (error) {
+        realmFailures.push(`${format} ${scenario}: ${error.stderr.toString()}`);
+      }
+    }
+  }
+  assert.deepEqual(realmFailures, [], "installed coordination realm checks failed");
   const esmInstalledDraw = execFileSync(
     process.execPath,
     [

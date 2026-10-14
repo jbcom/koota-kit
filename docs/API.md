@@ -360,6 +360,19 @@ trait before rethrowing, so an existing peer binding remains intact and the
 caller may retry registration. `getEntity` and `getRegistration` return `undefined` for a stale
 registration.
 
+Use one Koota runtime and module format per process. Koota
+0.6.6 replaces numeric entity dispatch when its opposite ESM/CommonJS format
+loads. Binding rejects a foreign peer World before adding its marker, and
+attests the existing marker holder to detect contamination that predates the
+first kit import. Later live reads, mutations, and cleanup throw a
+`coordination:` dispatch-realm error if that attestation fails; they preserve
+the last committed snapshot and subscribers. `getSnapshot()` remains readable.
+A subscriber that changes dispatch after publication triggers an error after
+all listeners receive the newly committed snapshot; that publication stays
+committed. An opposite-format `koota-kit/spatial` import is safe because that entry does
+not load Koota. This guard detects the known peer-format conflict; it does not
+repair global methods or make mixed-format entity operations interoperable.
+
 `publishBatch` validates every token and metadata value before it changes any
 owned trait or snapshot. Its completed projection changes only after every raw
 Koota trait write succeeds; a Koota callback error can leave partial raw mirror

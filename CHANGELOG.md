@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat: add borrowed-world coordination by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/54
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.6.2...v0.7.0
+
 ## 0.6.2 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

@@ -265,7 +265,6 @@ are also available:
 | `koota-kit/traits` | Safe trait declaration |
 | `koota-kit/schedule` | Fixed-step system schedule with a step cap |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
-| `koota-kit/spatial` | Renderer-neutral point-to-open-surface clearance queries |
 | `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 
 See the [API reference](./docs/API.md) for signatures and validation behavior,
@@ -286,9 +285,6 @@ For task-oriented usage, read the Sourcey guides on
 - `advanceClock` accepts finite, non-negative `dt`; `0` is a valid paused tick.
 - `createSchedule` needs a finite `step > 0` and a safe-integer `maxSteps >= 1`;
   a negative, `NaN` or infinite `frameDt` counts as `0`.
-- `queryPointClearance` accepts only finite coordinates and a shared Euclidean
-  frame/unit. It proves distance to declared open surfaces, never containment
-  or solid nonpenetration.
 - `nextInt` requires safe-integer bounds with `maxExclusive > minInclusive` and
   a range no larger than `2**32`.
 - `chance` accepts only finite probabilities in `[0, 1]`.

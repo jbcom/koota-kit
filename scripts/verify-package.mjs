@@ -58,7 +58,6 @@ const reactFree = [
   "seed",
   "schedule",
   "eventLog",
-  "spatial",
   "coordination",
   "traits/index",
 ];
@@ -126,10 +125,6 @@ try {
     "dist/esm/react.d.ts",
     "dist/cjs/react.cjs",
     "dist/cjs/react.d.cts",
-    "dist/esm/spatial.js",
-    "dist/esm/spatial.d.ts",
-    "dist/cjs/spatial.cjs",
-    "dist/cjs/spatial.d.cts",
     "dist/esm/coordination.js",
     "dist/esm/coordination.d.ts",
     "dist/cjs/coordination.cjs",
@@ -180,7 +175,6 @@ try {
     "snapshotWorld",
     "substream",
     "trait",
-    "queryPointClearance",
   ];
   for (const name of expectedRuntimeExports) {
     assert.equal(typeof esm[name], "function", `ESM export ${name} is missing`);
@@ -299,31 +293,6 @@ try {
     cjsInstalledCoordination,
     "true",
     "installed CommonJS coordination entry did not bind a raw World",
-  );
-
-  const spatialProbe =
-    "const { queryPointClearance } = %SPATIAL%; " +
-    "const f = { id: 'f', unit: 'metre', metric: 'euclidean' }; " +
-    "const p = { snapshot: () => [] }; " +
-    "const o = { nearest: () => undefined }; " +
-    "process.stdout.write(queryPointClearance(p, o, { point: { x: 0, y: 0, z: 0 }, frame: f, minimumDistance: 1, searchDistance: 1 }).status);";
-  const esmSpatialProbe = spatialProbe.replace("%SPATIAL%", "await import('koota-kit/spatial')");
-  const cjsSpatialProbe = spatialProbe.replace("%SPATIAL%", "require('koota-kit/spatial')");
-  assert.equal(
-    execFileSync(process.execPath, ["--input-type=module", "--eval", esmSpatialProbe], {
-      cwd: consumerRoot,
-      encoding: "utf8",
-    }),
-    "satisfied",
-    "installed ESM koota-kit/spatial did not run",
-  );
-  assert.equal(
-    execFileSync(process.execPath, ["--input-type=commonjs", "--eval", cjsSpatialProbe], {
-      cwd: consumerRoot,
-      encoding: "utf8",
-    }),
-    "satisfied",
-    "installed CommonJS koota-kit/spatial did not run",
   );
 
   // The React entry only works once the consumer opts in by installing React.

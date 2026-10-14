@@ -1,6 +1,6 @@
 {
   "name": "koota-kit",
-  "version": "0.8.0",
+  "version": "0.7.0",
   "description": "Deterministic Koota simulation conventions: world lifecycle, dual RNG streams, safe object traits, and world-scoped event logs.",
   "type": "module",
   "license": "MIT",
@@ -83,14 +83,14 @@
         "default": "./dist/cjs/eventLog.cjs"
       }
     },
-    "./spatial": {
+    "./coordination": {
       "import": {
-        "types": "./dist/esm/spatial.d.ts",
-        "default": "./dist/esm/spatial.js"
+        "types": "./dist/esm/coordination.d.ts",
+        "default": "./dist/esm/coordination.js"
       },
       "require": {
-        "types": "./dist/cjs/spatial.d.cts",
-        "default": "./dist/cjs/spatial.cjs"
+        "types": "./dist/cjs/coordination.d.cts",
+        "default": "./dist/cjs/coordination.cjs"
       }
     },
     "./react": {
@@ -103,17 +103,7 @@
         "default": "./dist/cjs/react.cjs"
       }
     },
-    "./package.json": "./package.json",
-    "./coordination": {
-      "import": {
-        "types": "./dist/esm/coordination.d.ts",
-        "default": "./dist/esm/coordination.js"
-      },
-      "require": {
-        "types": "./dist/cjs/coordination.d.cts",
-        "default": "./dist/cjs/coordination.cjs"
-      }
-    }
+    "./package.json": "./package.json"
   },
   "files": [
     "CHANGELOG.md",
@@ -166,7 +156,6 @@
     "@biomejs/biome": "^2.5.5",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
-    "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitest/coverage-v8": "^3.2.7",
@@ -225,17 +214,14 @@
       "eventLog": [
         "./dist/esm/eventLog.d.ts"
       ],
-      "spatial": [
-        "./dist/esm/spatial.d.ts"
+      "coordination": [
+        "./dist/esm/coordination.d.ts"
       ],
       "react": [
         "./dist/esm/react.d.ts"
       ],
       "*": [
         "./dist/esm/index.d.ts"
-      ],
-      "coordination": [
-        "./dist/esm/coordination.d.ts"
       ]
     }
   },

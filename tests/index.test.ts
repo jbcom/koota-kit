@@ -17,7 +17,6 @@ import * as coordinationModule from "../src/coordination.js";
 import * as rngModule from "../src/rng.js";
 import * as scheduleModule from "../src/schedule.js";
 import * as seedModule from "../src/seed.js";
-import * as spatialModule from "../src/spatial.js";
 import * as traitsModule from "../src/traits/index.js";
 import * as worldModule from "../src/world.js";
 
@@ -67,10 +66,6 @@ describe("root barrel (src/index.ts) re-exports", () => {
 
   it("re-exports defineTrait from traits/index.js by identity", () => {
     expect(indexModule.defineTrait).toBe(traitsModule.defineTrait);
-  });
-
-  it("re-exports queryPointClearance from spatial.js by identity", () => {
-    expect(indexModule.queryPointClearance).toBe(spatialModule.queryPointClearance);
   });
 
   it("re-exports coordination values by identity without loading an optional adapter", () => {

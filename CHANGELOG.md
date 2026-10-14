@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.8 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* test: prove registry caller composition in one World by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/76
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.7...v0.8.8
+
 ## 0.8.7 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

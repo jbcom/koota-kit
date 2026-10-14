@@ -1,6 +1,6 @@
 {
   "name": "koota-kit",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Deterministic Koota simulation conventions: world lifecycle, dual RNG streams, safe object traits, and world-scoped event logs.",
   "type": "module",
   "license": "MIT",

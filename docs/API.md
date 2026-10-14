@@ -287,6 +287,108 @@ scratch map. `drain` truncates the live array in place so an existing internal
 reference is not orphaned. Empty reads do not create a scratch entry. `peek`
 returns a detached array; `size` does not allocate.
 
+## `coordination`
+
+Import from `koota-kit/coordination` or the root. This React-free entry binds
+to an existing caller-owned Koota `World`; it never creates, resets, or
+destroys that World or its entities.
+
+```ts
+type CompletedRevisions = Readonly<{
+  geometry: number;
+  pose: number;
+  transform: number;
+}>;
+
+type CompletedMetadata = Readonly<{ revisions: CompletedRevisions }>;
+type CoordinationDescriptor = Readonly<{
+  id: string;
+  capabilities: readonly string[];
+}>;
+type CoordinationUpdate = Readonly<{
+  token: RegistrationToken;
+  completed: CompletedMetadata;
+}>;
+type CoordinationEntry = Readonly<{
+  id: string;
+  capabilities: readonly string[];
+  completed: CompletedMetadata | undefined;
+}>;
+type CoordinationSnapshot = Readonly<{
+  revision: number;
+  entries: readonly CoordinationEntry[];
+}>;
+
+function bindCoordination(world: World): Coordination;
+```
+
+`id` is a caller-authored, non-empty stable string. It is not a packed Koota
+entity ID. Capability labels are copied, sorted, and must be unique non-empty
+strings; change a capability set by unregistering and registering again.
+`completed.revisions.geometry`, `.pose`, and `.transform` are all required
+non-negative safe integers. They may advance independently but no dimension
+may decrease. A new completed value with all three values equal is a no-op.
+
+```ts
+type Coordination = Readonly<{
+  readonly world: World;
+  register(entity: Entity, descriptor: CoordinationDescriptor): RegistrationToken;
+  publish(token: RegistrationToken, completed: CompletedMetadata): CoordinationSnapshot;
+  publishBatch(updates: readonly CoordinationUpdate[]): CoordinationSnapshot;
+  unregister(token: RegistrationToken): CoordinationSnapshot;
+  prune(): CoordinationSnapshot;
+  getRegistration(id: string): RegistrationToken | undefined;
+  getEntity(id: string): Entity | undefined;
+  getSnapshot(): CoordinationSnapshot;
+  subscribe(listener: (snapshot: CoordinationSnapshot) => void): () => void;
+  dispose(): void;
+}>;
+```
+
+`register` accepts only a live entity in the supplied `World`; cross-World,
+destroyed, duplicated, and externally conflicting entities are rejected before
+the coordinator mutates its projection. The opaque token is scoped to one
+binding and to the entity generation. `publish` and `unregister` reject a
+stale token. If an entity is destroyed or the owned registration trait is
+removed externally, call `prune()` to publish its removal before reusing the
+stable ID. If Koota rejects the binding marker during construction or rejects an
+add callback during `register`, the binding removes only its just-added marker or
+trait before rethrowing, so an existing peer binding remains intact and the
+caller may retry registration. `getEntity` and `getRegistration` return `undefined` for a stale
+registration.
+
+`publishBatch` validates every token and metadata value before it changes any
+owned trait or snapshot. Its completed projection changes only after every raw
+Koota trait write succeeds; a Koota callback error can leave partial raw mirror
+writes, which are outside that projection. A completed snapshot is immutable,
+detached from the caller input, and sorted by stable ID. Producers that need a
+cross-producer atomic cohort must publish through the same binding; disjoint
+bindings are independent cohorts. `revision` is a binding-local committed
+publication generation, not a geometry, pose, transform, source-hash, or
+provider freshness claim. It deliberately does not serialize entities or join
+the RNG/clock `WorldSnapshot` boundary.
+
+Subscribers each receive the same committed snapshot. A subscribe or
+unsubscribe during delivery affects only a later publication. Registry mutation
+during delivery or an owned Koota trait callback throws. Listener failures are
+reported after every listener has been offered the committed snapshot; they do
+not roll back it. When a listener throws during `register`, use
+`getRegistration(id)` to recover the successfully committed token.
+
+`dispose` is idempotent. It removes only this binding's registration traits and
+World-held ownership marker, keeps other bindings' markers, and never destroys
+or resets the borrowed World, its entities, caller traits, providers, or
+buffers. Several bindings may share a World only for disjoint entities.
+
+`CoordinationBinding` and `CoordinationRegistration` are the exported Koota
+trait identities for this module format. The binding trait holds only opaque
+per-binding ownership markers on the borrowed World; it is removed when the
+last binding disposes. Direct trait mutation is outside the immutable committed-
+snapshot contract; use the binding methods for publication. The module has no
+renderer, React, producer, geometry, spatial-index, or AI dependency. Exact
+adapters must own their own immutable buffers or read leases and report their
+own source, topology, frame, unit, and freshness contracts.
+
 ## `react`
 
 Import from `koota-kit/react`. Requires `react` (`>=18`), an optional peer

@@ -103,7 +103,17 @@
         "default": "./dist/cjs/react.cjs"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./coordination": {
+      "import": {
+        "types": "./dist/esm/coordination.d.ts",
+        "default": "./dist/esm/coordination.js"
+      },
+      "require": {
+        "types": "./dist/cjs/coordination.d.cts",
+        "default": "./dist/cjs/coordination.cjs"
+      }
+    }
   },
   "files": [
     "CHANGELOG.md",
@@ -222,6 +232,9 @@
       ],
       "*": [
         "./dist/esm/index.d.ts"
+      ],
+      "coordination": [
+        "./dist/esm/coordination.d.ts"
       ]
     }
   },

@@ -13,6 +13,7 @@
 import { describe, expect, it } from "vitest";
 import * as eventLogModule from "../src/eventLog.js";
 import * as indexModule from "../src/index.js";
+import * as coordinationModule from "../src/coordination.js";
 import * as rngModule from "../src/rng.js";
 import * as scheduleModule from "../src/schedule.js";
 import * as seedModule from "../src/seed.js";
@@ -70,6 +71,12 @@ describe("root barrel (src/index.ts) re-exports", () => {
 
   it("re-exports queryPointClearance from spatial.js by identity", () => {
     expect(indexModule.queryPointClearance).toBe(spatialModule.queryPointClearance);
+  });
+
+  it("re-exports coordination values by identity without loading an optional adapter", () => {
+    expect(indexModule.bindCoordination).toBe(coordinationModule.bindCoordination);
+    expect(indexModule.CoordinationBinding).toBe(coordinationModule.CoordinationBinding);
+    expect(indexModule.CoordinationRegistration).toBe(coordinationModule.CoordinationRegistration);
   });
 
   it("drives a full create -> spawn -> rng -> event log -> snapshot cycle through ONLY the root barrel", () => {

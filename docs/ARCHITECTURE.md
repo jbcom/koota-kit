@@ -14,6 +14,7 @@ world ────────────────> koota + rng
 schedule ─────────────> world (advanceClock) + WorldHandle scratch
 eventLog ─────────────> WorldHandle scratch
 spatial ──────────────> (leaf: caller-provided provider + exact oracle)
+coordination ─────────> koota (borrowed World, no sibling runtime dependency)
 react ────────────────> koota/react + react + world (type only)
 index ────────────────> public re-exports only (never react)
 ```
@@ -55,6 +56,24 @@ provider records nor buffers, so producer-owned buffers cannot be aliased by a
 core cache. Full topology is the default; a visible selection is explicit.
 Point clearance establishes distance to open surfaces only. It deliberately
 does not infer solid containment or nonpenetration from triangle proximity.
+`coordination` accepts an existing raw Koota `World` and attaches only its
+own ownership and registration traits. Its immutable snapshot is a completed
+metadata projection, not a second World or ECS serializer. The World retains
+authority over caller entities and traits. Each binding owns an opaque marker
+held on that World and registration records tagged with that marker, so it can
+remove only its own records. Bindings may coexist only for disjoint entities.
+`CoordinationBinding` and `CoordinationRegistration` have one identity per
+module format; consumers should not mix package formats in a single Koota World.
+
+Before a publication, coordination validates every update and produces a new
+immutable view sorted by caller-authored stable ID. Koota raw trait callbacks
+may see the individual mirror writes, so the completed view changes only after
+all mirror writes succeed and is the sole atomic observer boundary. Producers
+share a binding to form one atomic cohort; disjoint bindings are independent
+cohorts. Listener callbacks cannot mutate the registry while delivery
+is active. There is no event-log drain: every coordination subscriber is
+independent. Entity destruction is detected by `World.has` and becomes a
+published removal only when the caller explicitly invokes `prune`.
 
 `react` is the only module that imports React, through `koota/react`. It is
 reachable only from the `koota-kit/react` subpath: `index` does not re-export it,
@@ -85,6 +104,10 @@ it reaches `react` or `koota/react`.
 11. Spatial query results are stamped with the provider's full identity,
     selected topology, frame/unit, and independent completed revisions. A
     mismatched expected or oracle-consumed tuple is stale, never exact.
+12. A coordination snapshot publishes only fully validated completed metadata;
+    failed batch preparation leaves the prior projection visible.
+13. Coordination disposal never destroys or resets a caller-owned World,
+    entity, caller trait, provider, or geometry buffer.
 
 ## Performance choices
 
@@ -93,6 +116,9 @@ it reaches `react` or `koota/react`.
   through JSON.
 - Event logs allocate on first push, leave scratch untouched for empty reads,
   truncate in place on drain, and expose a non-allocating `size` operation.
+- Coordination snapshots are rebuilt only after a completed registration,
+  publication, removal, or explicit prune. Equal completed revisions retain
+  the prior snapshot identity and do not notify subscribers.
 - The package is not bundled. ESM and CommonJS outputs preserve small subpath
   entry points and let application bundlers tree-shake normally.
 
@@ -107,3 +133,7 @@ it reaches `react` or `koota/react`.
   passes, so the application still owns stable domain keys.
 - No multi-consumer queue semantics: publish separate logs when two systems
   must independently consume the same fact.
+- No geometry, broadphase, exact-query, source/provenance, topology, unit,
+  frame, pose, renderer, React, or AI adapter: those are later explicit
+  producer/query contracts. A coordination revision is not evidence that a
+  provider's buffers are immutable or fresh.

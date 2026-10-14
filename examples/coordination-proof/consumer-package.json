@@ -1,0 +1,15 @@
+{
+  "name": "koota-caller-proof-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "jsdom": "30.1.2",
+    "koota": "0.6.6",
+    "koota-kit": "0.8.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "strata-procedural": "0.1.0",
+    "yuka": "0.7.8",
+    "yuka-kit": "1.1.0"
+  }
+}

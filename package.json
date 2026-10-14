@@ -122,6 +122,7 @@
     "dist",
     "docs/API.md",
     "docs/ARCHITECTURE.md",
+    "docs/INTEGRATION_PROOF.md",
     "docs/assets",
     "examples"
   ],

@@ -58,7 +58,7 @@ export default defineConfig({
             },
             {
               group: "Guides",
-              pages: ["determinism", "persistence", "event-logs"],
+              pages: ["determinism", "persistence", "event-logs", "INTEGRATION_PROOF"],
             },
             {
               group: "Reference",

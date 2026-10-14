@@ -138,6 +138,10 @@ ID. Listener errors occur after a committed publication; retrieve a token with
 `getRegistration(id)` if registration notification threw before `register`
 could return it.
 
+The [caller composition proof](docs/INTEGRATION_PROOF.md) documents the optional
+registry consumer, copied figure inputs, immutable geometry captures and the
+limits of open-surface integration evidence.
+
 ### Randomness has two jobs
 
 - `rng.gen` defines stable world content: terrain, layouts, initial spawns.

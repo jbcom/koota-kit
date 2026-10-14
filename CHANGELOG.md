@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat(spatial): add renderer-neutral clearance queries by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/55
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.7.1...v0.8.0
+
 ## 0.7.1 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

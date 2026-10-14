@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.1 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump actions/setup-node from 7.0.0 to 7.1.0 in the non-major group by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/45
+* fix(release): deduplicate changelog pull requests by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/50
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.6.0...v0.6.1
+
 ## [0.6.0](https://github.com/jbcom/koota-kit/compare/v0.5.0...v0.6.0) (2026-10-10)
 
 

@@ -19,9 +19,9 @@ type RegistrationState = {
 };
 
 /**
- * World-held ownership markers for live bindings. Each binding places one
- * opaque marker in this trait and removes only its own marker at disposal.
- * It is exported so every import of this module format shares trait identity.
+ * World-held ownership markers for live bindings. Each binding appends one
+ * opaque marker and removes only that marker at disposal, so no module-global
+ * registry or per-bind Koota trait allocation is needed.
  */
 export const CoordinationBinding = trait({ markers: () => [] as BindingMarker[] });
 

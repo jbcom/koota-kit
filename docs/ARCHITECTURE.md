@@ -51,9 +51,8 @@ metadata projection, not a second World or ECS serializer. The World retains
 authority over caller entities and traits. Each binding owns an opaque marker
 held on that World and registration records tagged with that marker, so it can
 remove only its own records. Bindings may coexist only for disjoint entities.
-The public `CoordinationBinding` and `CoordinationRegistration` traits have one
-identity per module format; consumers should not mix package formats in a
-single Koota World.
+`CoordinationBinding` and `CoordinationRegistration` have one identity per
+module format; consumers should not mix package formats in a single Koota World.
 
 Before a publication, coordination validates every update and produces a new
 immutable view sorted by caller-authored stable ID. Koota raw trait callbacks

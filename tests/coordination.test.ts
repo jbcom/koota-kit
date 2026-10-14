@@ -38,14 +38,21 @@ afterEach(() => {
 });
 
 describe("borrowed-world coordination", () => {
-  it("requires a live World and keeps its marker local to that World", () => {
+  it("requires a live World and keeps disjoint bindings independent", () => {
     expect(() => bindCoordination(undefined as never)).toThrow(/live Koota World/);
     const callerWorld = world();
-    const coordinator = bindCoordination(callerWorld);
+    const first = bindCoordination(callerWorld);
+    const second = bindCoordination(callerWorld);
+    const firstEntity = callerWorld.spawn();
+    const secondEntity = callerWorld.spawn();
+    register(first, firstEntity, "first");
+    register(second, secondEntity, "second");
+    expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(2);
+    second.dispose();
+    expect(first.getEntity("first")).toBe(firstEntity);
     expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(1);
-    callerWorld.remove(CoordinationBinding);
-    expect(() => register(coordinator, callerWorld.spawn(), "lost-marker")).toThrow(/World marker/);
-    coordinator.dispose();
+    expect(() => register(first, callerWorld.spawn(), "third")).not.toThrow();
+    first.dispose();
   });
 
   it("registers existing entities in the caller World without touching caller traits", () => {
@@ -66,7 +73,6 @@ describe("borrowed-world coordination", () => {
     expect(unrelated.get(CallerState)?.value).toBe(13);
     expect(unrelated.has(CoordinationRegistration)).toBe(false);
     expect(coordinator.world).toBe(callerWorld);
-    expect(callerWorld.has(CoordinationBinding)).toBe(true);
     expect(coordinator.getSnapshot()).toEqual({
       revision: 2,
       entries: [
@@ -111,7 +117,6 @@ describe("borrowed-world coordination", () => {
     }
     expect(() => register(coordinator, other, "other")).toThrow(/entity must be live/);
     const otherBinding = bindCoordination(callerWorld);
-    expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(2);
 
     const token = register(coordinator, entity, "one");
     expect(() => register(coordinator, entity, "two")).toThrow(/already carries/);

@@ -197,16 +197,21 @@ try {
       "coordination entry is missing its registration trait",
     );
   }
-  assert.equal(
-    esm.CoordinationBinding,
-    esmCoordination.CoordinationBinding,
-    "ESM coordination trait identity differs from the root export",
-  );
-  assert.equal(
-    cjs.CoordinationBinding,
-    cjsCoordination.CoordinationBinding,
-    "CJS coordination trait identity differs from the root export",
-  );
+  for (const [format, root, coordination] of [
+    ["ESM", esm, esmCoordination],
+    ["CommonJS", cjs, cjsCoordination],
+  ]) {
+    assert.equal(
+      root.CoordinationBinding,
+      coordination.CoordinationBinding,
+      `${format} coordination binding trait identity differs from the root export`,
+    );
+    assert.equal(
+      root.CoordinationRegistration,
+      coordination.CoordinationRegistration,
+      `${format} coordination registration trait identity differs from the root export`,
+    );
+  }
 
   const esmRng = esm.createRng({ gen: "package-check", events: 7 });
   const cjsRng = cjs.createRng({ gen: "package-check", events: 7 });

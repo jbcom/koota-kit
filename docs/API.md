@@ -338,11 +338,13 @@ or resets the borrowed World, its entities, caller traits, providers, or
 buffers. Several bindings may share a World only for disjoint entities.
 
 `CoordinationBinding` and `CoordinationRegistration` are the exported Koota
-trait identities for this module format. Direct trait mutation is outside the
-immutable committed-snapshot contract; use the binding methods for publication.
-The module has no renderer, React, producer, geometry, spatial-index, or AI
-dependency. Exact adapters must own their own immutable buffers or read leases
-and report their own source, topology, frame, unit, and freshness contracts.
+trait identities for this module format. The binding trait holds only opaque
+per-binding ownership markers on the borrowed World; it is removed when the
+last binding disposes. Direct trait mutation is outside the immutable committed-
+snapshot contract; use the binding methods for publication. The module has no
+renderer, React, producer, geometry, spatial-index, or AI dependency. Exact
+adapters must own their own immutable buffers or read leases and report their
+own source, topology, frame, unit, and freshness contracts.
 
 ## `react`
 

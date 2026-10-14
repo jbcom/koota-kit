@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.8.5 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump js-yaml from 4.3.1 to 4.3.2 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/21
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.4...v0.8.5
+
+## 0.8.4 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump fast-uri from 3.1.6 to 3.1.8 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/24
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.3...v0.8.4
+
+## 0.8.3 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump source-map-js from 1.2.1 to 1.2.2 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/30
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.2...v0.8.3
+
+## 0.8.2 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(ci): prevent Pages concurrency from cancelling trusted release publication by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/65
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.1...v0.8.2
+
+## 0.8.1 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump handlebars from 4.7.9 to 4.7.10 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/40
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.0...v0.8.1
+
 ## 0.8.0 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

@@ -290,10 +290,11 @@ pnpm audit --prod     # registry-backed production dependency audit
 
 ## Releases and support
 
-Release Please maintains versions and `CHANGELOG.md` from Conventional
-Commits. A release tag triggers a clean verification and npm publication with
-provenance. The latest `0.x` release receives fixes; pre-1.0 APIs may evolve,
-with breaking changes called out in the changelog.
+Release Please uses Conventional Commits to select versions and GitHub's
+merged-pull-request release notes to maintain `CHANGELOG.md`. A release tag
+triggers a clean verification and npm publication with provenance. The latest
+`0.x` release receives fixes; pre-1.0 APIs may evolve, with breaking changes
+called out in the changelog.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a pull request. Report
 security issues privately according to [SECURITY.md](./SECURITY.md).

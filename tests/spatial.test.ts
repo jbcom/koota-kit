@@ -185,6 +185,23 @@ describe("queryPointClearance", () => {
     });
   });
 
+  it("validates an expected stamp before excluding that provider from the predicate", () => {
+    const current = record("body");
+    const expected: SpatialRecordStamp = {
+      identity: current.identity,
+      frame,
+      topology: { selection: "full", id: current.topology.full.id },
+      revisions: current.revisions,
+    };
+    const result = queryPointClearance(provider(current), oracle(0.1), {
+      ...baseQuery(),
+      expected: [expected],
+      exclusions: [current.identity],
+    });
+
+    expect(result).toMatchObject({ status: "satisfied", exactness: "conservative", checked: [] });
+  });
+
   it("rejects an oracle reply consumed from a different completed tuple", () => {
     const current = record("body");
     const staleOracle: SpatialNearestSurfaceOracle = {

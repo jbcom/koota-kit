@@ -213,7 +213,7 @@ function identityKey(identity: SpatialIdentity): string {
 function compareIdentity(left: SpatialIdentity, right: SpatialIdentity): number {
   const leftKey = identityKey(left);
   const rightKey = identityKey(right);
-  return leftKey < rightKey ? -1 : 1;
+  return Number(leftKey > rightKey) - Number(leftKey < rightKey);
 }
 
 function copyRevisions(value: unknown, label: string): SpatialRevision {
@@ -434,16 +434,19 @@ export function queryPointClearance(
     return result("unsupported", "provider-duplicate-record", "none", topology, [], exclusions, []);
   }
   records.sort((left, right) => compareIdentity(left.identity, right.identity));
-  const selected = records.filter((record) => !exclusionKeys.has(identityKey(record.identity)));
-  const stamps = selected.map((record) => makeStamp(record, topology));
+  const allStamps = records.map((record) => makeStamp(record, topology));
   if (
     expected.some((stamp) => {
-      const current = stamps.find((candidate) => sameIdentity(candidate.identity, stamp.identity));
+      const current = allStamps.find((candidate) =>
+        sameIdentity(candidate.identity, stamp.identity),
+      );
       return !current || !sameStamp(current, stamp);
     })
   ) {
-    return result("stale", "revision-mismatch", "none", topology, stamps, exclusions, []);
+    return result("stale", "revision-mismatch", "none", topology, allStamps, exclusions, []);
   }
+  const selected = records.filter((record) => !exclusionKeys.has(identityKey(record.identity)));
+  const stamps = selected.map((record) => makeStamp(record, topology));
 
   const prepared: PreparedRecord[] = [];
   for (const record of selected) {

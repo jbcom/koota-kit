@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.3 (2026-10-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump source-map-js from 1.2.1 to 1.2.2 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/30
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.8.2...v0.8.3
+
 ## 0.8.2 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

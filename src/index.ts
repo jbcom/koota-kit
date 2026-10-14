@@ -63,3 +63,20 @@ export type { EventLog } from "./eventLog.js";
 
 export { defineTrait } from "./traits/index.js";
 export type { SafeSchema } from "./traits/index.js";
+
+export {
+  bindCoordination,
+  CoordinationBinding,
+  CoordinationRegistration,
+} from "./coordination.js";
+export type {
+  CompletedMetadata,
+  CompletedRevisions,
+  Coordination,
+  CoordinationDescriptor,
+  CoordinationEntry,
+  CoordinationListener,
+  CoordinationSnapshot,
+  CoordinationUpdate,
+  RegistrationToken,
+} from "./coordination.js";

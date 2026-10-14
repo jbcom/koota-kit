@@ -51,7 +51,16 @@ function reachedPackages(entryFile) {
   return packages;
 }
 
-const reactFree = ["index", "world", "rng", "seed", "schedule", "eventLog", "traits/index"];
+const reactFree = [
+  "index",
+  "world",
+  "rng",
+  "seed",
+  "schedule",
+  "eventLog",
+  "coordination",
+  "traits/index",
+];
 for (const entry of reactFree) {
   for (const built of [`dist/esm/${entry}.js`, `dist/cjs/${entry}.cjs`]) {
     const file = path.join(packageRoot, built);
@@ -116,6 +125,10 @@ try {
     "dist/esm/react.d.ts",
     "dist/cjs/react.cjs",
     "dist/cjs/react.d.cts",
+    "dist/esm/coordination.js",
+    "dist/esm/coordination.d.ts",
+    "dist/cjs/coordination.cjs",
+    "dist/cjs/coordination.d.cts",
   ]) {
     assert(packedPaths.has(required), `packed artifact is missing ${required}`);
   }
@@ -129,9 +142,14 @@ try {
   const esm = await import(pathToFileURL(path.join(packageRoot, "dist/esm/index.js")).href);
   const require = createRequire(import.meta.url);
   const cjs = require(path.join(packageRoot, "dist/cjs/index.cjs"));
+  const esmCoordination = await import(
+    pathToFileURL(path.join(packageRoot, "dist/esm/coordination.js")).href
+  );
+  const cjsCoordination = require(path.join(packageRoot, "dist/cjs/coordination.cjs"));
   const expectedRuntimeExports = [
     "advanceClock",
     "chance",
+    "bindCoordination",
     "createActions",
     "createMasterSeed",
     "createRng",
@@ -161,6 +179,38 @@ try {
   for (const name of expectedRuntimeExports) {
     assert.equal(typeof esm[name], "function", `ESM export ${name} is missing`);
     assert.equal(typeof cjs[name], "function", `CommonJS export ${name} is missing`);
+  }
+  for (const coordination of [esmCoordination, cjsCoordination]) {
+    assert.equal(
+      typeof coordination.bindCoordination,
+      "function",
+      "coordination entry is missing bindCoordination",
+    );
+    assert.equal(
+      typeof coordination.CoordinationBinding,
+      "function",
+      "coordination entry is missing its binding trait",
+    );
+    assert.equal(
+      typeof coordination.CoordinationRegistration,
+      "function",
+      "coordination entry is missing its registration trait",
+    );
+  }
+  for (const [format, root, coordination] of [
+    ["ESM", esm, esmCoordination],
+    ["CommonJS", cjs, cjsCoordination],
+  ]) {
+    assert.equal(
+      root.CoordinationBinding,
+      coordination.CoordinationBinding,
+      `${format} coordination binding trait identity differs from the root export`,
+    );
+    assert.equal(
+      root.CoordinationRegistration,
+      coordination.CoordinationRegistration,
+      `${format} coordination registration trait identity differs from the root export`,
+    );
   }
 
   const esmRng = esm.createRng({ gen: "package-check", events: 7 });
@@ -216,10 +266,39 @@ try {
     { cwd: consumerRoot, encoding: "utf8" },
   );
   assert.equal(esmInstalledDraw, cjsInstalledDraw, "installed ESM and CommonJS draws differ");
+  const esmInstalledCoordination = execFileSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "--eval",
+      "import { createWorld } from 'koota'; import { bindCoordination } from 'koota-kit/coordination'; const world = createWorld(); const binding = bindCoordination(world); process.stdout.write(String(binding.world === world)); binding.dispose(); world.destroy();",
+    ],
+    { cwd: consumerRoot, encoding: "utf8" },
+  );
+  const cjsInstalledCoordination = execFileSync(
+    process.execPath,
+    [
+      "--input-type=commonjs",
+      "--eval",
+      "const { createWorld } = require('koota'); const { bindCoordination } = require('koota-kit/coordination'); const world = createWorld(); const binding = bindCoordination(world); process.stdout.write(String(binding.world === world)); binding.dispose(); world.destroy();",
+    ],
+    { cwd: consumerRoot, encoding: "utf8" },
+  );
+  assert.equal(
+    esmInstalledCoordination,
+    "true",
+    "installed ESM coordination entry did not bind a raw World",
+  );
+  assert.equal(
+    cjsInstalledCoordination,
+    "true",
+    "installed CommonJS coordination entry did not bind a raw World",
+  );
 
   // The React entry only works once the consumer opts in by installing React.
-  // Install it now and render a provider through each module format.
-  execFileSync(npm, ["install", "--no-audit", "--no-fund", "react", "react-dom"], {
+  // Install the matching supported pair and render a provider through each
+  // module format; npm may otherwise resolve incompatible latest patch releases.
+  execFileSync(npm, ["install", "--no-audit", "--no-fund", "react@19.3.0", "react-dom@19.3.0"], {
     cwd: consumerRoot,
     env: npmEnvironment,
     shell: npmNeedsShell,

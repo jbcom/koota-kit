@@ -138,7 +138,10 @@ function copyCapabilities(value: unknown): readonly string[] {
       "coordination: descriptor.capabilities must be an array of non-empty strings.",
     );
   }
-  const capabilities = value.map((capability) => requireNonEmptyString(capability, "capability"));
+  const capabilities: string[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    capabilities.push(requireNonEmptyString(value[index], "capability"));
+  }
   capabilities.sort((left, right) => Number(left > right) - Number(left < right));
   for (let index = 1; index < capabilities.length; index += 1) {
     if (capabilities[index] === capabilities[index - 1]) {

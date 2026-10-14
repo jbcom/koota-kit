@@ -137,6 +137,9 @@ describe("borrowed-world coordination", () => {
       { id: "a", capabilities: "presence" },
       { id: "a", capabilities: [""] },
       { id: "a", capabilities: ["same", "same"] },
+      { id: "a", capabilities: new Array(1) },
+      // biome-ignore lint/suspicious/noSparseArray: testing explicit sparse array input
+      { id: "a", capabilities: ["presence", , "geometry"] },
     ]) {
       expect(() => coordinator.register(entity, descriptor as never)).toThrow(/coordination:/);
       expect(coordinator.getSnapshot()).toBe(before);

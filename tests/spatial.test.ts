@@ -383,6 +383,43 @@ describe("queryPointClearance", () => {
     );
   });
 
+  it.each(["missing capability", "undefined oracle reply"] as const)(
+    "retains a foreign-frame diagnostic alongside a candidate with %s",
+    (unavailability) => {
+      const foreign = record("a", { frame: { ...frame, unit: "foot" } });
+      const compatible = record(
+        "z",
+        unavailability === "missing capability" ? { capabilities: [] } : {},
+      );
+      const calls: string[] = [];
+      const unavailable: SpatialNearestSurfaceOracle = {
+        nearest: ({ record }) => {
+          calls.push(record.identity.partId);
+          return undefined;
+        },
+      };
+      expect(queryPointClearance(provider(compatible), unavailable, baseQuery())).toMatchObject({
+        status: "unsupported",
+        reason: "nearest-surface-unsupported",
+      });
+      calls.length = 0;
+
+      const forward = queryPointClearance(provider(foreign, compatible), unavailable, baseQuery());
+      const reverse = queryPointClearance(provider(compatible, foreign), unavailable, baseQuery());
+
+      expect(forward).toEqual(reverse);
+      expect(forward).toMatchObject({
+        status: "unsupported",
+        reason: "provider-contract-invalid",
+        exactness: "none",
+        witnesses: [],
+      });
+      expect(forward.checked.map((stamp) => stamp.identity.partId)).toEqual(["a", "z"]);
+      expect(forward.checked[0]?.frame.unit).toBe("foot");
+      expect(calls).toEqual(unavailability === "missing capability" ? [] : ["z", "z"]);
+    },
+  );
+
   it("does not trust non-common-metric witnesses and validates query/provider data", () => {
     const current = record("body");
     const badDistance: SpatialNearestSurfaceOracle = {

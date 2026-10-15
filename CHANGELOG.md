@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.3 (2026-10-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix: guard coordination against mismatched Koota dispatch by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/86
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.2...v0.9.3
+
 ## 0.9.2 (2026-10-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

@@ -5,7 +5,7 @@
  * own marker traits and exposes a committed, immutable projection. It does
  * not create a World, run systems, serialize entities, or read geometry.
  */
-import { trait, type Entity, type World } from "koota";
+import { getStore, trait, universe, unpackEntity, type Entity, type World } from "koota";
 
 type BindingMarker = object;
 
@@ -237,13 +237,78 @@ export function bindCoordination(world: World): Coordination {
     fail("a live Koota World is required.");
   }
 
+  // Koota's numeric Entity methods close over their imported peer universe.
+  // Opposite ESM/CJS imports replace those global methods, even before this
+  // module first loads. Pointer stability alone therefore cannot attest them.
+  const dispatch = {
+    get: (0 as Entity).get,
+    has: (0 as Entity).has,
+    add: (0 as Entity).add,
+    set: (0 as Entity).set,
+    remove: (0 as Entity).remove,
+  };
+  const assertRealm = (): void => {
+    if (
+      universe.worlds[world.id] !== world ||
+      (0 as Entity).get !== dispatch.get ||
+      (0 as Entity).has !== dispatch.has ||
+      (0 as Entity).add !== dispatch.add ||
+      (0 as Entity).set !== dispatch.set ||
+      (0 as Entity).remove !== dispatch.remove
+    ) {
+      fail("the Koota entity dispatch realm no longer matches the borrowed World.");
+    }
+  };
+  assertRealm();
+
   const marker = Object.freeze({});
+  let holder: Entity;
+  let holderId: number;
+  let store: ReturnType<typeof getStore<typeof CoordinationBinding>>;
+  const assertAttested = (): void => {
+    assertRealm();
+    const markers = world.get(CoordinationBinding)?.markers;
+    let matches = false;
+    try {
+      matches =
+        world.has(holder) &&
+        getStore(world, CoordinationBinding) === store &&
+        store.markers[holderId] === markers &&
+        dispatch.get.call(holder, CoordinationBinding)?.markers === markers;
+    } catch {
+      // A foreign peer may have no World at this numeric ID at all.
+    }
+    assertRealm();
+    if (!matches) fail("the Koota entity dispatch realm cannot attest the World marker.");
+  };
+  const assertOwned = (): BindingMarker[] => {
+    assertAttested();
+    const markers = world.get(CoordinationBinding)?.markers;
+    if (!markers?.includes(marker)) {
+      fail("the binding no longer owns its World marker.");
+    }
+    return markers;
+  };
   const existingMarkers = world.get(CoordinationBinding)?.markers ?? [];
   const markers = [...existingMarkers, marker];
   try {
+    assertRealm();
     if (world.has(CoordinationBinding)) world.set(CoordinationBinding, { markers });
     else world.add(CoordinationBinding({ markers }));
+    assertRealm();
+    store = getStore(world, CoordinationBinding);
+    // World traits live on an existing excluded entity. Find only our marker
+    // by direct store identity once; later checks use this cached holder in O(1).
+    const holders = world.entities.filter(
+      (entity) => store.markers[unpackEntity(entity).entityId] === markers,
+    );
+    if (holders.length !== 1) fail("the Koota entity dispatch realm has no unique marker holder.");
+    holder = holders[0] as Entity;
+    holderId = unpackEntity(holder).entityId;
+    assertOwned();
   } catch (error) {
+    // Direct World APIs close over the original World even if a callback
+    // changed entity dispatch before we could attest its numeric holder.
     const currentMarkers = world.get(CoordinationBinding)?.markers;
     if (world.isInitialized && currentMarkers?.includes(marker)) {
       const remaining = currentMarkers.filter((candidate) => candidate !== marker);
@@ -254,6 +319,7 @@ export function bindCoordination(world: World): Coordination {
   }
 
   let disposed = false;
+  let cleanupMarkerRemoved = false;
   let notifying = false;
   let mutating = false;
   let nextRegistrationGeneration = 0;
@@ -271,13 +337,14 @@ export function bindCoordination(world: World): Coordination {
 
   const assertMutable = (): void => {
     assertActive();
-    if (!world.isInitialized || !world.get(CoordinationBinding)?.markers.includes(marker)) {
-      fail("the binding no longer owns its World marker.");
-    }
+    if (!world.isInitialized) fail("the binding no longer owns its World marker.");
+    assertOwned();
   };
 
   const isCurrent = (registration: Registration): boolean => {
-    if (!world.isInitialized || !world.has(registration.entity)) return false;
+    if (!world.isInitialized) return false;
+    assertOwned();
+    if (!world.has(registration.entity)) return false;
     return stateIsOwned(
       registration.entity.get(CoordinationRegistration) as RegistrationState | undefined,
       marker,
@@ -304,6 +371,15 @@ export function bindCoordination(world: World): Coordination {
       for (const listener of deliveries) {
         try {
           listener(snapshot);
+        } catch (error) {
+          errors.push(error);
+        }
+      }
+      // Listener failures occur after commit. A listener may also change peer
+      // dispatch without throwing; report that boundary to the caller too.
+      if (world.isInitialized) {
+        try {
+          assertOwned();
         } catch (error) {
           errors.push(error);
         }
@@ -342,6 +418,7 @@ export function bindCoordination(world: World): Coordination {
     const id = requireNonEmptyString(descriptor.id, "descriptor.id");
     const capabilities = copyCapabilities(descriptor.capabilities);
     if (registrationsById.has(id)) fail(`stable id "${id}" is already registered.`);
+    assertOwned();
     if (entity.has(CoordinationRegistration)) {
       fail("entity already carries a coordination registration trait.");
     }
@@ -374,14 +451,21 @@ export function bindCoordination(world: World): Coordination {
     mutating = true;
     try {
       try {
+        assertOwned();
         entity.add(CoordinationRegistration(state));
+        assertOwned();
       } catch (error) {
-        const current = entity.get(CoordinationRegistration) as RegistrationState | undefined;
+        // These captured peer functions use their original lexical universe;
+        // rollback only the trait this attempted registration placed there.
+        const current = dispatch.get.call(entity, CoordinationRegistration) as
+          | RegistrationState
+          | undefined;
         if (stateIsOwned(current, marker, registrationGeneration)) {
-          entity.remove(CoordinationRegistration);
+          dispatch.remove.call(entity, CoordinationRegistration);
         }
         throw error;
       }
+      assertOwned();
       nextRegistrationGeneration = registrationGeneration;
       registrationsById.set(id, registration);
       registrationsByToken.set(token, registration);
@@ -414,6 +498,7 @@ export function bindCoordination(world: World): Coordination {
         !registration.completed ||
         !sameRevisions(registration.completed.revisions, completed.revisions),
     );
+    assertOwned();
     if (!changed) return snapshot;
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
 
@@ -432,8 +517,11 @@ export function bindCoordination(world: World): Coordination {
     mutating = true;
     try {
       for (const { registration, state } of preparedStates) {
+        assertOwned();
         registration.entity.set(CoordinationRegistration, state);
+        assertOwned();
       }
+      assertOwned();
       for (const { registration, completed } of preparedStates) {
         registration.completed = completed;
       }
@@ -449,7 +537,9 @@ export function bindCoordination(world: World): Coordination {
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
     mutating = true;
     try {
+      assertOwned();
       registration.entity.remove(CoordinationRegistration);
+      assertOwned();
       registrationsById.delete(registration.id);
       registrationsByToken.delete(token);
       return commit(snapshotRevision);
@@ -460,6 +550,7 @@ export function bindCoordination(world: World): Coordination {
 
   const prune = (): CoordinationSnapshot => {
     assertActive();
+    if (world.isInitialized) assertOwned();
     const stale = [...registrationsById.values()].filter(
       (registration) => !isCurrent(registration),
     );
@@ -467,6 +558,7 @@ export function bindCoordination(world: World): Coordination {
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
     mutating = true;
     try {
+      if (world.isInitialized) assertOwned();
       for (const registration of stale) {
         registrationsById.delete(registration.id);
         registrationsByToken.delete(registration.token);
@@ -478,11 +570,13 @@ export function bindCoordination(world: World): Coordination {
   };
 
   const getEntity = (id: string): Entity | undefined => {
+    if (world.isInitialized && !disposed) assertOwned();
     const registration = registrationsById.get(id);
     return registration && isCurrent(registration) ? registration.entity : undefined;
   };
 
   const getRegistration = (id: string): RegistrationToken | undefined => {
+    if (world.isInitialized && !disposed) assertOwned();
     const registration = registrationsById.get(id);
     return registration && isCurrent(registration) ? registration.token : undefined;
   };
@@ -500,21 +594,43 @@ export function bindCoordination(world: World): Coordination {
   const dispose = (): void => {
     if (disposed) return;
     assertActive();
+    if (world.isInitialized) {
+      if (cleanupMarkerRemoved) assertRealm();
+      else assertOwned();
+    }
     const snapshotRevision = nextCounter(nextSnapshotRevision, "snapshot revision");
     mutating = true;
     try {
-      listeners.clear();
-      for (const registration of registrationsById.values()) {
-        if (isCurrent(registration)) registration.entity.remove(CoordinationRegistration);
+      if (!cleanupMarkerRemoved) {
+        for (const registration of registrationsById.values()) {
+          if (isCurrent(registration)) {
+            assertOwned();
+            registration.entity.remove(CoordinationRegistration);
+            assertOwned();
+          }
+        }
+        if (world.isInitialized) {
+          const remaining = assertOwned().filter((candidate) => candidate !== marker);
+          try {
+            if (remaining.length === 0) world.remove(CoordinationBinding);
+            else world.set(CoordinationBinding, { markers: remaining });
+          } catch (error) {
+            assertRealm();
+            // A same-peer callback can throw after the marker write completed.
+            // Remember only this disposal's confirmed removal, so a retry can
+            // finish without treating an externally lost marker as ownership.
+            cleanupMarkerRemoved = !world.get(CoordinationBinding)?.markers.includes(marker);
+            throw error;
+          }
+          // Final removal intentionally makes owned-marker attestation absent.
+          assertRealm();
+          cleanupMarkerRemoved = true;
+        }
       }
+      if (world.isInitialized) assertRealm();
+      listeners.clear();
       registrationsById.clear();
       registrationsByToken.clear();
-      const markerState = world.get(CoordinationBinding);
-      if (world.isInitialized && markerState?.markers.includes(marker)) {
-        const remaining = markerState.markers.filter((candidate) => candidate !== marker);
-        if (remaining.length === 0) world.remove(CoordinationBinding);
-        else world.set(CoordinationBinding, { markers: remaining });
-      }
       nextSnapshotRevision = snapshotRevision;
       snapshot = makeSnapshot(nextSnapshotRevision, []);
       disposed = true;

@@ -251,6 +251,49 @@ try {
     shell: npmNeedsShell,
     stdio: "pipe",
   });
+  const realmCheck = path.join(consumerRoot, "coordination-realm-check.mjs");
+  writeFileSync(
+    realmCheck,
+    readFileSync(path.join(packageRoot, "scripts/coordination-realm-check.mjs")),
+  );
+  const realmFailures = [];
+  // Node 22.0 introduced synchronous ESM require behind this flag. Only the
+  // fresh callback fixtures need it to load the opposite peer synchronously;
+  // the library itself supports either ordinary import or require unchanged.
+  const realmNodeArguments = process.versions.node.startsWith("22.")
+    ? ["--experimental-require-module"]
+    : [];
+  for (const format of ["esm", "cjs"]) {
+    for (const scenario of [
+      "single",
+      "spatial",
+      "destroyed",
+      "import",
+      "alias",
+      "preimport",
+      "foreign",
+      "marker-add",
+      "marker-change",
+      "register-add",
+      "callback-publish",
+      "callback-unregister",
+      "callback-dispose",
+      "callback-marker-remove",
+      "subscriber",
+      "subscriber-silent",
+      "metadata-noop",
+    ]) {
+      try {
+        execFileSync(process.execPath, [...realmNodeArguments, realmCheck, format, scenario], {
+          cwd: consumerRoot,
+          stdio: "pipe",
+        });
+      } catch (error) {
+        realmFailures.push(`${format} ${scenario}: ${error.stderr.toString()}`);
+      }
+    }
+  }
+  assert.deepEqual(realmFailures, [], "installed coordination realm checks failed");
   const esmInstalledDraw = execFileSync(
     process.execPath,
     [

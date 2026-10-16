@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.6 (2026-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps-dev): bump the major group across 1 directory with 3 updates by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/31
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.5...v0.9.6
+
 ## 0.9.5 (2026-10-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

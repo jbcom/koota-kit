@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.4 (2026-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(build): resolve TypeScript compiler from exported package metadata by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/91
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.3...v0.9.4
+
 ## 0.9.3 (2026-10-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

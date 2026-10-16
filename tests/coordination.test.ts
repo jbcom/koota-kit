@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createWorld, trait, type Entity, type World } from "koota";
+import {
+  createWorld,
+  getStore,
+  trait,
+  universe,
+  unpackEntity,
+  type Entity,
+  type World,
+} from "koota";
 import {
   bindCoordination,
   CoordinationBinding,
@@ -38,6 +46,140 @@ afterEach(() => {
 });
 
 describe("borrowed-world coordination", () => {
+  it("retries disposal after its final marker write throws without removing a peer marker", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const peer = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn(CallerState({ value: 7 }));
+    register(coordinator, entity);
+    const before = coordinator.getSnapshot();
+    const listener = vi.fn();
+    coordinator.subscribe(listener);
+    let throws = true;
+    callerWorld.onChange(CoordinationBinding, () => {
+      if (throws) {
+        throws = false;
+        throw new Error("final marker write failure");
+      }
+    });
+    expect(() => coordinator.dispose()).toThrow(/final marker write failure/);
+    expect(coordinator.getSnapshot()).toBe(before);
+    expect(listener).not.toHaveBeenCalled();
+    expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(1);
+    coordinator.dispose();
+    coordinator.dispose();
+    expect(coordinator.getSnapshot().entries).toEqual([]);
+    expect(callerWorld.get(CoordinationBinding)?.markers).toHaveLength(1);
+    const peerEntity = callerWorld.spawn();
+    register(peer, peerEntity, "peer");
+    expect(peer.getEntity("peer")).toBe(peerEntity);
+    expect(entity.get(CallerState)).toEqual({ value: 7 });
+    peer.dispose();
+  });
+
+  it("preserves a listener's committed snapshot when it removes marker ownership", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn();
+    const token = register(coordinator, entity);
+    const nextListener = vi.fn();
+    coordinator.subscribe(() => callerWorld.remove(CoordinationBinding));
+    coordinator.subscribe(nextListener);
+    expect(() => coordinator.publish(token, completed(1))).toThrow(/World marker/);
+    expect(nextListener).toHaveBeenCalledOnce();
+    expect(coordinator.getSnapshot().entries[0]?.completed).toEqual(completed(1));
+  });
+
+  it("does not roll back a marker already removed by its rejecting add callback", () => {
+    const callerWorld = world();
+    callerWorld.onAdd(CoordinationBinding, () => {
+      callerWorld.remove(CoordinationBinding);
+      throw new Error("marker rejected after removal");
+    });
+    expect(() => bindCoordination(callerWorld)).toThrow(/marker rejected after removal/);
+    expect(callerWorld.has(CoordinationBinding)).toBe(false);
+  });
+
+  it("does not remove caller state when a rejecting registration callback already cleaned its trait", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn(CallerState({ value: 7 }));
+    const before = coordinator.getSnapshot();
+    callerWorld.onAdd(CoordinationRegistration, () => {
+      entity.remove(CoordinationRegistration);
+      throw new Error("registration rejected after removal");
+    });
+    expect(() => register(coordinator, entity)).toThrow(/registration rejected after removal/);
+    expect(coordinator.getSnapshot()).toBe(before);
+    expect(entity.has(CoordinationRegistration)).toBe(false);
+    expect(entity.get(CallerState)).toEqual({ value: 7 });
+  });
+
+  it("rejects a World outside the imported peer universe before writing markers", () => {
+    const callerWorld = world();
+    const original = universe.worlds[callerWorld.id];
+    universe.worlds[callerWorld.id] = null;
+    try {
+      expect(() => bindCoordination(callerWorld)).toThrow(/dispatch realm/);
+      expect(callerWorld.has(CoordinationBinding)).toBe(false);
+    } finally {
+      universe.worlds[callerWorld.id] = original ?? null;
+    }
+  });
+
+  it("rejects an ambiguous marker holder and removes only the attempted marker", () => {
+    const callerWorld = world();
+    const entity = callerWorld.spawn();
+    callerWorld.onAdd(CoordinationBinding, () => {
+      entity.add(
+        CoordinationBinding({ markers: callerWorld.get(CoordinationBinding)?.markers ?? [] }),
+      );
+    });
+    expect(() => bindCoordination(callerWorld)).toThrow(/unique marker holder/);
+    expect(callerWorld.has(CoordinationBinding)).toBe(false);
+    expect(callerWorld.has(entity)).toBe(true);
+  });
+
+  it("retains committed metadata when the caller removes the binding marker", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn();
+    register(coordinator, entity);
+    const before = coordinator.getSnapshot();
+    const markers = callerWorld.get(CoordinationBinding)?.markers ?? [];
+    callerWorld.remove(CoordinationBinding);
+    expect(() => coordinator.getEntity("figure:ava")).toThrow(/World marker/);
+    expect(() => coordinator.prune()).toThrow(/World marker/);
+    expect(() => coordinator.dispose()).toThrow(/World marker/);
+    expect(coordinator.getSnapshot()).toBe(before);
+    callerWorld.add(CoordinationBinding({ markers }));
+    coordinator.dispose();
+  });
+
+  it("rejects divergence between the owned marker store and its direct World state", () => {
+    const callerWorld = world();
+    const coordinator = bindCoordination(callerWorld);
+    const entity = callerWorld.spawn();
+    register(coordinator, entity);
+    const before = coordinator.getSnapshot();
+    const store = getStore(callerWorld, CoordinationBinding);
+    const markers = callerWorld.get(CoordinationBinding)?.markers ?? [];
+    const holder = callerWorld.entities.find(
+      (candidate) => store.markers[unpackEntity(candidate).entityId] === markers,
+    ) as Entity;
+    const holderId = unpackEntity(holder).entityId;
+    const get = vi
+      .spyOn(callerWorld, "get")
+      .mockImplementation((trait) => (trait === CoordinationBinding ? { markers: [] } : undefined));
+    expect(() => coordinator.getEntity("figure:ava")).toThrow(/cannot attest/);
+    expect(coordinator.getSnapshot()).toBe(before);
+    get.mockRestore();
+    store.markers[holderId] = [];
+    expect(() => coordinator.getEntity("figure:ava")).toThrow(/World marker/);
+    store.markers[holderId] = markers;
+    coordinator.dispose();
+  });
+
   it("requires a live World and keeps disjoint bindings independent", () => {
     expect(() => bindCoordination(undefined as never)).toThrow(/live Koota World/);
     const callerWorld = world();
@@ -476,6 +618,8 @@ describe("borrowed-world coordination", () => {
     register(coordinator, callerWorld.spawn(), "a");
     callerWorld.destroy();
     expect(callerWorld.isInitialized).toBe(false);
+    expect(coordinator.getEntity("a")).toBeUndefined();
+    expect(coordinator.getRegistration("a")).toBeUndefined();
     expect(coordinator.prune().entries).toEqual([]);
     expect(() => coordinator.register(0 as Entity, { id: "b", capabilities: [] })).toThrow(
       /World marker/,
@@ -500,6 +644,8 @@ describe("borrowed-world coordination", () => {
     expect(entity.has(CoordinationRegistration)).toBe(false);
     expect(callerWorld.has(CoordinationBinding)).toBe(false);
     expect(coordinator.getSnapshot().entries).toEqual([]);
+    expect(coordinator.getEntity("a")).toBeUndefined();
+    expect(coordinator.getRegistration("a")).toBeUndefined();
     expect(() => coordinator.publish(token, completed())).toThrow(/disposed/);
     expect(() => coordinator.subscribe(() => {})).toThrow(/disposed/);
     expect(() => coordinator.subscribe(null as never)).toThrow(/disposed/);

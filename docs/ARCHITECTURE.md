@@ -67,7 +67,28 @@ authority over caller entities and traits. Each binding owns an opaque marker
 held on that World and registration records tagged with that marker, so it can
 remove only its own records. Bindings may coexist only for disjoint entities.
 `CoordinationBinding` and `CoordinationRegistration` have one identity per
-module format; consumers should not mix package formats in a single Koota World.
+module format. Applications must use one Koota runtime and module format per
+process. Koota 0.6.6 installs numeric entity methods globally; loading
+its opposite ESM/CommonJS format replaces dispatch for already live entities.
+Coordination rejects a World outside its imported peer universe before adding
+markers. It then attests dispatch against the existing World marker holder,
+using the public `getStore`, `unpackEntity`, and `universe` APIs. The initial
+holder lookup inspects only its owned marker store; subsequent checks cache the
+holder and require constant work. There is no probe entity, hidden World,
+prototype repair, or second World registry.
+
+Every live read and raw mutation verifies that dispatch and marker ownership
+still agree. Callbackful writes are checked before and after the raw operation
+and before committing metadata or cleanup. A mismatch throws while preserving
+the previous completed snapshot and subscribers. A dispatch change during listener
+delivery is a postcommit error: all listeners receive the new committed
+snapshot, and that snapshot stays published. A raw callback may already
+have written or removed an owned trait; that partial raw state is outside the
+completed projection. Registration rollback uses the previously attested peer
+functions solely for its just-added owned trait. Initial binding rollback uses
+direct World methods. Final marker removal checks dispatch without requiring
+the removed marker, then commits cleanup. Destroyed-World cleanup needs no
+entity dispatch, and an already disposed binding stays idempotent.
 
 Before a publication, coordination validates every update and produces a new
 immutable view sorted by caller-authored stable ID. Koota raw trait callbacks

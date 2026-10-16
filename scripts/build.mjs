@@ -17,7 +17,9 @@ import path from "node:path";
 
 const pkgRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const require = createRequire(import.meta.url);
-const tscBin = require.resolve("typescript/bin/tsc");
+const tsManifestPath = require.resolve("typescript/package.json");
+const tsManifest = JSON.parse(readFileSync(tsManifestPath, "utf8"));
+const tscBin = path.resolve(path.dirname(tsManifestPath), tsManifest.bin.tsc);
 
 function run(args) {
   // Invoke TypeScript through the active Node executable instead of the
@@ -83,7 +85,13 @@ function fixCjsSpecifiers(dir) {
 rmSync(path.join(pkgRoot, "dist"), { recursive: true, force: true });
 
 run(["-p", "tsconfig.esm.json"]);
-run(["-p", "tsconfig.cjs.json"]);
+const cjsArgs = ["-p", "tsconfig.cjs.json"];
+// TypeScript 5 rejects CommonJS with bundler resolution; TypeScript 7 removed
+// node10 resolution and supports this pairing while preserving CommonJS emit.
+if (Number.parseInt(tsManifest.version, 10) >= 7) {
+  cjsArgs.push("--moduleResolution", "bundler");
+}
+run(cjsArgs);
 
 const cjsDir = path.join(pkgRoot, "dist", "cjs");
 renameForCjs(cjsDir);

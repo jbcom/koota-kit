@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.5 (2026-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(build): select compatible CommonJS resolution for TypeScript 7 by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/93
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.4...v0.9.5
+
 ## 0.9.4 (2026-10-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

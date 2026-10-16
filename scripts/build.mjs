@@ -85,7 +85,13 @@ function fixCjsSpecifiers(dir) {
 rmSync(path.join(pkgRoot, "dist"), { recursive: true, force: true });
 
 run(["-p", "tsconfig.esm.json"]);
-run(["-p", "tsconfig.cjs.json"]);
+const cjsArgs = ["-p", "tsconfig.cjs.json"];
+// TypeScript 5 rejects CommonJS with bundler resolution; TypeScript 7 removed
+// node10 resolution and supports this pairing while preserving CommonJS emit.
+if (Number.parseInt(tsManifest.version, 10) >= 7) {
+  cjsArgs.push("--moduleResolution", "bundler");
+}
+run(cjsArgs);
 
 const cjsDir = path.join(pkgRoot, "dist", "cjs");
 renameForCjs(cjsDir);

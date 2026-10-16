@@ -17,7 +17,9 @@ import path from "node:path";
 
 const pkgRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const require = createRequire(import.meta.url);
-const tscBin = require.resolve("typescript/bin/tsc");
+const tsManifestPath = require.resolve("typescript/package.json");
+const tsManifest = JSON.parse(readFileSync(tsManifestPath, "utf8"));
+const tscBin = path.resolve(path.dirname(tsManifestPath), tsManifest.bin.tsc);
 
 function run(args) {
   // Invoke TypeScript through the active Node executable instead of the

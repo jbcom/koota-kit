@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.8 (2026-10-17)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump the non-major group with 10 updates by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/98
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.7...v0.9.8
+
 ## 0.9.7 (2026-10-17)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

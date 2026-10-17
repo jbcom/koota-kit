@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.7 (2026-10-17)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* ci: validate Dependabot PRs and use a single root npm entry by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/96
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.6...v0.9.7
+
 ## 0.9.6 (2026-10-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

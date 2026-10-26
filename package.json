@@ -174,7 +174,7 @@
     "jsdom": "^30.1.2",
     "koota": "^0.6.6",
     "lint-staged": "^17.3.0",
-    "markdownlint-cli2": "^0.23.2",
+    "markdownlint-cli2": "^0.24.0",
     "publint": "^0.3.24",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

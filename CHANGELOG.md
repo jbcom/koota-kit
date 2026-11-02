@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.10 (2026-11-02)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump SonarSource/sonarqube-scan-action from 8.3.0 to 8.4.0 in the non-major group by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/105
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.9...v0.9.10
+
 ## 0.9.9 (2026-10-19)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

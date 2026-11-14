@@ -116,6 +116,8 @@ describe("grounded walker", () => {
         { step: 1 / 60, maxSteps: 4 },
       );
       for (let frame = 0; frame < hz * 2; frame++) schedule.tick(handle, 1 / hz);
+      expect(handle.clock.tickIndex).toBe(120);
+      expect(current.position.z).toBeCloseTo(0.6);
       destroySimWorld(handle);
       return current;
     });

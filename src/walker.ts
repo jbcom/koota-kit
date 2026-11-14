@@ -12,6 +12,7 @@ export type WalkerSupport = {
   slopeX: number;
   slopeZ: number;
 };
+/** IDs are nonempty and unique across both solids and supports. */
 export type WalkerWorld = { supports: readonly WalkerSupport[]; solids: readonly WalkerSolid[] };
 /** Position is the centre of the feet. The body is an upright square prism. */
 export type WalkerState = {
@@ -42,7 +43,7 @@ function validate(world: WalkerWorld): void {
   const ids = new Set<string>();
   for (const item of [...world.solids, ...world.supports]) {
     if (!item.id || ids.has(item.id))
-      throw new TypeError("walker: IDs must be nonempty and unique.");
+      throw new TypeError("walker: IDs must be nonempty and unique across solids and supports.");
     ids.add(item.id);
   }
   for (const s of world.solids) {
@@ -169,6 +170,77 @@ export function querySegmentOcclusion(
   point(to);
   return firstHit(from, to, world.solids, false);
 }
+function supportCuts(
+  origin: WalkerPoint,
+  axis: "x" | "z",
+  distance: number,
+  world: WalkerWorld,
+): number[] {
+  const cuts = new Set([0, 1]);
+  for (const support of world.supports) {
+    const edges = axis === "x" ? [support.minX, support.maxX] : [support.minZ, support.maxZ];
+    for (const edge of edges) {
+      const t = (edge - origin[axis]) / distance;
+      if (t > 0 && t < 1) cuts.add(t);
+    }
+  }
+  return [...cuts].sort((a, b) => a - b);
+}
+function advanceInterval(
+  state: WalkerState,
+  axis: "x" | "z",
+  middleCoordinate: number,
+  endCoordinate: number,
+  world: WalkerWorld,
+  solids: readonly WalkerSolid[],
+): WalkerResult {
+  const position = state.position;
+  const middle = { ...position, [axis]: middleCoordinate };
+  // maxStep limits the discontinuity at the entry boundary, not a ramp's
+  // continuous rise across the interval. Testing the midpoint height here
+  // would incorrectly turn a long traversable ramp into an impassable step.
+  const support = supports(middle, world).find(
+    (s) => Math.abs(height(s, position) - position.y) <= state.maxStep + EPS,
+  );
+  if (!support) return { state, status: "blocked", contacts: [] };
+  const raised = { ...position, y: height(support, position) };
+  const verticalHit = firstHit(position, raised, solids, true);
+  if (verticalHit) return { state, status: "blocked", contacts: [verticalHit.id] };
+  const target = { ...raised, [axis]: endCoordinate };
+  target.y = height(support, target);
+  const hit = firstHit(raised, target, solids, true);
+  return {
+    state: { ...state, position: hit ? hit.point : target, supportId: support.id },
+    status: hit ? "blocked" : "moved",
+    contacts: hit ? [hit.id] : [],
+  };
+}
+function advanceAxis(
+  state: WalkerState,
+  axis: "x" | "z",
+  distance: number,
+  world: WalkerWorld,
+  solids: readonly WalkerSolid[],
+): WalkerResult {
+  let result: WalkerResult = { state, status: "moved", contacts: [] };
+  if (distance === 0) return result;
+  const origin = state.position;
+  const ordered = supportCuts(origin, axis, distance, world);
+  for (let i = 1; i < ordered.length; i++) {
+    const start = ordered[i - 1] as number,
+      end = ordered[i] as number;
+    result = advanceInterval(
+      result.state,
+      axis,
+      origin[axis] + (distance * (start + end)) / 2,
+      origin[axis] + distance * end,
+      world,
+      solids,
+    );
+    if (result.status === "blocked") break;
+  }
+  return result;
+}
 /**
  * One fixed-tick world-space displacement. X then Z gives stable wall sliding.
  * Support-boundary subdivision and continuous body sweeps prevent tunnelling;
@@ -182,60 +254,21 @@ export function advanceWalker(
   validate(world);
   validateState(state);
   finite(displacement.x, displacement.z);
-  let position = { ...state.position };
-  let supportId = state.supportId;
+  let next = { ...state, position: { ...state.position } };
+  const currentSupport = queryWalkerSupport(state, world);
+  if (!currentSupport) return { state: next, status: "invalid-support", contacts: [] };
+  next.supportId = currentSupport.id;
+  const solids = world.solids.map((s) => expanded(s, state));
   const contacts = new Set<string>();
   let blocked = false;
-  const currentSupport = queryWalkerSupport(state, world);
-  if (!currentSupport)
-    return { state: { ...state, position }, status: "invalid-support", contacts: [] };
-  supportId = currentSupport.id;
-  const solids = world.solids.map((s) => expanded(s, state));
   for (const axis of ["x", "z"] as const) {
-    const distance = displacement[axis];
-    if (distance === 0) continue;
-    const origin = { ...position };
-    const cuts = [0, 1];
-    for (const s of world.supports) {
-      const edges = axis === "x" ? [s.minX, s.maxX] : [s.minZ, s.maxZ];
-      for (const edge of edges) {
-        const t = (edge - origin[axis]) / distance;
-        if (t > 0 && t < 1) cuts.push(t);
-      }
-    }
-    const ordered = [...new Set(cuts)].sort((a, b) => a - b);
-    for (let i = 1; i < ordered.length; i++) {
-      const start = ordered[i - 1] as number,
-        end = ordered[i] as number;
-      const middle = { ...position, [axis]: origin[axis] + (distance * (start + end)) / 2 };
-      const support = supports(middle, world).find(
-        (s) => Math.abs(height(s, position) - position.y) <= state.maxStep + EPS,
-      );
-      if (!support) {
-        blocked = true;
-        break;
-      }
-      const raised = { ...position, y: height(support, position) };
-      const verticalHit = firstHit(position, raised, solids, true);
-      if (verticalHit) {
-        blocked = true;
-        contacts.add(verticalHit.id);
-        break;
-      }
-      const target = { ...raised, [axis]: origin[axis] + distance * end };
-      target.y = height(support, target);
-      const hit = firstHit(raised, target, solids, true);
-      position = hit ? hit.point : target;
-      supportId = support.id;
-      if (hit) {
-        blocked = true;
-        contacts.add(hit.id);
-        break;
-      }
-    }
+    const result = advanceAxis(next, axis, displacement[axis], world, solids);
+    next = result.state;
+    if (result.status === "blocked") blocked = true;
+    for (const id of result.contacts) contacts.add(id);
   }
   return {
-    state: { ...state, position, supportId },
+    state: next,
     status: blocked ? "blocked" : "moved",
     contacts: [...contacts].sort(compareId),
   };

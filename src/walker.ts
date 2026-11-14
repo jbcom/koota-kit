@@ -113,6 +113,10 @@ function interpolate(from: WalkerPoint, to: WalkerPoint, t: number): WalkerPoint
     z: from.z + (to.z - from.z) * t,
   };
 }
+function withinSlab(value: number, min: number, max: number, open: boolean): boolean {
+  if (open) return value > min + EPS && value < max - EPS;
+  return value >= min && value <= max;
+}
 // Exact slab interval ordering prevents a long sweep collapsing a thin hit.
 // Open interiors for body sweeps let a touching body slide.
 function intersect(
@@ -125,12 +129,7 @@ function intersect(
     leave = PATH_END;
   for (const axis of axes) {
     if (from[axis] === to[axis]) {
-      if (
-        open
-          ? from[axis] <= solid.min[axis] + EPS || from[axis] >= solid.max[axis] - EPS
-          : from[axis] < solid.min[axis] || from[axis] > solid.max[axis]
-      )
-        return null;
+      if (!withinSlab(from[axis], solid.min[axis], solid.max[axis], open)) return null;
     } else {
       const [lower, upper] = axisBoundaries(from, to, axis, solid.min[axis], solid.max[axis]);
       if (compareBoundary(lower, enter) > 0) enter = lower;
@@ -138,7 +137,8 @@ function intersect(
     }
   }
   const order = compareBoundary(enter, leave);
-  return (open ? order >= 0 : order > 0) ? null : enter;
+  const overlaps = open ? order < 0 : order <= 0;
+  return overlaps ? enter : null;
 }
 function firstHit(
   from: WalkerPoint,

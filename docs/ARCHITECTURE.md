@@ -166,3 +166,26 @@ it reaches `react` or `koota/react`.
   frame, pose, renderer, React, or AI adapter: those are later explicit
   producer/query contracts. A coordination revision is not evidence that a
   provider's buffers are immutable or fresh.
+
+## Grounded movement boundary
+
+`walker` is a dependency-free leaf over immutable authored JSON geometry. It
+owns fixed-displacement body collision, support selection and segment
+occlusion. `schedule` owns time; the consumer owns input, coordinate transforms,
+saved state, physical dimensions, geometry production and rendering. Neither
+module imports the other. A consumer can therefore save the authoritative
+walker state and render that state without a second controller body.
+
+The solver uses an upright square prism and an explicit X-then-Z sliding
+policy. It partitions each axis displacement at support rectangle boundaries,
+validates transitions against the step limit, and sweeps both vertical
+transitions and subsequent movement against expanded AABBs. Unsupported gaps
+cannot be skipped by a large movement delta. Surface selection and equal-time
+collision ordering use stable lexical IDs; caller array order is immaterial.
+
+Walkability planes and solid volumes are separate authored facts. A support
+plane certifies foot-centre support, not a solid floor underside or a complete
+walkway enclosure. Solid ceilings and railings must be authored explicitly.
+The point-clearance oracle in `spatial` does not replace these volume sweeps:
+clearance of a point is not proof that a walking body fits or that its entire
+path remains clear. Numeric and supported-geometry limits are in the API page.

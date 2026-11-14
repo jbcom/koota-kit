@@ -113,6 +113,16 @@
         "types": "./dist/cjs/coordination.d.cts",
         "default": "./dist/cjs/coordination.cjs"
       }
+    },
+    "./walker": {
+      "import": {
+        "types": "./dist/esm/walker.d.ts",
+        "default": "./dist/esm/walker.js"
+      },
+      "require": {
+        "types": "./dist/cjs/walker.d.cts",
+        "default": "./dist/cjs/walker.cjs"
+      }
     }
   },
   "files": [
@@ -237,6 +247,9 @@
       ],
       "coordination": [
         "./dist/esm/coordination.d.ts"
+      ],
+      "walker": [
+        "./dist/esm/walker.d.ts"
       ]
     }
   },

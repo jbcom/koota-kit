@@ -103,3 +103,15 @@ export type {
   CoordinationUpdate,
   RegistrationToken,
 } from "./coordination.js";
+
+export { advanceWalker, queryWalkerSupport, querySegmentOcclusion } from "./walker.js";
+export type {
+  WalkerPoint,
+  WalkerSolid,
+  WalkerSupport,
+  WalkerWorld,
+  WalkerState,
+  WalkerSupportHit,
+  WalkerSegmentHit,
+  WalkerResult,
+} from "./walker.js";

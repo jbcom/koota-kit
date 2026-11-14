@@ -59,6 +59,7 @@ const reactFree = [
   "schedule",
   "eventLog",
   "spatial",
+  "walker",
   "coordination",
   "traits/index",
 ];
@@ -126,6 +127,10 @@ try {
     "dist/esm/react.d.ts",
     "dist/cjs/react.cjs",
     "dist/cjs/react.d.cts",
+    "dist/esm/walker.js",
+    "dist/esm/walker.d.ts",
+    "dist/cjs/walker.cjs",
+    "dist/cjs/walker.d.cts",
     "dist/esm/spatial.js",
     "dist/esm/spatial.d.ts",
     "dist/cjs/spatial.cjs",
@@ -153,6 +158,9 @@ try {
   const cjsCoordination = require(path.join(packageRoot, "dist/cjs/coordination.cjs"));
   const expectedRuntimeExports = [
     "advanceClock",
+    "advanceWalker",
+    "queryWalkerSupport",
+    "querySegmentOcclusion",
     "chance",
     "bindCoordination",
     "createActions",
@@ -251,6 +259,24 @@ try {
     shell: npmNeedsShell,
     stdio: "pipe",
   });
+  const walkerCheck = path.join(consumerRoot, "walker-check.mjs");
+  writeFileSync(
+    walkerCheck,
+    `
+    import assert from "node:assert/strict";
+    import {createRequire} from "node:module";
+    import * as esm from "koota-kit/walker";
+    const cjs = createRequire(import.meta.url)("koota-kit/walker");
+    const state = {position:{x:0,y:0,z:0},halfWidth:.3,height:1.8,maxStep:.25,supportId:"floor"};
+    const world = {supports:[{id:"floor",minX:-5,maxX:5,minZ:-5,maxZ:5,y:0,slopeX:0,slopeZ:0}],solids:[]};
+    for (const api of [esm,cjs]) {
+      assert.equal(api.advanceWalker(state,{x:1,z:0},world).state.position.x,1);
+      assert.equal(api.queryWalkerSupport(state,world).id,"floor");
+      assert.equal(api.querySegmentOcclusion(state.position,{x:1,y:0,z:0},world),null);
+    }
+  `,
+  );
+  execFileSync(process.execPath, [walkerCheck], { cwd: consumerRoot, stdio: "pipe" });
   const realmCheck = path.join(consumerRoot, "coordination-realm-check.mjs");
   writeFileSync(
     realmCheck,

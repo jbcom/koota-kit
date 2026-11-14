@@ -25,6 +25,7 @@ Full documentation: **[jonbogaty.com/koota-kit](https://jonbogaty.com/koota-kit/
 | Object state leaks between entities | `defineTrait` requires per-entity factories |
 | A HUD or test consumes an event before its real system sees it | Single-consumer `drain`, non-consuming `peek` |
 | Replaced worlds retain caches or process-global Koota IDs | `createSimWorld` / idempotent `destroySimWorld` lifecycle |
+| Walking clips through walls or depends on render rate | `koota-kit/walker` sweeps grounded bodies on fixed ticks |
 | Two producers publish half-updated model facts | `koota-kit/coordination` commits an immutable completed metadata projection |
 
 ## Install
@@ -276,6 +277,7 @@ are also available:
 | `koota-kit/traits` | Safe trait declaration |
 | `koota-kit/schedule` | Fixed-step system schedule with a step cap |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
+| `koota-kit/walker` | Deterministic grounded body sweeps, support and segment occlusion |
 | `koota-kit/spatial` | Renderer-neutral point-to-open-surface clearance queries |
 | `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 

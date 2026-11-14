@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 (2026-11-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat: add deterministic grounded walker and occlusion queries by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/112
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.9.11...v0.10.0
+
 ## 0.9.11 (2026-11-09)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

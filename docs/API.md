@@ -537,3 +537,53 @@ All numeric inputs must be finite and within `+/- 1e9`; invalid numeric or
 geometric inputs throw `RangeError`, and invalid IDs throw `TypeError`.
 Author worlds near the origin and in sensible physical units: this contract
 does not promise cross-engine bit identity for arbitrary floating calculations.
+
+### Straight grounded paths
+
+```ts
+queryWalkerPath(state: WalkerState, target: WalkerPoint,
+  world: WalkerWorld): WalkerPathResult
+// WalkerPathResult = WalkerResult & { walkable: boolean }
+```
+
+This query certifies the **actual straight XZ route**, following authored support
+heights along it. It never substitutes the X-then-Z movement policy or slides
+around obstacles. For instance, two perpendicular walkway arms can carry an
+axis-ordered walker between two endpoints while the diagonal crosses unsupported
+space. `advanceWalker` success is therefore not a straight-path certificate.
+
+For each support rectangle the query computes an analytic interval of segment
+parameters. It partitions the route at every entry and exit and requires support
+covering each complete nonempty interval. There is no uniform point sampling and
+no support-gap epsilon. Supports covering an interval are considered by descending
+height at its entry, with lexical ID ties; the first reachable one is chosen.
+Vertical transitions and continuous movement then sweep the complete body through
+the authored solids. Blocked support or any solid hit makes `walkable` false.
+This is a conservative validator: it does not search alternate support choices
+or find a detour when the chosen support is obstructed.
+
+The target's Y must match the reached support height within `1e-9` world units.
+Final XZ comes from the literal target rather than a reconstructed
+`start + (target - start)`, which need not be exactly equal for decimal numbers.
+Support interval ordering compares exact rational representations of the input
+IEEE-754 numbers internally, so distinct boundaries cannot collapse into one
+parameter or disappear during deduplication. Authored coordinates at an interior
+boundary are retained instead of reconstructed on its boundary axis. These rules
+do not expand support rectangles or discard narrow unsupported intervals. The ordinary body
+contact tolerance remains the one documented above.
+
+`walkable: true` has status `moved`. Invalid starting support has status
+`invalid-support`; an incomplete path or target-height mismatch has status
+`blocked`. The returned state is detached and describes the last reached point;
+for a target-height mismatch it has the reached support's height. Contacts are
+solid IDs, so an unsupported interval or target-height mismatch can have none.
+A zero-length horizontal path is valid only with current support and a matching
+target height. Neither the caller's state nor geometry is changed. Revalidate
+against current geometry before committing a planned path.
+
+The shared body/occlusion slab solver also compares interval boundaries and hit
+order exactly. Very thin solids on long segments cannot disappear when entry
+and exit round to the same floating fraction. Returned fractions remain ordinary
+numbers; hit points retain the authored slab coordinate on the entry axis.
+Two distinct exact hit times can consequently have the same numeric fraction,
+while the selected hit still follows their exact order.

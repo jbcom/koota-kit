@@ -104,8 +104,14 @@ export type {
   RegistrationToken,
 } from "./coordination.js";
 
-export { advanceWalker, queryWalkerSupport, querySegmentOcclusion } from "./walker.js";
+export {
+  advanceWalker,
+  queryWalkerSupport,
+  querySegmentOcclusion,
+  queryWalkerPath,
+} from "./walker.js";
 export type {
+  WalkerPathResult,
   WalkerPoint,
   WalkerSolid,
   WalkerSupport,

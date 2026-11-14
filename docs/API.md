@@ -580,3 +580,10 @@ solid IDs, so an unsupported interval or target-height mismatch can have none.
 A zero-length horizontal path is valid only with current support and a matching
 target height. Neither the caller's state nor geometry is changed. Revalidate
 against current geometry before committing a planned path.
+
+The shared body/occlusion slab solver also compares interval boundaries and hit
+order exactly. Very thin solids on long segments cannot disappear when entry
+and exit round to the same floating fraction. Returned fractions remain ordinary
+numbers; hit points retain the authored slab coordinate on the entry axis.
+Two distinct exact hit times can consequently have the same numeric fraction,
+while the selected hit still follows their exact order.

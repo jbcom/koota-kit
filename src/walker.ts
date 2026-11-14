@@ -113,33 +113,32 @@ function interpolate(from: WalkerPoint, to: WalkerPoint, t: number): WalkerPoint
     z: from.z + (to.z - from.z) * t,
   };
 }
-// Slab intersection. Open interiors for body sweeps let a touching body slide.
+// Exact slab interval ordering prevents a long sweep collapsing a thin hit.
+// Open interiors for body sweeps let a touching body slide.
 function intersect(
   from: WalkerPoint,
   to: WalkerPoint,
-  s: WalkerSolid,
+  solid: WalkerSolid,
   open: boolean,
-): number | null {
-  let enter = 0,
-    leave = 1;
+): PathBoundary | null {
+  let enter = PATH_START,
+    leave = PATH_END;
   for (const axis of axes) {
-    const delta = to[axis] - from[axis];
-    if (delta === 0) {
+    if (from[axis] === to[axis]) {
       if (
         open
-          ? from[axis] <= s.min[axis] + EPS || from[axis] >= s.max[axis] - EPS
-          : from[axis] < s.min[axis] || from[axis] > s.max[axis]
+          ? from[axis] <= solid.min[axis] + EPS || from[axis] >= solid.max[axis] - EPS
+          : from[axis] < solid.min[axis] || from[axis] > solid.max[axis]
       )
         return null;
     } else {
-      const a = (s.min[axis] - from[axis]) / delta,
-        b = (s.max[axis] - from[axis]) / delta;
-      enter = Math.max(enter, Math.min(a, b));
-      leave = Math.min(leave, Math.max(a, b));
+      const [lower, upper] = axisBoundaries(from, to, axis, solid.min[axis], solid.max[axis]);
+      if (compareBoundary(lower, enter) > 0) enter = lower;
+      if (compareBoundary(upper, leave) < 0) leave = upper;
     }
   }
-  if (open ? enter >= leave : enter > leave) return null;
-  return enter;
+  const order = compareBoundary(enter, leave);
+  return (open ? order >= 0 : order > 0) ? null : enter;
 }
 function firstHit(
   from: WalkerPoint,
@@ -147,19 +146,25 @@ function firstHit(
   solids: readonly WalkerSolid[],
   open: boolean,
 ): WalkerSegmentHit | null {
-  let hit: WalkerSegmentHit | null = null;
+  let nearest: { boundary: PathBoundary; id: string } | null = null;
   for (const solid of solids) {
-    const fraction = intersect(from, to, solid, open);
+    const boundary = intersect(from, to, solid, open);
+    if (boundary === null) continue;
     if (
-      fraction !== null &&
-      (!hit ||
-        fraction < hit.fraction ||
-        (fraction === hit.fraction && compareId(solid.id, hit.id) < 0))
+      !nearest ||
+      compareBoundary(boundary, nearest.boundary) < 0 ||
+      (compareBoundary(boundary, nearest.boundary) === 0 && compareId(solid.id, nearest.id) < 0)
     ) {
-      hit = { id: solid.id, fraction, point: interpolate(from, to, fraction) };
+      nearest = { boundary, id: solid.id };
     }
   }
-  return hit;
+  if (!nearest) return null;
+  const { boundary, id } = nearest;
+  return {
+    id,
+    fraction: boundary.fraction,
+    point: { ...interpolate(from, to, boundary.fraction), ...boundary.coordinates },
+  };
 }
 /** Closed segment: starts inside/on a solid hit at zero; endpoints count. */
 export function querySegmentOcclusion(
@@ -289,7 +294,7 @@ type PathBoundary = {
   fraction: number;
   numerator: bigint;
   denominator: bigint;
-  coordinates: Partial<Pick<WalkerPoint, "x" | "z">>;
+  coordinates: Partial<WalkerPoint>;
 };
 type SupportInterval = { support: WalkerSupport; start: PathBoundary; end: PathBoundary };
 const PATH_START: PathBoundary = { fraction: 0, numerator: 0n, denominator: 1n, coordinates: {} };
@@ -307,7 +312,7 @@ function exactNumber(value: number): bigint {
 function boundaryAt(
   from: WalkerPoint,
   to: WalkerPoint,
-  axis: "x" | "z",
+  axis: "x" | "y" | "z",
   coordinate: number,
 ): PathBoundary {
   let numerator = exactNumber(coordinate) - exactNumber(from[axis]);
@@ -325,7 +330,19 @@ function boundaryAt(
 }
 function compareBoundary(a: PathBoundary, b: PathBoundary): number {
   const difference = a.numerator * b.denominator - b.numerator * a.denominator;
-  return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+  if (difference === 0n) return 0;
+  return difference < 0n ? -1 : 1;
+}
+function axisBoundaries(
+  from: WalkerPoint,
+  to: WalkerPoint,
+  axis: "x" | "y" | "z",
+  min: number,
+  max: number,
+): [PathBoundary, PathBoundary] {
+  const a = boundaryAt(from, to, axis, min),
+    b = boundaryAt(from, to, axis, max);
+  return compareBoundary(a, b) < 0 ? [a, b] : [b, a];
 }
 /** Analytic XZ slab interval. Exact ordering cannot collapse a real support gap. */
 function supportInterval(
@@ -342,9 +359,7 @@ function supportInterval(
     if (from[axis] === to[axis]) {
       if (from[axis] < min || from[axis] > max) return null;
     } else {
-      const a = boundaryAt(from, to, axis, min),
-        b = boundaryAt(from, to, axis, max);
-      const [lower, upper] = compareBoundary(a, b) < 0 ? [a, b] : [b, a];
+      const [lower, upper] = axisBoundaries(from, to, axis, min, max);
       if (compareBoundary(lower, start) > 0) start = lower;
       if (compareBoundary(upper, end) < 0) end = upper;
     }
@@ -399,6 +414,11 @@ export function queryWalkerPath(
   const initial = { ...state, position: { ...state.position } };
   if (!support) return { state: initial, status: "invalid-support", contacts: [], walkable: false };
   initial.supportId = support.id;
+  if (state.position.x === target.x && state.position.z === target.z) {
+    initial.position.y = support.y;
+    const walkable = Math.abs(support.y - target.y) <= EPS;
+    return { state: initial, status: walkable ? "moved" : "blocked", contacts: [], walkable };
+  }
   const intervals = world.supports
     .map((candidate) => supportInterval(state.position, target, candidate))
     .filter((interval): interval is SupportInterval => interval !== null);

@@ -400,3 +400,46 @@ it("refuses a real gap even when distinct boundaries round to the same path para
   ];
   expect(queryWalkerPath(start, target, { supports, solids: [] }).walkable).toBe(false);
 });
+
+it("keeps stationary paths on current support instead of stepping onto an overlapping plane", () => {
+  const overlap = { ...world, supports: [ground, { ...ground, id: "upper", y: 0.2 }] };
+  const unchanged = queryWalkerPath(state, state.position, overlap);
+  expect(unchanged.walkable).toBe(true);
+  expect(unchanged.state.position).toEqual(state.position);
+  expect(unchanged.state.supportId).toBe("ground");
+  const upward = queryWalkerPath(state, { ...state.position, y: 0.2 }, overlap);
+  expect(upward.walkable).toBe(false);
+  expect(upward.state.position).toEqual(state.position);
+});
+
+it("does not collapse a thin solid hit into a zero-width slab interval on a long route", () => {
+  const start = { ...state, halfWidth: 2e-9, position: { x: -1e9, y: 0, z: 0 } };
+  const target = { x: 1e9, y: 0, z: 0 };
+  const thin = { id: "thin", min: { x: 1, y: 0, z: -1 }, max: { x: 1 + 1e-10, y: 3, z: 1 } };
+  const longWorld = { supports: [{ ...ground, minX: -1e9, maxX: 1e9 }], solids: [thin] };
+  const path = queryWalkerPath(start, target, longWorld);
+  expect(path.walkable).toBe(false);
+  expect(path.contacts).toEqual(["thin"]);
+  expect(path.state.position.x).toBe(1 - start.halfWidth);
+  expect(
+    advanceWalker({ ...start, position: { x: -5e8, y: 0, z: 0 } }, { x: 1e9, z: 0 }, longWorld)
+      .state.position.x,
+  ).toBe(1 - start.halfWidth);
+  const ray = querySegmentOcclusion({ ...start.position, y: 1 }, { ...target, y: 1 }, longWorld);
+  expect(ray?.id).toBe("thin");
+  expect(ray?.point.x).toBe(1);
+});
+
+it("orders distinct solid hits exactly even when their numeric fractions are equal", () => {
+  const from = { x: -1e9, y: 1, z: 0 },
+    to = { x: 1e9, y: 1, z: 0 };
+  const solids = [
+    { id: "a-far", min: { x: 1 + 1e-10, y: 0, z: -1 }, max: { x: 2, y: 3, z: 1 } },
+    { id: "z-near", min: { x: 1, y: 0, z: -1 }, max: { x: 2, y: 3, z: 1 } },
+  ];
+  const forward = querySegmentOcclusion(from, to, { ...world, solids });
+  expect(forward?.id).toBe("z-near");
+  expect(querySegmentOcclusion(from, to, { ...world, solids: [...solids].reverse() })).toEqual(
+    forward,
+  );
+});

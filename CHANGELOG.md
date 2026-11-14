@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 (2026-11-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat: certify straight grounded walker paths by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/114
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.10.0...v0.11.0
+
 ## 0.10.0 (2026-11-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

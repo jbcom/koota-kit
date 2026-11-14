@@ -428,3 +428,112 @@ function useSimWorld(): WorldHandle;
 it. Passing a different `handle` re-provides every consumer. The provider does
 not create or destroy the handle: pair `createSimWorld` with `destroySimWorld`
 yourself.
+
+## `walker`
+
+Import from `koota-kit/walker` or the root. The subpath has no runtime
+imports, including Koota, React, browser APIs, storage or a renderer.
+
+```ts
+import {
+  advanceWalker,
+  queryWalkerSupport,
+  querySegmentOcclusion,
+  type WalkerState,
+  type WalkerWorld,
+} from "koota-kit/walker";
+
+const state: WalkerState = {
+  position: { x: 0, y: 0, z: 0 },
+  halfWidth: 0.3,
+  height: 1.8,
+  maxStep: 0.25,
+  supportId: "ground",
+};
+const world: WalkerWorld = {
+  supports: [{
+    id: "ground", minX: -10, maxX: 10, minZ: -10, maxZ: 10,
+    y: 0, slopeX: 0, slopeZ: 0,
+  }],
+  solids: [],
+};
+const result = advanceWalker(state, { x: 0.04, z: 0 }, world);
+queryWalkerSupport(result.state, world); // { id: "ground", y: 0 }
+querySegmentOcclusion({ x: 0, y: 1, z: 0 }, { x: 2, y: 1, z: 0 }, world); // null
+```
+
+### Walker data
+
+All data is plain JSON. Coordinates use caller-selected units with Y up.
+`WalkerPoint` is `{x,y,z}`. `WalkerSolid` is `{id,min,max}` with two points
+bounding a positive-volume axis-aligned box. `WalkerSupport` has the fields
+in the code above: `y` is the height at `(minX,minZ)` and slopes specify rise
+per horizontal unit. Bounds have positive area and combined slope magnitude
+at most one. IDs are nonempty and unique across solids and supports.
+
+`WalkerState.position` is the foot centre. The body is an upright **square
+prism**, with width `2 * halfWidth` and `height`. This conservative footprint
+is not a capsule. Dimensions must exceed `1e-9`; `maxStep` is nonnegative.
+It limits discontinuous ascent and descent, not motion along a continuous
+support plane. `supportId` is a saved observation; the geometry query always
+revalidates support rather than trusting an ID. Neither calls nor returned
+objects mutate caller-owned state, supports or solids.
+
+### Walking and support
+
+```ts
+advanceWalker(state: WalkerState, displacement: { x: number; z: number },
+  world: WalkerWorld): WalkerResult
+queryWalkerSupport(state: WalkerState, world: WalkerWorld): WalkerSupportHit | null
+```
+
+A result contains `{state,status,contacts}`. Status is `moved`, `blocked`,
+or `invalid-support`; `moved` also covers a zero displacement. Contacts are
+unique lexically sorted solid IDs. An unsupported edge can block movement
+without a solid contact. Invalid starting support or body overlap leaves the
+position unchanged. A support hit is `{id,y}` and requires the current foot
+height and whole-body clearance; it does not relocate the caller.
+
+Call once per **fixed simulation tick**, with a world-space displacement for
+that tick. Use `createSchedule` to separate render timing from simulation.
+Render-delta integration and differently sized movement ticks are not promised
+to produce identical paths. The deterministic slide policy is X followed by Z;
+this gives an explicit axis preference, including at corners.
+
+Every axis path is split at every authored support rectangle boundary. Each
+interval selects the highest reachable support, breaking equal heights by ID.
+This prevents tunnelling across even narrow support gaps. Step transitions
+sweep the body vertically before proceeding; the horizontal/inclined segment
+then sweeps the complete body against expanded solid bounds. The first hit
+clips travel and the other axis can slide. Touching a solid is permitted;
+entering its interior is blocked. Floating contact tolerance is `1e-9` in world
+units, and equal fractions use lexical IDs, without locale collation.
+
+Support is tested at the **foot centre**, so up to half a body width can
+extend beyond a support boundary. Author railings as solids wherever the
+whole body must remain inside a walkway. Support surfaces are not solid
+volumes: model ceilings, undersides, railings, risers and occluders separately.
+A ramp may represent stair walkability while authored solids supply surrounding
+walls and headroom. A solid riser intersecting the body can block movement;
+this API does not infer a climbable surface from arbitrary mesh or box tops.
+There is no jumping, airborne state, dynamic obstacle pushing or depenetration.
+
+### Occlusion
+
+```ts
+querySegmentOcclusion(from: WalkerPoint, to: WalkerPoint,
+  world: WalkerWorld): WalkerSegmentHit | null
+```
+
+This is a **closed**, finite segment against authored solids, with no body
+expansion. A hit is `{id,fraction,point}` where fraction lies in `[0,1]`.
+A start inside/on a solid returns zero; an endpoint hit counts. A zero-length
+segment hits only when its point lies in a solid. The earliest fraction wins,
+with lexical ID ordering for ties. Support planes do not occlude. Callers own
+interaction reach limits, filtering target solids and deciding how a hit affects
+an action.
+
+All numeric inputs must be finite and within `+/- 1e9`; invalid numeric or
+geometric inputs throw `RangeError`, and invalid IDs throw `TypeError`.
+Author worlds near the origin and in sensible physical units: this contract
+does not promise cross-engine bit identity for arbitrary floating calculations.

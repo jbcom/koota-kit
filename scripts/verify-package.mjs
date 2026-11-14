@@ -160,6 +160,7 @@ try {
     "advanceClock",
     "advanceWalker",
     "queryWalkerSupport",
+    "queryWalkerPath",
     "querySegmentOcclusion",
     "chance",
     "bindCoordination",
@@ -272,6 +273,7 @@ try {
     for (const api of [esm,cjs]) {
       assert.equal(api.advanceWalker(state,{x:1,z:0},world).state.position.x,1);
       assert.equal(api.queryWalkerSupport(state,world).id,"floor");
+      assert.equal(api.queryWalkerPath(state,{x:1,y:0,z:1},world).walkable,true);
       assert.equal(api.querySegmentOcclusion(state.position,{x:1,y:0,z:0},world),null);
     }
   `,

@@ -189,3 +189,13 @@ walkway enclosure. Solid ceilings and railings must be authored explicitly.
 The point-clearance oracle in `spatial` does not replace these volume sweeps:
 clearance of a point is not proof that a walking body fits or that its entire
 path remains clear. Numeric and supported-geometry limits are in the API page.
+
+`queryWalkerPath` separately certifies continuous straight horizontal routes.
+An X-then-Z movement result cannot establish diagonal support or collision
+clearance. The path query computes closed parameter intervals for every support
+rectangle, partitions their entry/exit boundaries, and validates complete
+interval coverage plus continuous whole-body sweeps. It shares the support
+transition/sweep primitive with walking, but does not share its axis routing.
+Literal endpoints resolve arithmetic residuals without applying a geometric
+support-gap tolerance. Consumers own route search and must revalidate a planned
+segment against the current world before committing it.

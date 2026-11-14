@@ -277,7 +277,7 @@ are also available:
 | `koota-kit/traits` | Safe trait declaration |
 | `koota-kit/schedule` | Fixed-step system schedule with a step cap |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
-| `koota-kit/walker` | Deterministic grounded body sweeps, support and segment occlusion |
+| `koota-kit/walker` | Grounded body sweeps, straight-path validation, support and occlusion |
 | `koota-kit/spatial` | Renderer-neutral point-to-open-surface clearance queries |
 | `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 

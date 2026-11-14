@@ -3,6 +3,7 @@ import {
   advanceWalker,
   querySegmentOcclusion,
   queryWalkerSupport,
+  queryWalkerPath,
   type WalkerState,
   type WalkerWorld,
 } from "../src/walker.js";
@@ -246,4 +247,156 @@ describe("swept body invariants", () => {
       expect(queryWalkerSupport(current, { ...world, solids })).not.toBeNull();
     }
   });
+});
+
+describe("straight walker paths", () => {
+  it("rejects an unsupported diagonal even when both axis legs are walkable", () => {
+    const start = { ...state, position: { x: 0.5, y: 0, z: 0.5 } };
+    const target = { x: 3.5, y: 0, z: 3.5 };
+    const lWorld = {
+      supports: [
+        { ...ground, id: "horizontal", minX: 0, maxX: 4, minZ: 0, maxZ: 1 },
+        { ...ground, id: "vertical", minX: 3, maxX: 4, minZ: 0, maxZ: 4 },
+      ],
+      solids: [],
+    };
+    expect(advanceWalker(start, { x: 3, z: 3 }, lWorld).status).toBe("moved");
+    expect(queryWalkerPath(start, target, lWorld).walkable).toBe(false);
+  });
+  it("accepts an exact decimal target without relying on subtraction-addition identity", () => {
+    const start = { ...state, position: { x: 8, y: 0, z: 8 } };
+    const target = { x: 0.1, y: 0, z: 8 };
+    expect(start.position.x + (target.x - start.position.x)).not.toBe(target.x);
+    const result = queryWalkerPath(start, target, {
+      ...world,
+      supports: [{ ...ground, minX: 0.1 }],
+    });
+    expect(result.walkable).toBe(true);
+    expect(result.state.position).toEqual(target);
+  });
+  it("never turns endpoint tolerance into support-gap tolerance", () => {
+    const gapWorld = {
+      ...world,
+      supports: [
+        { ...ground, maxX: 1 },
+        { ...ground, id: "far", minX: 1 + 1e-10 },
+      ],
+    };
+    expect(queryWalkerPath(state, { x: 2, y: 0, z: 2 }, gapWorld).walkable).toBe(false);
+  });
+});
+
+describe("straight path certification boundaries", () => {
+  it("sweeps diagonal body clearance rather than an unexpanded point ray", () => {
+    const diagonalWorld = {
+      ...world,
+      solids: [{ id: "corner", min: { x: 1, y: 0, z: 1.2 }, max: { x: 1.1, y: 3, z: 2 } }],
+    };
+    const target = { x: 3, y: 0, z: 3 };
+    expect(
+      querySegmentOcclusion({ x: 0, y: 1, z: 0 }, { ...target, y: 1 }, diagonalWorld),
+    ).toBeNull();
+    const result = queryWalkerPath(state, target, diagonalWorld);
+    expect(result.walkable).toBe(false);
+    expect(result.status).toBe("blocked");
+    expect(result.contacts).toEqual(["corner"]);
+    expect(result.state.position.x).toBeCloseTo(0.9);
+    expect(result.state.position.z).toBeCloseTo(0.9);
+  });
+  it("covers the full interval even across many tiny supports in either direction", () => {
+    const supports = Array.from({ length: 100 }, (_, index) => ({
+      ...ground,
+      id: `${index}`,
+      minX: index / 100,
+      maxX: (index + 1) / 100,
+    }));
+    const routeWorld = { supports, solids: [] };
+    const target = { x: 1, y: 0, z: 1 };
+    const result = queryWalkerPath(state, target, routeWorld);
+    expect(result.walkable).toBe(true);
+    expect(queryWalkerPath(result.state, state.position, routeWorld).walkable).toBe(true);
+  });
+  it("validates support transitions and inclined ground along the actual diagonal", () => {
+    const ramp = { ...ground, minX: 0, minZ: 0, slopeX: 0.25, slopeZ: 0.25 };
+    const rampWorld = { supports: [ramp], solids: [] };
+    expect(queryWalkerPath(state, { x: 4, y: 2, z: 4 }, rampWorld).walkable).toBe(true);
+    const steps = {
+      supports: [
+        { ...ground, maxX: 1 },
+        { ...ground, id: "step", minX: 1, y: 0.2 },
+      ],
+      solids: [],
+    };
+    const top = queryWalkerPath(state, { x: 2, y: 0.2, z: 2 }, steps);
+    expect(top.walkable).toBe(true);
+    expect(queryWalkerPath(top.state, state.position, steps).walkable).toBe(true);
+    expect(
+      queryWalkerPath(
+        state,
+        { x: 2, y: 1, z: 2 },
+        {
+          ...steps,
+          supports: [
+            { ...ground, maxX: 1 },
+            { ...ground, id: "high", minX: 1, y: 1 },
+          ],
+        },
+      ).walkable,
+    ).toBe(false);
+    const ceiling = { id: "ceiling", min: { x: 0.8, y: 1.9, z: 0.8 }, max: { x: 3, y: 2.5, z: 3 } };
+    expect(
+      queryWalkerPath(state, { x: 2, y: 0.2, z: 2 }, { ...steps, solids: [ceiling] }).contacts,
+    ).toEqual(["ceiling"]);
+  });
+  it("handles invalid starting support, zero length and target height tolerance", () => {
+    expect(queryWalkerPath(state, state.position, world).walkable).toBe(true);
+    expect(queryWalkerPath(state, { x: 1, y: 5e-10, z: 1 }, world).walkable).toBe(true);
+    expect(queryWalkerPath(state, { x: 1, y: 2e-9, z: 1 }, world).walkable).toBe(false);
+    const result = queryWalkerPath(state, state.position, { supports: [], solids: [] });
+    expect(result.status).toBe("invalid-support");
+    expect(result.walkable).toBe(false);
+    expect(() => queryWalkerPath(state, { x: NaN, y: 0, z: 0 }, world)).toThrow(RangeError);
+  });
+  it("ignores irrelevant and point-contact support rectangles and orders equal support deterministically", () => {
+    const supports = [
+      ground,
+      { ...ground, id: "lower", y: -0.2 },
+      { ...ground, id: "a" },
+      { ...ground, id: "left", minX: -4, maxX: -3 },
+      { ...ground, id: "right", minX: 3, maxX: 4 },
+      { ...ground, id: "corner", minX: 1, maxX: 2, minZ: -1, maxZ: 1 },
+    ];
+    const target = { x: 0, y: 0, z: 2 };
+    const result = queryWalkerPath(state, target, { supports, solids: [] });
+    expect(result.walkable).toBe(true);
+    expect(result.state.supportId).toBe("a");
+    expect(
+      queryWalkerPath(state, target, { supports: [...supports].reverse(), solids: [] }),
+    ).toEqual(result);
+    expect(queryWalkerPath(state, { x: 2, y: 0, z: 2 }, { supports, solids: [] }).walkable).toBe(
+      true,
+    );
+  });
+  it("returns detached state and leaves caller geometry unchanged", () => {
+    const before = JSON.stringify({ state, world });
+    const result = queryWalkerPath(state, { x: 1, y: 0, z: 1 }, world);
+    result.state.position.x = 100;
+    expect(JSON.stringify({ state, world })).toBe(before);
+  });
+});
+
+it("refuses a real gap even when distinct boundaries round to the same path parameter", () => {
+  const start = { ...state, position: { x: -1e9, y: 0, z: 0 } };
+  const target = { x: 1e9, y: 0, z: 0 };
+  const firstEdge = 1,
+    nextEdge = 1 + 1e-10;
+  expect(firstEdge).not.toBe(nextEdge);
+  expect((firstEdge - start.position.x) / (target.x - start.position.x)).toBe(
+    (nextEdge - start.position.x) / (target.x - start.position.x),
+  );
+  const supports = [
+    { ...ground, minX: -1e9, maxX: firstEdge },
+    { ...ground, id: "far", minX: nextEdge, maxX: 1e9 },
+  ];
+  expect(queryWalkerPath(start, target, { supports, solids: [] }).walkable).toBe(false);
 });

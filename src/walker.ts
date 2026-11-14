@@ -29,6 +29,8 @@ export type WalkerResult = {
   status: "moved" | "blocked" | "invalid-support";
   contacts: string[];
 };
+/** A straight horizontal path certificate; state is its last reached supported point. */
+export type WalkerPathResult = WalkerResult & { walkable: boolean };
 const EPS = 1e-9;
 const axes = ["x", "y", "z"] as const;
 function finite(...values: number[]): void {
@@ -202,12 +204,20 @@ function advanceInterval(
   const support = supports(middle, world).find(
     (s) => Math.abs(height(s, position) - position.y) <= state.maxStep + EPS,
   );
+  return advanceOnSupport(state, support, { ...position, [axis]: endCoordinate }, solids);
+}
+function advanceOnSupport(
+  state: WalkerState,
+  support: WalkerSupport | undefined,
+  destination: WalkerPoint,
+  solids: readonly WalkerSolid[],
+): WalkerResult {
   if (!support) return { state, status: "blocked", contacts: [] };
+  const position = state.position;
   const raised = { ...position, y: height(support, position) };
   const verticalHit = firstHit(position, raised, solids, true);
   if (verticalHit) return { state, status: "blocked", contacts: [verticalHit.id] };
-  const target = { ...raised, [axis]: endCoordinate };
-  target.y = height(support, target);
+  const target = { ...destination, y: height(support, destination) };
   const hit = firstHit(raised, target, solids, true);
   return {
     state: { ...state, position: hit ? hit.point : target, supportId: support.id },
@@ -215,6 +225,7 @@ function advanceInterval(
     contacts: hit ? [hit.id] : [],
   };
 }
+
 function advanceAxis(
   state: WalkerState,
   axis: "x" | "z",
@@ -272,4 +283,139 @@ export function advanceWalker(
     status: blocked ? "blocked" : "moved",
     contacts: [...contacts].sort(compareId),
   };
+}
+
+type PathBoundary = {
+  fraction: number;
+  numerator: bigint;
+  denominator: bigint;
+  coordinates: Partial<Pick<WalkerPoint, "x" | "z">>;
+};
+type SupportInterval = { support: WalkerSupport; start: PathBoundary; end: PathBoundary };
+const PATH_START: PathBoundary = { fraction: 0, numerator: 0n, denominator: 1n, coordinates: {} };
+const PATH_END: PathBoundary = { fraction: 1, numerator: 1n, denominator: 1n, coordinates: {} };
+/** Exact integer value in units of the smallest IEEE-754 subnormal, 2^-1074. */
+function exactNumber(value: number): bigint {
+  const view = new DataView(new ArrayBuffer(8));
+  view.setFloat64(0, value);
+  const bits = view.getBigUint64(0);
+  const exponent = (bits >> 52n) & 0x7ffn;
+  let mantissa = bits & 0xfffffffffffffn;
+  if (exponent !== 0n) mantissa = (mantissa | 0x10000000000000n) << (exponent - 1n);
+  return bits >> 63n ? -mantissa : mantissa;
+}
+function boundaryAt(
+  from: WalkerPoint,
+  to: WalkerPoint,
+  axis: "x" | "z",
+  coordinate: number,
+): PathBoundary {
+  let numerator = exactNumber(coordinate) - exactNumber(from[axis]);
+  let denominator = exactNumber(to[axis]) - exactNumber(from[axis]);
+  if (denominator < 0n) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+  return {
+    fraction: (coordinate - from[axis]) / (to[axis] - from[axis]),
+    numerator,
+    denominator,
+    coordinates: { [axis]: coordinate },
+  };
+}
+function compareBoundary(a: PathBoundary, b: PathBoundary): number {
+  const difference = a.numerator * b.denominator - b.numerator * a.denominator;
+  return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+}
+/** Analytic XZ slab interval. Exact ordering cannot collapse a real support gap. */
+function supportInterval(
+  from: WalkerPoint,
+  to: WalkerPoint,
+  support: WalkerSupport,
+): SupportInterval | null {
+  let start = PATH_START,
+    end = PATH_END;
+  for (const [axis, min, max] of [
+    ["x", support.minX, support.maxX],
+    ["z", support.minZ, support.maxZ],
+  ] as const) {
+    if (from[axis] === to[axis]) {
+      if (from[axis] < min || from[axis] > max) return null;
+    } else {
+      const a = boundaryAt(from, to, axis, min),
+        b = boundaryAt(from, to, axis, max);
+      const [lower, upper] = compareBoundary(a, b) < 0 ? [a, b] : [b, a];
+      if (compareBoundary(lower, start) > 0) start = lower;
+      if (compareBoundary(upper, end) < 0) end = upper;
+    }
+  }
+  return compareBoundary(start, end) < 0 ? { support, start, end } : null;
+}
+function pathCuts(intervals: readonly SupportInterval[]): PathBoundary[] {
+  const sorted = [
+    PATH_START,
+    PATH_END,
+    ...intervals.flatMap((interval) => [interval.start, interval.end]),
+  ].sort(compareBoundary);
+  const cuts: PathBoundary[] = [];
+  for (const boundary of sorted) {
+    const previous = cuts[cuts.length - 1];
+    if (previous && compareBoundary(previous, boundary) === 0) {
+      Object.assign(previous.coordinates, boundary.coordinates);
+    } else cuts.push({ ...boundary, coordinates: { ...boundary.coordinates } });
+  }
+  return cuts;
+}
+function pathSupport(
+  intervals: readonly SupportInterval[],
+  start: PathBoundary,
+  end: PathBoundary,
+  state: WalkerState,
+): WalkerSupport | undefined {
+  return intervals
+    .filter(
+      (interval) =>
+        compareBoundary(interval.start, start) <= 0 && compareBoundary(interval.end, end) >= 0,
+    )
+    .map((interval) => interval.support)
+    .sort((a, b) => height(b, state.position) - height(a, state.position) || compareId(a.id, b.id))
+    .find(
+      (support) =>
+        Math.abs(height(support, state.position) - state.position.y) <= state.maxStep + EPS,
+    );
+}
+/**
+ * Certify the actual straight XZ path while following support heights. Unlike
+ * advanceWalker, this never substitutes an axis-ordered route or wall sliding.
+ * Target Y must agree with reached support height within 1e-9 world units.
+ */
+export function queryWalkerPath(
+  state: WalkerState,
+  target: WalkerPoint,
+  world: WalkerWorld,
+): WalkerPathResult {
+  const support = queryWalkerSupport(state, world);
+  point(target);
+  const initial = { ...state, position: { ...state.position } };
+  if (!support) return { state: initial, status: "invalid-support", contacts: [], walkable: false };
+  initial.supportId = support.id;
+  const intervals = world.supports
+    .map((candidate) => supportInterval(state.position, target, candidate))
+    .filter((interval): interval is SupportInterval => interval !== null);
+  const cuts = pathCuts(intervals);
+  const solids = world.solids.map((solid) => expanded(solid, state));
+  let result: WalkerResult = { state: initial, status: "moved", contacts: [] };
+  for (let index = 1; index < cuts.length; index++) {
+    const start = cuts[index - 1] as PathBoundary,
+      end = cuts[index] as PathBoundary;
+    const destination =
+      compareBoundary(end, PATH_END) === 0
+        ? { ...target }
+        : { ...interpolate(state.position, target, end.fraction), ...end.coordinates };
+    const nextSupport = pathSupport(intervals, start, end, result.state);
+    result = advanceOnSupport(result.state, nextSupport, destination, solids);
+    if (result.status === "blocked") return { ...result, walkable: false };
+  }
+  const walkable = Math.abs(result.state.position.y - target.y) <= EPS;
+  return { ...result, status: walkable ? "moved" : "blocked", walkable };
 }

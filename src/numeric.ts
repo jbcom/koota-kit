@@ -65,6 +65,7 @@ export function deterministicAcos(value: number): number {
     throw new RangeError("acos input must be finite and within [0, 1]");
   }
   if (value === 1) return 0;
+  if (value === 0) return Number(HALF_PI) / SCALE_NUMBER;
   const target = fixed(value);
   let low = 0n;
   let high = HALF_PI;

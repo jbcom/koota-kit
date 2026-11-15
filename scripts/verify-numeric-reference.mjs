@@ -36,7 +36,9 @@ print(json.dumps({
     'firstOmittedCosineTerm': str(pi**48 / Decimal(12413915592536072670862289047373375038521486354677760000000000))
 }))
 `;
-const reference = JSON.parse(execFileSync("python3", ["-c", source], { encoding: "utf8" }));
+const reference = JSON.parse(
+  execFileSync("python3", ["-c", source], { encoding: "utf8", timeout: 30000 }),
+);
 for (const [angle, sin, cos] of reference.sinCos) {
   const result = deterministicSinCos(angle);
   assert(Math.abs(result.sin - Number(sin)) <= 1e-14);

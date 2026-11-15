@@ -602,7 +602,8 @@ The subpath has no runtime dependencies, world state, RNG, renderer, or cache.
 
 Inputs outside these domains throw `RangeError`. These functions do not wrap
 angles or round fractional counts. Negative zero produces positive zero for
-sine and cube root. The inverse endpoint `acos(1)` is exactly positive zero.
+sine and cube root. The inverse endpoint `acos(1)` is exactly positive zero; `acos(0)` directly
+returns the encoded half-pi value.
 Errors refer to the mathematical function of the supplied binary64 input;
 they are absolute numerical bounds, not geometric clearance certificates.
 

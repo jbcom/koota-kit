@@ -183,13 +183,20 @@ transitions and subsequent movement against expanded AABBs. Unsupported gaps
 cannot be skipped by a large movement delta. Surface selection and equal-time
 collision ordering use stable lexical IDs; caller array order is immaterial.
 
+Axis cuts use the same exact rational ordering as straight-path certificates
+and retain literal support-plane coordinates. The selected rectangle must
+contain the interval's start and end, not merely its rounded midpoint. This
+prevents cancellation from publishing a point outside an outer edge and prevents
+one-ULP support gaps from disappearing. X-then-Z sliding and body sweeps remain
+unchanged; the solver neither expands support nor clamps the result afterward.
+
 Exact boundary conversion uses one eight-byte scratch view per synchronous
 sweep and a query-owned memo of at most 256 number-to-bigint values. A straight
 path shares that context across its support intervals and body sweeps. Filling
 the memo falls back to the same exact conversion without retaining more values.
 No geometry or clearance result is cached across calls; nested queries own
-separate contexts, and changed worlds are checked afresh. Rational comparisons,
-contact tolerances and returned coordinates are unchanged.
+separate contexts, and changed worlds are checked afresh. The conversion memo
+does not alter rational comparisons, contact tolerances or returned coordinates.
 
 Walkability planes and solid volumes are separate authored facts. A support
 plane certifies foot-centre support, not a solid floor underside or a complete

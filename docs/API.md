@@ -509,6 +509,13 @@ clips travel and the other axis can slide. Touching a solid is permitted;
 entering its interior is blocked. Floating contact tolerance is `1e-9` in world
 units, and equal fractions use lexical IDs, without locale collation.
 
+Support cuts retain their literal authored coordinates and are ordered by exact
+rational parameters. Every chosen support must contain both ends of its axis
+interval; a rounded midpoint on an edge cannot bridge an unsupported gap.
+Reaching an outer support edge returns that exact coordinate, so cancellation
+cannot leave the feet a tiny distance outside the support. The next axis may
+still slide along the edge. No epsilon clamp or support expansion is applied.
+
 Support is tested at the **foot centre**, so up to half a body width can
 extend beyond a support boundary. Author railings as solids wherever the
 whole body must remain inside a walkway. Support surfaces are not solid

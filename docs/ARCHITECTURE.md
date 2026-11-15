@@ -199,3 +199,47 @@ transition/sweep primitive with walking, but does not share its axis routing.
 Literal endpoints resolve arithmetic residuals without applying a geometric
 support-gap tolerance. Consumers own route search and must revalidate a planned
 segment against the current world before committing it.
+
+## Bounded numeric replay contract
+
+`numeric.ts` is a dependency-free leaf for a small deterministic simulation gap:
+rotations within one turn, the positive inverse cosine, and cube roots of
+unsigned 32-bit integer counts. It does not own transforms, meshes, authored
+poses, scheduling, units, cache policy, or an arbitrary-precision math engine.
+Finite authored pose tables were considered: they cannot cover continuous
+caller-owned articulation without introducing a separate interpolation contract.
+
+Revision 1 uses signed Q80 BigInt arithmetic. Conversion to Q80 multiplies by
+the exactly representable power of two `2^80`, then applies specified truncation;
+conversion back uses specified BigInt-to-Number rounding and power-of-two
+division. These operations and integer arithmetic follow the
+[ECMAScript numeric operations](https://tc39.es/ecma262/multipage/ecmascript-data-types-and-values.html#sec-numeric-types).
+The implementation never calls host sine, cosine, inverse cosine, cube root,
+power, or square root. This avoids the implementation-approximated
+[Math transcendental functions](https://tc39.es/ecma262/multipage/numbers-and-dates.html#sec-math-object).
+
+Sine and cosine evaluate 24 Taylor terms with a single integer truncation per
+recurrence. For `|x| <= pi`, the first omitted term is below `6e-38`.
+The initial recurrence multiplier is at most 5 and all subsequent cosine
+multipliers are below 1; the sine recurrence has an initial multiplier below 2
+and subsequent multipliers below 1. Input quantization and all recurrence
+truncations therefore contribute less than `1024 * 2^-80`. Including binary64
+output rounding gives the conservative `1e-14` component bound.
+
+Inverse cosine bisects integer angles over `[0, floor(pi/2 * 2^80)]`, using
+the same cosine kernel, to an interval of one Q80 unit (at most 81 iterations).
+The exact `value === 1` endpoint returns zero. Every other positive binary64
+input below 1 is at least `2^-53` below it, giving a sine derivative magnitude
+above `1e-8` at the closest root. Even with cosine error and the bounded near-root
+interval, the inverse error is below the conservative `1e-10` radian bound.
+Values smaller than one Q80 unit map to zero with angular error below `2^-80`.
+The encoded half-pi integer is the floor of the mathematical constant times
+`2^80`, independent of the host Math implementation.
+
+Cube root bisects the exact integer `value * 2^240` over `[0, 1626 * 2^80]`
+and returns its integer cube root divided by `2^80`. Its quantization error is
+below `2^-80`; the result is below 1626, so binary64 rounding contributes less
+than `2^-43`, comfortably within `1e-12`. The bisection uses at most 91 steps.
+There are no growing tables or hidden caches. Shared golden vectors, endpoint
+and dense native-reference checks, poisoned host-Math checks, and installed
+ESM/CommonJS parity run through the supported Node 22/24/26 CI matrix.

@@ -60,6 +60,7 @@ const reactFree = [
   "eventLog",
   "spatial",
   "walker",
+  "numeric",
   "coordination",
   "traits/index",
 ];
@@ -127,6 +128,10 @@ try {
     "dist/esm/react.d.ts",
     "dist/cjs/react.cjs",
     "dist/cjs/react.d.cts",
+    "dist/esm/numeric.js",
+    "dist/esm/numeric.d.ts",
+    "dist/cjs/numeric.cjs",
+    "dist/cjs/numeric.d.cts",
     "dist/esm/walker.js",
     "dist/esm/walker.d.ts",
     "dist/cjs/walker.cjs",
@@ -157,6 +162,9 @@ try {
   );
   const cjsCoordination = require(path.join(packageRoot, "dist/cjs/coordination.cjs"));
   const expectedRuntimeExports = [
+    "deterministicSinCos",
+    "deterministicAcos",
+    "deterministicCubeRoot",
     "advanceClock",
     "advanceWalker",
     "queryWalkerSupport",
@@ -260,6 +268,22 @@ try {
     shell: npmNeedsShell,
     stdio: "pipe",
   });
+  const numericCheck = path.join(consumerRoot, "numeric-check.mjs");
+  writeFileSync(
+    numericCheck,
+    `
+    import assert from "node:assert/strict";
+    import {createRequire} from "node:module";
+    import * as esm from "koota-kit/numeric";
+    const cjs = createRequire(import.meta.url)("koota-kit/numeric");
+    assert.equal(esm.DETERMINISTIC_NUMERIC.revision, 1);
+    assert.deepEqual(esm.deterministicSinCos(.6), cjs.deterministicSinCos(.6));
+    assert.equal(esm.deterministicAcos(.5), cjs.deterministicAcos(.5));
+    assert.equal(esm.deterministicCubeRoot(15000), cjs.deterministicCubeRoot(15000));
+    assert.equal(esm.deterministicCubeRoot(27), 3);
+  `,
+  );
+  execFileSync(process.execPath, [numericCheck], { cwd: consumerRoot, stdio: "pipe" });
   const walkerCheck = path.join(consumerRoot, "walker-check.mjs");
   writeFileSync(
     walkerCheck,

@@ -353,3 +353,12 @@ security issues privately according to [SECURITY.md](./SECURITY.md).
 ## License
 
 [MIT](./LICENSE) © Jon Bogaty.
+
+### Bounded replay-stable geometry scalars
+
+`koota-kit/numeric` supplies dependency-free `deterministicSinCos` for radians
+in `[-pi, pi]`, `deterministicAcos` for `[0, 1]`, and real
+`deterministicCubeRoot` for unsigned 32-bit integer counts. The revisioned Q80
+integer kernels avoid host transcendental functions; simulation and rendering
+can share identical results. See [the domains and error bounds](docs/API.md#replay-stable-bounded-numeric-kernels)
+before use. Cache repeated pose/count results in caller-owned state.

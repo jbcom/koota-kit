@@ -587,3 +587,35 @@ and exit round to the same floating fraction. Returned fractions remain ordinary
 numbers; hit points retain the authored slab coordinate on the entry axis.
 Two distinct exact hit times can consequently have the same numeric fraction,
 while the selected hit still follows their exact order.
+
+## Replay-stable bounded numeric kernels
+
+Import `deterministicSinCos`, `deterministicAcos`, `deterministicCubeRoot`, and
+`DETERMINISTIC_NUMERIC` from `koota-kit/numeric` (or the root entry).
+The subpath has no runtime dependencies, world state, RNG, renderer, or cache.
+
+| Function | Admitted input | Result | Absolute error bound |
+| --- | --- | --- | --- |
+| `deterministicSinCos(radians)` | Finite `[-Math.PI, Math.PI]` | `{sin, cos}` | `1e-14` per component |
+| `deterministicAcos(value)` | Finite `[0, 1]` | Radians in `[0, pi/2]` | `1e-10` radians |
+| `deterministicCubeRoot(value)` | Integer `[0, 4294967295]` | Real cube root | `1e-12` |
+
+Inputs outside these domains throw `RangeError`. These functions do not wrap
+angles or round fractional counts. Negative zero produces positive zero for
+sine and cube root. The inverse endpoint `acos(1)` is exactly positive zero; `acos(0)` directly
+returns the encoded half-pi value.
+Errors refer to the mathematical function of the supplied binary64 input;
+they are absolute numerical bounds, not geometric clearance certificates.
+
+`DETERMINISTIC_NUMERIC` is frozen and contains `revision: 1`, the three bounds
+(`sinCosAbsoluteError`, `acosAbsoluteError`, `cubeRootAbsoluteError`), and
+`maximumCubeRootInput`. Revision 1 freezes the output bits for admitted inputs.
+A future algorithm that changes those bits must use a new revision and an
+explicit migration contract. Replay data can record the revision alongside its
+own world version; world-header serialization remains unchanged.
+
+Use these bounded functions when authoritative simulation and rendered geometry
+must share the same scalar results. Persist or memoize repeated authored poses
+and count-derived geometry in caller-owned bounded state. BigInt kernels cost
+more than native trigonometry, particularly the inverse; do not reevaluate an
+unchanged pose for every vertex or animation frame.

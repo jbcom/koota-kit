@@ -121,3 +121,11 @@ export type {
   WalkerSegmentHit,
   WalkerResult,
 } from "./walker.js";
+
+export {
+  DETERMINISTIC_NUMERIC,
+  deterministicSinCos,
+  deterministicAcos,
+  deterministicCubeRoot,
+} from "./numeric.js";
+export type { DeterministicSinCos } from "./numeric.js";

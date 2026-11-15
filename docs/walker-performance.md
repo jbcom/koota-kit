@@ -36,4 +36,4 @@ large-coordinate outputs had incorrectly crossed a one-ULP gap. Those are
 intentional correctness changes, not performance-test exceptions or widened
 tolerances. Additional regressions require literal outer-edge coordinates for
 both axes, the captured decimal displacement, and safe subnormal movement. The
-278-test suite retains 100% statement, branch, function and line coverage.
+279-test suite retains 100% statement, branch, function and line coverage.

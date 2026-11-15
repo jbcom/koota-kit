@@ -64,4 +64,18 @@ describe("literal continuous support boundaries", () => {
       state.position,
     );
   });
+  it("orders distinct support planes even when their fractional parameters round equal", () => {
+    const left = 0.1,
+      right = 0.10000000000000002;
+    expect((left + 1e8) / 2e8).toBe((right + 1e8) / 2e8);
+    const gap: WalkerWorld = {
+      supports: [
+        { ...floor, id: "left", minX: -1e8, maxX: left },
+        { ...floor, id: "right", minX: right, maxX: 1e8 },
+      ],
+      solids: [],
+    };
+    expect(advanceWalker(actor(-1e8, 16), { x: 2e8, z: 0 }, gap).state.position.x).toBe(left);
+    expect(advanceWalker(actor(1e8, 16), { x: -2e8, z: 0 }, gap).state.position.x).toBe(right);
+  });
 });

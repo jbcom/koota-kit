@@ -123,6 +123,16 @@
         "types": "./dist/cjs/walker.d.cts",
         "default": "./dist/cjs/walker.cjs"
       }
+    },
+    "./numeric": {
+      "import": {
+        "types": "./dist/esm/numeric.d.ts",
+        "default": "./dist/esm/numeric.js"
+      },
+      "require": {
+        "types": "./dist/cjs/numeric.d.cts",
+        "default": "./dist/cjs/numeric.cjs"
+      }
     }
   },
   "files": [
@@ -250,6 +260,9 @@
       ],
       "walker": [
         "./dist/esm/walker.d.ts"
+      ],
+      "numeric": [
+        "./dist/esm/numeric.d.ts"
       ]
     }
   },

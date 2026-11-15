@@ -183,6 +183,14 @@ transitions and subsequent movement against expanded AABBs. Unsupported gaps
 cannot be skipped by a large movement delta. Surface selection and equal-time
 collision ordering use stable lexical IDs; caller array order is immaterial.
 
+Exact boundary conversion uses one eight-byte scratch view per synchronous
+sweep and a query-owned memo of at most 256 number-to-bigint values. A straight
+path shares that context across its support intervals and body sweeps. Filling
+the memo falls back to the same exact conversion without retaining more values.
+No geometry or clearance result is cached across calls; nested queries own
+separate contexts, and changed worlds are checked afresh. Rational comparisons,
+contact tolerances and returned coordinates are unchanged.
+
 Walkability planes and solid volumes are separate authored facts. A support
 plane certifies foot-centre support, not a solid floor underside or a complete
 walkway enclosure. Solid ceilings and railings must be authored explicitly.

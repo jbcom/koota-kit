@@ -124,6 +124,7 @@ function intersect(
   to: WalkerPoint,
   solid: WalkerSolid,
   open: boolean,
+  exact: ExactNumbers,
 ): PathBoundary | null {
   let enter = PATH_START,
     leave = PATH_END;
@@ -131,7 +132,14 @@ function intersect(
     if (from[axis] === to[axis]) {
       if (!withinSlab(from[axis], solid.min[axis], solid.max[axis], open)) return null;
     } else {
-      const [lower, upper] = axisBoundaries(from, to, axis, solid.min[axis], solid.max[axis]);
+      const [lower, upper] = axisBoundaries(
+        from,
+        to,
+        axis,
+        solid.min[axis],
+        solid.max[axis],
+        exact,
+      );
       if (compareBoundary(lower, enter) > 0) enter = lower;
       if (compareBoundary(upper, leave) < 0) leave = upper;
     }
@@ -145,10 +153,11 @@ function firstHit(
   to: WalkerPoint,
   solids: readonly WalkerSolid[],
   open: boolean,
+  exact: ExactNumbers = exactNumbers(),
 ): WalkerSegmentHit | null {
   let nearest: { boundary: PathBoundary; id: string } | null = null;
   for (const solid of solids) {
-    const boundary = intersect(from, to, solid, open);
+    const boundary = intersect(from, to, solid, open, exact);
     if (boundary === null) continue;
     if (
       !nearest ||
@@ -216,14 +225,15 @@ function advanceOnSupport(
   support: WalkerSupport | undefined,
   destination: WalkerPoint,
   solids: readonly WalkerSolid[],
+  exact: ExactNumbers = exactNumbers(),
 ): WalkerResult {
   if (!support) return { state, status: "blocked", contacts: [] };
   const position = state.position;
   const raised = { ...position, y: height(support, position) };
-  const verticalHit = firstHit(position, raised, solids, true);
+  const verticalHit = firstHit(position, raised, solids, true, exact);
   if (verticalHit) return { state, status: "blocked", contacts: [verticalHit.id] };
   const target = { ...destination, y: height(support, destination) };
-  const hit = firstHit(raised, target, solids, true);
+  const hit = firstHit(raised, target, solids, true, exact);
   return {
     state: { ...state, position: hit ? hit.point : target, supportId: support.id },
     status: hit ? "blocked" : "moved",
@@ -299,24 +309,35 @@ type PathBoundary = {
 type SupportInterval = { support: WalkerSupport; start: PathBoundary; end: PathBoundary };
 const PATH_START: PathBoundary = { fraction: 0, numerator: 0n, denominator: 1n, coordinates: {} };
 const PATH_END: PathBoundary = { fraction: 1, numerator: 1n, denominator: 1n, coordinates: {} };
+// Each synchronous sweep owns its scratch bytes and bounded conversion memo. No world,
+// coordinates or mutable result survives the query, and nested queries cannot share scratch.
+type ExactNumbers = { view: DataView; values: Map<number, bigint> };
+function exactNumbers(): ExactNumbers {
+  return { view: new DataView(new ArrayBuffer(8)), values: new Map() };
+}
 /** Exact integer value in units of the smallest IEEE-754 subnormal, 2^-1074. */
-function exactNumber(value: number): bigint {
-  const view = new DataView(new ArrayBuffer(8));
+function exactNumber(value: number, exact: ExactNumbers): bigint {
+  const previous = exact.values.get(value);
+  if (previous !== undefined) return previous;
+  const view = exact.view;
   view.setFloat64(0, value);
   const bits = view.getBigUint64(0);
   const exponent = (bits >> 52n) & 0x7ffn;
   let mantissa = bits & 0xfffffffffffffn;
   if (exponent !== 0n) mantissa = (mantissa | 0x10000000000000n) << (exponent - 1n);
-  return bits >> 63n ? -mantissa : mantissa;
+  const result = bits >> 63n ? -mantissa : mantissa;
+  if (exact.values.size < 256) exact.values.set(value, result);
+  return result;
 }
 function boundaryAt(
   from: WalkerPoint,
   to: WalkerPoint,
   axis: "x" | "y" | "z",
   coordinate: number,
+  exact: ExactNumbers,
 ): PathBoundary {
-  let numerator = exactNumber(coordinate) - exactNumber(from[axis]);
-  let denominator = exactNumber(to[axis]) - exactNumber(from[axis]);
+  let numerator = exactNumber(coordinate, exact) - exactNumber(from[axis], exact);
+  let denominator = exactNumber(to[axis], exact) - exactNumber(from[axis], exact);
   if (denominator < 0n) {
     numerator = -numerator;
     denominator = -denominator;
@@ -339,9 +360,10 @@ function axisBoundaries(
   axis: "x" | "y" | "z",
   min: number,
   max: number,
+  exact: ExactNumbers,
 ): [PathBoundary, PathBoundary] {
-  const a = boundaryAt(from, to, axis, min),
-    b = boundaryAt(from, to, axis, max);
+  const a = boundaryAt(from, to, axis, min, exact),
+    b = boundaryAt(from, to, axis, max, exact);
   return compareBoundary(a, b) < 0 ? [a, b] : [b, a];
 }
 /** Analytic XZ slab interval. Exact ordering cannot collapse a real support gap. */
@@ -349,6 +371,7 @@ function supportInterval(
   from: WalkerPoint,
   to: WalkerPoint,
   support: WalkerSupport,
+  exact: ExactNumbers,
 ): SupportInterval | null {
   let start = PATH_START,
     end = PATH_END;
@@ -359,7 +382,7 @@ function supportInterval(
     if (from[axis] === to[axis]) {
       if (from[axis] < min || from[axis] > max) return null;
     } else {
-      const [lower, upper] = axisBoundaries(from, to, axis, min, max);
+      const [lower, upper] = axisBoundaries(from, to, axis, min, max, exact);
       if (compareBoundary(lower, start) > 0) start = lower;
       if (compareBoundary(upper, end) < 0) end = upper;
     }
@@ -419,8 +442,9 @@ export function queryWalkerPath(
     const walkable = Math.abs(support.y - target.y) <= EPS;
     return { state: initial, status: walkable ? "moved" : "blocked", contacts: [], walkable };
   }
+  const exact = exactNumbers();
   const intervals = world.supports
-    .map((candidate) => supportInterval(state.position, target, candidate))
+    .map((candidate) => supportInterval(state.position, target, candidate, exact))
     .filter((interval): interval is SupportInterval => interval !== null);
   const cuts = pathCuts(intervals);
   const solids = world.solids.map((solid) => expanded(solid, state));
@@ -433,7 +457,7 @@ export function queryWalkerPath(
         ? { ...target }
         : { ...interpolate(state.position, target, end.fraction), ...end.coordinates };
     const nextSupport = pathSupport(intervals, start, end, result.state);
-    result = advanceOnSupport(result.state, nextSupport, destination, solids);
+    result = advanceOnSupport(result.state, nextSupport, destination, solids, exact);
     if (result.status === "blocked") return { ...result, walkable: false };
   }
   const walkable = Math.abs(result.state.position.y - target.y) <= EPS;

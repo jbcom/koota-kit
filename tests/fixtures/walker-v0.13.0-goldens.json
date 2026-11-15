@@ -1,0 +1,4402 @@
+[
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 5.7,
+          "y": 0,
+          "z": 0.4275
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "blocked",
+      "contacts": ["wall"],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 6,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.00000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.00000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.00000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 6,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.000001,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 6,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.25,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.25,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 8,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -1,
+          "maxX": 4,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 4.25,
+          "maxX": 9,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 6,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 6.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 6,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -96,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -96,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -96,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -94.3,
+          "y": 0,
+          "z": 0.4275000000000002
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "blocked",
+      "contacts": ["wall"],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -92,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -94,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.99999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.99999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.99999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -94,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.999999,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -94,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.75,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.75,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -92,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -101,
+          "maxX": -96,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -95.75,
+          "maxX": -91,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -94,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -93.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -96,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -94,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000005.7,
+          "y": 0,
+          "z": 0.4275000002235174
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "blocked",
+      "contacts": ["wall"],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 100000006,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.00000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.00000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.00000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000008,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 100000006,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.000001,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.000001,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 100000006,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.25,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.25,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": 100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": 100000008,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": 99999999,
+          "maxX": 100000004,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": 100000004.25,
+          "maxX": 100000009,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": 100000006,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": 100000006.25,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": 100000004,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": 100000006,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999996,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999996,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": [],
+      "walkable": true
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999996,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999994.3,
+          "y": 0,
+          "z": 0.4275000002235174
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "blocked",
+      "contacts": ["wall"],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -99999994,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.99999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.99999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.99999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999992,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "right"
+      },
+      "status": "moved",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -99999994,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.999999,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.999999,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -99999994,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": -0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.75,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": -0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": -0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.75,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": null
+  },
+  {
+    "state": {
+      "position": {
+        "x": -100000000,
+        "y": 0,
+        "z": 0
+      },
+      "halfWidth": 0.3,
+      "height": 2.1,
+      "maxStep": 0.25,
+      "supportId": "left"
+    },
+    "to": {
+      "x": -99999992,
+      "y": 0,
+      "z": 0.6
+    },
+    "world": {
+      "supports": [
+        {
+          "id": "left",
+          "minX": -100000001,
+          "maxX": -99999996,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        },
+        {
+          "id": "right",
+          "minX": -99999995.75,
+          "maxX": -99999991,
+          "minZ": -3,
+          "maxZ": 3,
+          "y": 0,
+          "slopeX": 0,
+          "slopeZ": 0
+        }
+      ],
+      "solids": [
+        {
+          "id": "wall",
+          "min": {
+            "x": -99999994,
+            "y": 0,
+            "z": 0.3
+          },
+          "max": {
+            "x": -99999993.75,
+            "y": 3,
+            "z": 1.3
+          }
+        }
+      ]
+    },
+    "path": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0.3
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": [],
+      "walkable": false
+    },
+    "advance": {
+      "state": {
+        "position": {
+          "x": -99999996,
+          "y": 0,
+          "z": 0.6
+        },
+        "halfWidth": 0.3,
+        "height": 2.1,
+        "maxStep": 0.25,
+        "supportId": "left"
+      },
+      "status": "blocked",
+      "contacts": []
+    },
+    "segment": {
+      "id": "wall",
+      "fraction": 0.75,
+      "point": {
+        "x": -99999994,
+        "y": 0,
+        "z": 0.44999999999999996
+      }
+    }
+  }
+]

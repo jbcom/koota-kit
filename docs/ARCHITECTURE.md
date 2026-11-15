@@ -198,6 +198,14 @@ No geometry or clearance result is cached across calls; nested queries own
 separate contexts, and changed worlds are checked afresh. The conversion memo
 does not alter rational comparisons, contact tolerances or returned coordinates.
 
+After complete world validation, a support or solid slab is rejected before
+exact arithmetic only when both segment endpoints lie strictly below its lower
+bound or strictly above its upper bound on the same axis. A straight segment
+cannot cross that slab. Equality remains eligible for the existing exact solver,
+so tangency, endpoint contacts and one-ULP intervals retain their policy. This
+reduces irrelevant distant geometry work without pruning the caller's world,
+caching mutable geometry or changing validation failures.
+
 Walkability planes and solid volumes are separate authored facts. A support
 plane certifies foot-centre support, not a solid floor underside or a complete
 walkway enclosure. Solid ceilings and railings must be authored explicitly.

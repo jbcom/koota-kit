@@ -37,3 +37,28 @@ intentional correctness changes, not performance-test exceptions or widened
 tolerances. Additional regressions require literal outer-edge coordinates for
 both axes, the captured decimal displacement, and safe subnormal movement. The
 279-test suite retains 100% statement, branch, function and line coverage.
+
+## Distant geometry rejection
+
+A later 0.13.2 consumer profile found exact slab arithmetic dominating a small
+route inside a world that also contained distant supported structures. Full
+world validation stays mandatory. An internal strict same-side check now avoids
+BigInt interval construction only when both endpoints are beyond the same
+support or solid bound; equality and every remaining candidate still use the
+existing exact solver.
+
+On the same Linux x64 Node 26.11.1 host, 400 decisions of 28 path queries each,
+after 30 warm-ups, use one nearby obstacle, 24 distant supports and 24 distant
+solids. Every decision must retain exactly 21 clear and 7 blocked queries:
+
+| Metric | 0.13.2 | Strict rejection | Change |
+| --- | --- | --- | --- |
+| P50 decision | 5.200 ms | 0.569 ms | 9.14 times faster |
+| P95 decision | 6.299 ms | 0.867 ms | 7.27 times faster |
+| Total measured decision time | 2,137.0 ms | 230.1 ms | 89.2% lower |
+
+Run `pnpm build`, then `node scripts/bench/far-world.mjs` for this workload.
+The complete 285-test suite retains 100% coverage. New tests cover every axis,
+closed tangencies and endpoints, subnormal crossings, long thin boxes, invalid
+distant geometry and unchanged outputs when distant geometry is added to all
+48 corpus worlds. There is no new public API, cache or relaxed validation.

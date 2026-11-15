@@ -117,6 +117,10 @@ function withinSlab(value: number, min: number, max: number, open: boolean): boo
   if (open) return value > min + EPS && value < max - EPS;
   return value >= min && value <= max;
 }
+/** A straight segment cannot enter a slab when both endpoints lie strictly on one side. */
+function outsideSlab(from: number, to: number, min: number, max: number): boolean {
+  return (from < min && to < min) || (from > max && to > max);
+}
 // Exact slab interval ordering prevents a long sweep collapsing a thin hit.
 // Open interiors for body sweeps let a touching body slide.
 function intersect(
@@ -126,6 +130,9 @@ function intersect(
   open: boolean,
   exact: ExactNumbers,
 ): PathBoundary | null {
+  for (const axis of axes) {
+    if (outsideSlab(from[axis], to[axis], solid.min[axis], solid.max[axis])) return null;
+  }
   let enter = PATH_START,
     leave = PATH_END;
   for (const axis of axes) {
@@ -383,15 +390,19 @@ function supportInterval(
   support: WalkerSupport,
   exact: ExactNumbers,
 ): SupportInterval | null {
+  if (
+    outsideSlab(from.x, to.x, support.minX, support.maxX) ||
+    outsideSlab(from.z, to.z, support.minZ, support.maxZ)
+  )
+    return null;
   let start = PATH_START,
     end = PATH_END;
   for (const [axis, min, max] of [
     ["x", support.minX, support.maxX],
     ["z", support.minZ, support.maxZ],
   ] as const) {
-    if (from[axis] === to[axis]) {
-      if (from[axis] < min || from[axis] > max) return null;
-    } else {
+    // The same-side check above already admits a stationary axis only inside its slab.
+    if (from[axis] !== to[axis]) {
       const [lower, upper] = axisBoundaries(from, to, axis, min, max, exact);
       if (compareBoundary(lower, start) > 0) start = lower;
       if (compareBoundary(upper, end) < 0) end = upper;

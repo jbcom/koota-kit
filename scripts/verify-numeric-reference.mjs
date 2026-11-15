@@ -65,7 +65,10 @@ for (const [value, radians] of reference.acos) {
 for (const [value, root] of reference.cubeRoot) {
   const result = deterministicSafeIntegerCubeRoot(value);
   assert(Math.abs(result - Number(root)) <= 3e-11);
-  if (value <= 4294967295) assert.equal(result, deterministicCubeRoot(value));
+  if (value <= 4294967295) {
+    assert.equal(result, deterministicCubeRoot(value));
+    assert(Math.abs(deterministicCubeRoot(value) - Number(root)) <= 1e-12);
+  }
   console.log(
     JSON.stringify({ cubeInput: value, result, reference: root, error: result - Number(root) }),
   );

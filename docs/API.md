@@ -619,3 +619,20 @@ must share the same scalar results. Persist or memoize repeated authored poses
 and count-derived geometry in caller-owned bounded state. BigInt kernels cost
 more than native trigonometry, particularly the inverse; do not reevaluate an
 unchanged pose for every vertex or animation frame.
+
+### Safe-integer cube-root counts
+
+`deterministicSafeIntegerCubeRoot(value)` accepts every nonnegative safe integer
+through `Number.MAX_SAFE_INTEGER`. It returns the real cube root and rejects
+fractions, negative values, non-finite values and unsafe integers with
+`RangeError`. Negative zero becomes positive zero. Import it and the frozen
+`SAFE_INTEGER_CUBE_ROOT` contract from `koota-kit/numeric` or the root entry.
+
+`SAFE_INTEGER_CUBE_ROOT` contains `revision: 1`,
+`maximumInput: Number.MAX_SAFE_INTEGER`, and `absoluteError: 3e-11`.
+The error is absolute relative to the mathematical cube root of the supplied
+integer. Binary64 spacing grows with the result, so larger inputs require this
+separate bound. The existing `deterministicCubeRoot` function keeps its uint32
+domain, frozen outputs and tighter `DETERMINISTIC_NUMERIC.cubeRootAbsoluteError`
+bound of `1e-12`. Both functions share the exact integer kernel and return
+identical bits on their overlapping domain.

@@ -15,6 +15,13 @@ export const DETERMINISTIC_NUMERIC = Object.freeze({
   maximumCubeRootInput: 4294967295,
 } as const);
 
+/** Separate admission/error contract for nonnegative safe-integer cube roots. */
+export const SAFE_INTEGER_CUBE_ROOT = Object.freeze({
+  revision: 1,
+  maximumInput: Number.MAX_SAFE_INTEGER,
+  absoluteError: 3e-11,
+} as const);
+
 /** Dimensionless sine and cosine of an angle in radians. */
 export interface DeterministicSinCos {
   readonly sin: number;
@@ -85,9 +92,21 @@ export function deterministicCubeRoot(value: number): number {
   if (!Number.isInteger(value) || value < 0 || value > DETERMINISTIC_NUMERIC.maximumCubeRootInput) {
     throw new RangeError("cube-root input must be an integer within [0, 2^32 - 1]");
   }
+  return cubeRoot(value, 1626n);
+}
+
+/** Return the real cube root of a nonnegative safe-integer count. */
+export function deterministicSafeIntegerCubeRoot(value: number): number {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new RangeError("cube-root input must be a nonnegative safe integer");
+  }
+  return cubeRoot(value, 208064n);
+}
+
+function cubeRoot(value: number, maximumRoot: bigint): number {
   const target = BigInt(value) * SCALE * SCALE_SQUARED;
   let low = 0n;
-  let high = 1626n * SCALE;
+  let high = maximumRoot * SCALE;
   while (low < high) {
     const middle = (low + high + 1n) / 2n;
     if (middle * middle * middle <= target) low = middle;

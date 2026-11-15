@@ -243,3 +243,21 @@ than `2^-43`, comfortably within `1e-12`. The bisection uses at most 91 steps.
 There are no growing tables or hidden caches. Shared golden vectors, endpoint
 and dense native-reference checks, poisoned host-Math checks, and installed
 ESM/CommonJS parity run through the supported Node 22/24/26 CI matrix.
+
+### Larger integer aggregates
+
+Aggregate counts can exceed uint32 without exceeding JavaScript's exact integer
+representation. `deterministicSafeIntegerCubeRoot` provides separate admission
+and a separate frozen `SAFE_INTEGER_CUBE_ROOT` error contract, while the original
+function and metadata remain unchanged. Both validate before entering the same
+integer cube-root kernel. The original search bound remains `1626 * 2^80`;
+the safe-integer entry uses `208064 * 2^80` and at most 98 bisection steps.
+The integer result is the unique floor of the exact scaled real cube root,
+so changing a valid search upper bound cannot change overlapping output bits.
+
+For `value <= Number.MAX_SAFE_INTEGER`, the real root is below 208064, so
+binary64 output rounding contributes at most `2^-36` (about `1.46e-11`).
+Q80 flooring contributes less than `2^-80`. Their sum fits the conservative
+`3e-11` bound. No native cube root, logarithm or power is used. Independent
+110-digit Decimal references include 15 billion and the maximum safe integer;
+regressions also cover the largest admitted integer cube and both neighbours.

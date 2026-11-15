@@ -362,3 +362,8 @@ in `[-pi, pi]`, `deterministicAcos` for `[0, 1]`, and real
 integer kernels avoid host transcendental functions; simulation and rendering
 can share identical results. See [the domains and error bounds](docs/API.md#replay-stable-bounded-numeric-kernels)
 before use. Cache repeated pose/count results in caller-owned state.
+
+For aggregate counts above uint32, `deterministicSafeIntegerCubeRoot` admits all
+nonnegative safe integers with its separate frozen `SAFE_INTEGER_CUBE_ROOT`
+error contract (`3e-11` absolute error). The original uint32 function and its
+`1e-12` contract are preserved.

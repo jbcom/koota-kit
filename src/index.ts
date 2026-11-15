@@ -124,6 +124,8 @@ export type {
 
 export {
   DETERMINISTIC_NUMERIC,
+  SAFE_INTEGER_CUBE_ROOT,
+  deterministicSafeIntegerCubeRoot,
   deterministicSinCos,
   deterministicAcos,
   deterministicCubeRoot,

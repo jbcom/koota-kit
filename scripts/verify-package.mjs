@@ -165,6 +165,7 @@ try {
     "deterministicSinCos",
     "deterministicAcos",
     "deterministicCubeRoot",
+    "deterministicSafeIntegerCubeRoot",
     "advanceClock",
     "advanceWalker",
     "queryWalkerSupport",
@@ -281,6 +282,9 @@ try {
     assert.equal(esm.deterministicAcos(.5), cjs.deterministicAcos(.5));
     assert.equal(esm.deterministicCubeRoot(15000), cjs.deterministicCubeRoot(15000));
     assert.equal(esm.deterministicCubeRoot(27), 3);
+    assert.equal(esm.SAFE_INTEGER_CUBE_ROOT.maximumInput, Number.MAX_SAFE_INTEGER);
+    assert.equal(esm.deterministicSafeIntegerCubeRoot(15000000000), cjs.deterministicSafeIntegerCubeRoot(15000000000));
+    assert.equal(esm.deterministicSafeIntegerCubeRoot(Number.MAX_SAFE_INTEGER), cjs.deterministicSafeIntegerCubeRoot(Number.MAX_SAFE_INTEGER));
   `,
   );
   execFileSync(process.execPath, [numericCheck], { cwd: consumerRoot, stdio: "pipe" });

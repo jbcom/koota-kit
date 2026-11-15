@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.1 (2026-11-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* perf(walker): reuse bounded exact conversion scratch per query by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/120
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.13.0...v0.13.1
+
 ## 0.13.0 (2026-11-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

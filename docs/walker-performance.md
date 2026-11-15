@@ -18,8 +18,8 @@ across 24 connected supports and 24 off-path solids produced:
 
 These are comparative measurements on one host, not a universal latency promise.
 The benchmark reports net heap change without forced collection; that is not an
-allocation count or a peak memory measurement. Run `node scripts/bench/walker.mjs`
-on a supported Node version to reproduce the workload.
+allocation count or a peak memory measurement. Run `pnpm build`, then
+`node scripts/bench/walker.mjs` on a supported Node version to reproduce the workload.
 
 The frozen `tests/fixtures/walker-v0.13.0-goldens.json` was captured against source
 commit `b6e29e1` before optimization. Forty-eight worlds cover signed and large

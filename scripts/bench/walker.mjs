@@ -1,5 +1,5 @@
 import { performance } from "node:perf_hooks";
-import { queryWalkerPath } from "../../src/walker.ts";
+import { queryWalkerPath } from "../../dist/esm/walker.js";
 const state = {
   position: { x: 0, y: 0, z: 0 },
   halfWidth: 0.3,

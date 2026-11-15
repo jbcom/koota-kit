@@ -191,34 +191,44 @@ function supportCuts(
   axis: "x" | "z",
   distance: number,
   world: WalkerWorld,
-): number[] {
-  const cuts = new Set([0, 1]);
+  exact: ExactNumbers,
+): PathBoundary[] {
+  const target = { ...origin, [axis]: origin[axis] + distance };
+  const cuts = [PATH_START, PATH_END];
   for (const support of world.supports) {
     const edges = axis === "x" ? [support.minX, support.maxX] : [support.minZ, support.maxZ];
     for (const edge of edges) {
-      const t = (edge - origin[axis]) / distance;
-      if (t > 0 && t < 1) cuts.add(t);
+      const boundary = boundaryAt(origin, target, axis, edge, exact);
+      if (compareBoundary(boundary, PATH_START) > 0 && compareBoundary(boundary, PATH_END) < 0)
+        cuts.push(boundary);
     }
   }
-  return [...cuts].sort((a, b) => a - b);
+  cuts.sort(compareBoundary);
+  return cuts.filter(
+    (cut, index) => index === 0 || compareBoundary(cut, cuts[index - 1] as PathBoundary) !== 0,
+  );
 }
 function advanceInterval(
   state: WalkerState,
   axis: "x" | "z",
-  middleCoordinate: number,
   endCoordinate: number,
   world: WalkerWorld,
   solids: readonly WalkerSolid[],
+  exact: ExactNumbers,
 ): WalkerResult {
   const position = state.position;
-  const middle = { ...position, [axis]: middleCoordinate };
-  // maxStep limits the discontinuity at the entry boundary, not a ramp's
-  // continuous rise across the interval. Testing the midpoint height here
-  // would incorrectly turn a long traversable ramp into an impassable step.
+  const destination = { ...position, [axis]: endCoordinate };
+  const middle = { ...position, [axis]: (position[axis] + endCoordinate) / 2 };
+  // A rounded midpoint can coincide with one edge of a real unsupported gap.
+  // Require the chosen rectangle to contain the complete interval, not just that sample.
+  // maxStep still limits the entry discontinuity, never a ramp's continuous rise.
   const support = supports(middle, world).find(
-    (s) => Math.abs(height(s, position) - position.y) <= state.maxStep + EPS,
+    (s) =>
+      contains(s, position) &&
+      contains(s, destination) &&
+      Math.abs(height(s, position) - position.y) <= state.maxStep + EPS,
   );
-  return advanceOnSupport(state, support, { ...position, [axis]: endCoordinate }, solids);
+  return advanceOnSupport(state, support, destination, solids, exact);
 }
 function advanceOnSupport(
   state: WalkerState,
@@ -249,19 +259,19 @@ function advanceAxis(
   solids: readonly WalkerSolid[],
 ): WalkerResult {
   let result: WalkerResult = { state, status: "moved", contacts: [] };
-  if (distance === 0) return result;
   const origin = state.position;
-  const ordered = supportCuts(origin, axis, distance, world);
+  if (distance === 0 || origin[axis] + distance === origin[axis]) return result;
+  const exact = exactNumbers();
+  const ordered = supportCuts(origin, axis, distance, world, exact);
   for (let i = 1; i < ordered.length; i++) {
-    const start = ordered[i - 1] as number,
-      end = ordered[i] as number;
+    const end = ordered[i] as PathBoundary;
     result = advanceInterval(
       result.state,
       axis,
-      origin[axis] + (distance * (start + end)) / 2,
-      origin[axis] + distance * end,
+      end.coordinates[axis] ?? origin[axis] + distance * end.fraction,
       world,
       solids,
+      exact,
     );
     if (result.status === "blocked") break;
   }

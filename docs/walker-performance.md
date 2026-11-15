@@ -24,6 +24,16 @@ allocation count or a peak memory measurement. Run `pnpm build`, then
 The frozen `tests/fixtures/walker-v0.13.0-goldens.json` was captured against source
 commit `b6e29e1` before optimization. Forty-eight worlds cover signed and large
 coordinates, touching supports, narrow gaps and thin solids. The regression test
-requires every path, advance and segment result to remain equal. Separate checks
-exercise memo saturation, nested queries and changed mutable worlds. The full
-273-test suite retains 100% statement, branch, function and line coverage.
+required every path, advance and segment result to remain equal in 0.13.1.
+Separate checks exercise memo saturation, nested queries and changed mutable
+worlds. That release passed 273 tests at 100% coverage.
+
+The subsequent support-boundary correction preserves the frozen corpus file and
+continues to require identical straight paths and occlusion segments. Axis
+movement is now checked against an independent analytic oracle for its two
+coplanar rectangles: stop at a real gap, then permit tangential sliding. Six old
+large-coordinate outputs had incorrectly crossed a one-ULP gap. Those are
+intentional correctness changes, not performance-test exceptions or widened
+tolerances. Additional regressions require literal outer-edge coordinates for
+both axes, the captured decimal displacement, and safe subnormal movement. The
+278-test suite retains 100% statement, branch, function and line coverage.

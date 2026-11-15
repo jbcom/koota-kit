@@ -22,11 +22,26 @@ const goldens = JSON.parse(
 ) as Golden[];
 
 describe("query-owned exact conversion scratch", () => {
-  it("preserves every output from the released binary64 boundary corpus", () => {
+  it("preserves released paths/segments and admits only supported axis intervals", () => {
     expect(goldens).toHaveLength(48);
     for (const g of goldens) {
       expect(queryWalkerPath(g.state, g.to, g.world)).toEqual(g.path);
-      expect(advanceWalker(g.state, { x: 8, z: g.to.z }, g.world)).toEqual(g.advance);
+      // This corpus is exactly two coplanar rectangles, with the wall away from the
+      // axis itinerary. Its independent analytic oracle stops at the first gap,
+      // then permits Z sliding. The frozen old output intentionally remains in the
+      // fixture: 0.13.1 incorrectly bridged one-ULP gaps at large coordinates.
+      const [left, right] = g.world.supports;
+      if (!left || !right) throw new Error("missing corpus support rectangles");
+      const gap = left.maxX < right.minX;
+      expect(advanceWalker(g.state, { x: 8, z: g.to.z }, g.world)).toEqual({
+        state: {
+          ...g.state,
+          position: { x: gap ? left.maxX : g.to.x, y: 0, z: g.to.z },
+          supportId: gap ? left.id : right.id,
+        },
+        status: gap ? "blocked" : "moved",
+        contacts: [],
+      });
       expect(querySegmentOcclusion(g.state.position, g.to, g.world)).toEqual(g.segment);
     }
   });

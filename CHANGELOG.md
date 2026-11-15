@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.2 (2026-11-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(walker): retain exact support boundary coordinates by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/122
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.13.1...v0.13.2
+
 ## 0.13.1 (2026-11-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

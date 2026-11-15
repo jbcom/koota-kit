@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.3 (2026-11-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* perf(walker): reject strictly distant slabs before exact arithmetic by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/124
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.13.2...v0.13.3
+
 ## 0.13.2 (2026-11-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

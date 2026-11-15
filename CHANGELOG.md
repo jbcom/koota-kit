@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.0 (2026-11-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat: add deterministic safe-integer cube roots by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/118
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.12.0...v0.13.0
+
 ## 0.12.0 (2026-11-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

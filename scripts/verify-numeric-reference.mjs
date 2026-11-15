@@ -1,7 +1,12 @@
 // Independent release diagnostic: Python standard-library Decimal at 110 digits.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { deterministicAcos, deterministicCubeRoot, deterministicSinCos } from "../src/numeric.ts";
+import {
+  deterministicAcos,
+  deterministicCubeRoot,
+  deterministicSafeIntegerCubeRoot,
+  deterministicSinCos,
+} from "../src/numeric.ts";
 
 const source = `
 import json
@@ -32,7 +37,7 @@ values = [0., .5, 1. - 2.**-53, 1. - 2.**-52, 1.]
 print(json.dumps({
     'sinCos': [[a, str(trig(Decimal.from_float(a), True)), str(trig(Decimal.from_float(a), False))] for a in angles],
     'acos': [[v, str(acos(Decimal.from_float(v)))] for v in values],
-    'cubeRoot': [[v, str(Decimal(v) ** (Decimal(1)/3))] for v in [15000, 4294967295]],
+    'cubeRoot': [[v, str(Decimal(v) ** (Decimal(1)/3))] for v in [15000, 4294967295, 15000000000, 9007199254740991]],
     'firstOmittedCosineTerm': str(pi**48 / Decimal(12413915592536072670862289047373375038521486354677760000000000))
 }))
 `;
@@ -58,6 +63,11 @@ for (const [value, radians] of reference.acos) {
   );
 }
 for (const [value, root] of reference.cubeRoot) {
-  assert(Math.abs(deterministicCubeRoot(value) - Number(root)) <= 1e-12);
+  const result = deterministicSafeIntegerCubeRoot(value);
+  assert(Math.abs(result - Number(root)) <= 3e-11);
+  if (value <= 4294967295) assert.equal(result, deterministicCubeRoot(value));
+  console.log(
+    JSON.stringify({ cubeInput: value, result, reference: root, error: result - Number(root) }),
+  );
 }
 console.log(JSON.stringify(reference));

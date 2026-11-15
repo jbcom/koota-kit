@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import {
   DETERMINISTIC_NUMERIC,
+  SAFE_INTEGER_CUBE_ROOT,
+  deterministicSafeIntegerCubeRoot,
   deterministicAcos,
   deterministicCubeRoot,
   deterministicSinCos,
@@ -117,5 +119,70 @@ describe("deterministic numeric revision 1", () => {
     }
     const source = readFileSync(new URL("../src/numeric.ts", import.meta.url), "utf8");
     expect(source).not.toMatch(/Math\.(?:sin|cos|acos|cbrt|pow|sqrt|random)\s*\(/);
+  });
+});
+
+describe("safe-integer cube-root revision 1", () => {
+  it("keeps an independent frozen contract without changing uint32 admission", () => {
+    expect(Object.isFrozen(SAFE_INTEGER_CUBE_ROOT)).toBe(true);
+    expect(SAFE_INTEGER_CUBE_ROOT).toEqual({
+      revision: 1,
+      maximumInput: Number.MAX_SAFE_INTEGER,
+      absoluteError: 3e-11,
+    });
+    expect(DETERMINISTIC_NUMERIC.maximumCubeRootInput).toBe(4294967295);
+    expect(DETERMINISTIC_NUMERIC.cubeRootAbsoluteError).toBe(1e-12);
+    expect(() => deterministicCubeRoot(4294967296)).toThrow(RangeError);
+  });
+
+  it("preserves uint32 output bits and its tighter error bound", () => {
+    for (const value of [0, -0, 1, 27, 15000, 4294967294, 4294967295]) {
+      expect(deterministicSafeIntegerCubeRoot(value)).toBe(deterministicCubeRoot(value));
+    }
+  });
+
+  it("bounds aggregate counts, perfect-cube neighbours and safe-integer limits", () => {
+    const inputs = [0, -0, 15000000000, Number.MAX_SAFE_INTEGER - 1, Number.MAX_SAFE_INTEGER];
+    for (const root of [1626, 2466, 10000, 100000, 208063]) {
+      const cube = root ** 3;
+      inputs.push(cube - 1, cube, cube + 1);
+      expect(deterministicSafeIntegerCubeRoot(cube)).toBe(root);
+    }
+    for (const value of inputs) {
+      expect(
+        Math.abs(deterministicSafeIntegerCubeRoot(value) - Math.cbrt(value)),
+      ).toBeLessThanOrEqual(SAFE_INTEGER_CUBE_ROOT.absoluteError);
+    }
+    expect(deterministicSafeIntegerCubeRoot(-0)).toBe(0);
+  });
+
+  it("agrees with independent 110-digit Decimal references for large counts", () => {
+    expect(deterministicSafeIntegerCubeRoot(15000000000)).toBe(
+      Number(
+        "2466.2120743304701014916113231545890427354844866280537601787874102933769529228974632162987026643460500624578141",
+      ),
+    );
+    expect(deterministicSafeIntegerCubeRoot(Number.MAX_SAFE_INTEGER)).toBe(
+      Number(
+        "208063.83068357583385474704766349895263260667868032600305792311189744578600142391716146909608795863496592824872",
+      ),
+    );
+  });
+
+  it("rejects unsafe integers, fractions and non-finite counts", () => {
+    for (const value of [-1, 0.1, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(() => deterministicSafeIntegerCubeRoot(value)).toThrow(RangeError);
+    }
+  });
+
+  it("does not call a host cube root", () => {
+    const spy = vi.spyOn(Math, "cbrt").mockImplementation(() => {
+      throw new Error("host cube root unavailable");
+    });
+    try {
+      expect(deterministicSafeIntegerCubeRoot(1000000000000)).toBe(10000);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.5 (2026-11-23)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump actions/dependency-review-action from 5.0.0 to 5.0.1 in the non-major group by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/128
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.13.4...v0.13.5
+
 ## 0.13.4 (2026-11-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

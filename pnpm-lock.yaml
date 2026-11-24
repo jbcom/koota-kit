@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  fast-uri@<3.1.9: ^3.1.9
+  fflate@<0.7.5: ^0.7.5
+  katex@<0.18.2: ^0.18.2
+  postcss-selector-parser@<6.1.5: ^6.1.5
+
 importers:
 
   .:
@@ -1853,10 +1859,6 @@ packages:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
 
-  commander@8.3.0:
-    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
-    engines: {node: '>= 12'}
-
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
     engines: {node: ^14.18.0 || >=16.10.0}
@@ -1919,11 +1921,6 @@ packages:
   css-what@6.2.2:
     resolution: {integrity: sha512-u/O3vwbptzhMs3L1fQE82ZSLHQQfto5gyZzwteVIEyeaY5Fc7R4dapF/BvRoSYFeqfBk4m0V1Vafq5Pjv25wvA==}
     engines: {node: '>= 6'}
-
-  cssesc@3.0.0:
-    resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
-    engines: {node: '>=4'}
-    hasBin: true
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -2267,8 +2264,8 @@ packages:
   fast-safe-stringify@2.1.1:
     resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
 
-  fast-uri@3.1.8:
-    resolution: {integrity: sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==}
+  fast-uri@3.1.9:
+    resolution: {integrity: sha512-hS/0Wt3Ya043oKXs0sIxrMpKQITXhMLIrVAKKXi4gozGC9v7YRWVnXIZzjNPTO02M9BdxLCWqK1yRXgNziVyJQ==}
 
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
@@ -2281,9 +2278,6 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
-
-  fflate@0.7.3:
-    resolution: {integrity: sha512-0Zz1jOzJWERhyhsimS54VTqOteCNwRtIlh8isdL0AXLo0g7xNTfTL7oWrkmCnPhZGocKIkWHBistBrrpoNH3aw==}
 
   fflate@0.7.5:
     resolution: {integrity: sha512-QieYf//cis6ywHNi5qW1+PXPQ4bC+XVJAtS4AXIML8P76GroEiOxm/oQtn1f02UkJY1+KsXMJcC+R2v/Eg4G3g==}
@@ -2500,10 +2494,6 @@ packages:
   jsonpointer@5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
-
-  katex@0.16.47:
-    resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
-    hasBin: true
 
   katex@0.18.11:
     resolution: {integrity: sha512-yvyz/2VMKqoho/35Hat5w37wIEdWJ5ElVMidTAlWrxr5uW4aBGsEpveTmKh18/zw08v/7lGswCPon4OhqmqrTA==}
@@ -3105,8 +3095,8 @@ packages:
   points-on-path@0.2.1:
     resolution: {integrity: sha512-25ClnWWuw7JbWZcgqY/gJ4FQWadKxGWk+3kR/7kD0tCaDtPPMj7oHu2ToLaVhfpnHrZzYby2w6tUA0eOIuUg8g==}
 
-  postcss-selector-parser@6.0.10:
-    resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}
+  postcss-selector-parser@6.1.6:
+    resolution: {integrity: sha512-BK87/Qgti3DIcgS2PaCVoteFIkjIFvCJBizZDIVSjdlFNg4Jv+SRqbN2JONb/qQUH4ZFqfXYF+izg15W2HVRvA==}
     engines: {node: '>=4'}
 
   postcss-value-parser@4.2.0:
@@ -4784,7 +4774,7 @@ snapshots:
 
   '@tailwindcss/typography@0.5.20(tailwindcss@4.3.3)':
     dependencies:
-      postcss-selector-parser: 6.0.10
+      postcss-selector-parser: 6.1.6
       tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
@@ -5075,7 +5065,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.8
+      fast-uri: 3.1.9
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -5227,8 +5217,6 @@ snapshots:
 
   commander@7.2.0: {}
 
-  commander@8.3.0: {}
-
   consola@3.4.2: {}
 
   conventional-changelog-angular@9.4.0:
@@ -5291,8 +5279,6 @@ snapshots:
       source-map-js: 1.2.2
 
   css-what@6.2.2: {}
-
-  cssesc@3.0.0: {}
 
   csstype@3.2.3: {}
 
@@ -5664,7 +5650,7 @@ snapshots:
 
   fast-safe-stringify@2.1.1: {}
 
-  fast-uri@3.1.8: {}
+  fast-uri@3.1.9: {}
 
   fastq@1.20.1:
     dependencies:
@@ -5673,8 +5659,6 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
       picomatch: 4.0.7
-
-  fflate@0.7.3: {}
 
   fflate@0.7.5: {}
 
@@ -5873,10 +5857,6 @@ snapshots:
   jsonc-parser@3.3.1: {}
 
   jsonpointer@5.0.1: {}
-
-  katex@0.16.47:
-    dependencies:
-      commander: 8.3.0
 
   katex@0.18.11:
     dependencies:
@@ -6433,7 +6413,7 @@ snapshots:
     dependencies:
       '@types/katex': 0.16.8
       devlop: 1.1.0
-      katex: 0.16.47
+      katex: 0.18.11
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
@@ -6795,9 +6775,8 @@ snapshots:
       path-data-parser: 0.1.0
       points-on-curve: 0.2.0
 
-  postcss-selector-parser@6.0.10:
+  postcss-selector-parser@6.1.6:
     dependencies:
-      cssesc: 3.0.0
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
@@ -7004,7 +6983,7 @@ snapshots:
       css-to-react-native: 3.2.0
       emoji-regex-xs: 2.0.1
       escape-html: 1.0.3
-      fflate: 0.7.3
+      fflate: 0.7.5
       harfbuzzjs: 0.10.0
       linebreak: 1.1.0
       parse-css-color: 0.2.1

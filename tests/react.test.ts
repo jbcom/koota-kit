@@ -11,6 +11,7 @@ import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { trait } from "koota";
+import type { Trait } from "koota";
 import { useQuery, useWorld } from "koota/react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { SimWorldProvider, useSimWorld } from "../src/react.js";
@@ -47,16 +48,54 @@ function render(root: Root, node: ReactNode): void {
   act(() => root.render(node));
 }
 
+// Probe components live at module level; each test passes its own sink as a prop.
+function HandleProbe({ onRead }: { onRead: (handle: WorldHandle) => void }): null {
+  onRead(useSimWorld());
+  return null;
+}
+
+function KootaQueryProbe({
+  tag,
+  onRead,
+}: {
+  tag: Trait;
+  onRead: (world: unknown, queried: number) => void;
+}): null {
+  onRead(useWorld(), useQuery(tag).length);
+  return null;
+}
+
+function HandleAndWorldProbe({
+  onRead,
+}: {
+  onRead: (handle: WorldHandle, world: unknown) => void;
+}): null {
+  onRead(useSimWorld(), useWorld());
+  return null;
+}
+
+function BareProbe(): null {
+  useSimWorld();
+  return null;
+}
+
 describe("SimWorldProvider", () => {
   it("supplies the handle itself to useSimWorld, with every facade field reachable", () => {
     const handle = newHandle("supplies");
     let seen: WorldHandle | undefined;
-    const Probe = () => {
-      seen = useSimWorld();
-      return null;
-    };
     const { root } = mount();
-    render(root, createElement(SimWorldProvider, { handle }, createElement(Probe)));
+    render(
+      root,
+      createElement(
+        SimWorldProvider,
+        { handle },
+        createElement(HandleProbe, {
+          onRead: (read) => {
+            seen = read;
+          },
+        }),
+      ),
+    );
 
     expect(seen).toBe(handle);
     expect(seen?.rng).toBe(handle.rng);
@@ -83,13 +122,21 @@ describe("SimWorldProvider", () => {
     handle.world.spawn(Tag);
     let kootaWorld: unknown;
     let queried = -1;
-    const Probe = () => {
-      kootaWorld = useWorld();
-      queried = useQuery(Tag).length;
-      return null;
-    };
     const { root } = mount();
-    render(root, createElement(SimWorldProvider, { handle }, createElement(Probe)));
+    render(
+      root,
+      createElement(
+        SimWorldProvider,
+        { handle },
+        createElement(KootaQueryProbe, {
+          tag: Tag,
+          onRead: (world, count) => {
+            kootaWorld = world;
+            queried = count;
+          },
+        }),
+      ),
+    );
 
     expect(kootaWorld).toBe(handle.world);
     expect(queried).toBe(2);
@@ -100,14 +147,16 @@ describe("SimWorldProvider", () => {
     const second = newHandle("second");
     const seenHandles: WorldHandle[] = [];
     const seenWorlds: unknown[] = [];
-    const Probe = () => {
-      seenHandles.push(useSimWorld());
-      seenWorlds.push(useWorld());
-      return null;
-    };
+    const probe = () =>
+      createElement(HandleAndWorldProbe, {
+        onRead: (read, world) => {
+          seenHandles.push(read);
+          seenWorlds.push(world);
+        },
+      });
     const { root } = mount();
-    render(root, createElement(SimWorldProvider, { handle: first }, createElement(Probe)));
-    render(root, createElement(SimWorldProvider, { handle: second }, createElement(Probe)));
+    render(root, createElement(SimWorldProvider, { handle: first }, probe()));
+    render(root, createElement(SimWorldProvider, { handle: second }, probe()));
 
     expect(seenHandles[0]).toBe(first);
     expect(seenWorlds[0]).toBe(first.world);
@@ -118,12 +167,7 @@ describe("SimWorldProvider", () => {
 
 describe("useSimWorld", () => {
   it("throws a clear error outside a SimWorldProvider", () => {
-    const Probe = () => {
-      useSimWorld();
-      return null;
-    };
-
-    expect(() => renderToString(createElement(Probe))).toThrow(
+    expect(() => renderToString(createElement(BareProbe))).toThrow(
       "useSimWorld must be used within a <SimWorldProvider>",
     );
   });

@@ -278,7 +278,7 @@ are also available:
 | `koota-kit/schedule` | Fixed-step system schedule with a step cap |
 | `koota-kit/eventLog` | World-scoped publish/drain logs |
 | `koota-kit/walker` | Grounded body sweeps, straight-path validation, support and occlusion |
-| `koota-kit/spatial` | Renderer-neutral point-to-open-surface clearance queries |
+| `koota-kit/spatial` | Renderer-neutral point-to-open-surface clearance queries, and pure grid queries: cell occupancy, reachability and enclosure floods, largest clear square |
 | `koota-kit/react` | `SimWorldProvider` and `useSimWorld` (optional React peer) |
 
 See the [API reference](./docs/API.md) for signatures and validation behavior,

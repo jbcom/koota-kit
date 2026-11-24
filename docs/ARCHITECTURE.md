@@ -14,6 +14,7 @@ world ────────────────> koota + rng
 schedule ─────────────> world (advanceClock) + WorldHandle scratch
 eventLog ─────────────> WorldHandle scratch
 spatial ──────────────> (leaf: caller-provided provider + exact oracle)
+spatialGrid ──────────> (leaf: caller-provided cell predicate; re-exported by spatial)
 coordination ─────────> koota (borrowed World, no sibling runtime dependency)
 react ────────────────> koota/react + react + world (type only)
 index ────────────────> public re-exports only (never react)
@@ -58,6 +59,31 @@ Sparse provider slots and capability lists fail closed; copied query thresholds 
 callbacks. Foreign-frame peers remain unresolved while compatible candidates
 are evaluated, preserving exact violation precedence. Satisfaction involving
 any AABB-only evidence remains conservative.
+
+The grid queries are a second, independent job in the same `koota-kit/spatial`
+entry. They live in their own leaf module (`spatialGrid`), which `spatial`
+re-exports, and share no state or types with the point-clearance oracle. A grid
+is a width and a height of unit cells described only by a caller predicate;
+the module owns no cell meaning, catalog, ruleset, saved state or coordinate
+frame. Three decisions are part of the contract:
+
+- **A predicate is read once per cell, row-major, into a mask before any search.**
+  A search never calls back, so results cannot depend on call order, call count
+  or an impure predicate.
+- **The 8-step flood has no corner-cutting rule.** It passes between two blocked
+  cells that meet only at a corner. A barrier therefore seals under that flood
+  only when its pieces join side to side, which is the rule a game uses to make
+  enclosure a fact; the 4-step flood is the conservative route rule. The caller
+  picks the step each time; there is no default.
+- **The largest clear square reads only its window.** Cells farther from the
+  target than the largest permitted side cannot belong to a candidate, so
+  `maxSide` bounds both the work and the allocation.
+
+Enclosure is "open and not reached from outside". By default the outside begins
+at every open border cell, which is the same as an open ring beyond the grid; a
+caller whose grid is a bounding box of irregular land passes its own seeds.
+Floods allocate one mask and one queue of `width * height`, and `GRID_MAX_CELLS`
+bounds both.
 Point clearance establishes distance to open surfaces only. It deliberately
 does not infer solid containment or nonpenetration from triangle proximity.
 `coordination` accepts an existing raw Koota `World` and attaches only its

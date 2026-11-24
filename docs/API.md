@@ -44,6 +44,130 @@ dependency in this entry. It does not prove containment or solid
 nonpenetration: an open-surface nearest query has no watertightness/thickness
 semantics. A future solid query needs an injected containment-capable oracle.
 
+### Grid queries
+
+`koota-kit/spatial` (and the root) also export pure, deterministic queries over a
+finite grid of unit cells. A grid is `{ width, height }`; cell `(x, y)` has the
+row-major index `y * width + x`. The caller owns what a cell means and passes a
+`GridPredicate = (x, y) => boolean`. Every predicate is read exactly once per
+cell it needs, row-major, before any search starts. A grid holds at most
+`GRID_MAX_CELLS` (4,194,304) cells. Malformed sizes, predicates, cells and
+options throw `TypeError` or `RangeError` with a `spatial:` message before any
+allocation.
+
+```ts
+type GridSize = { width: number; height: number };
+type GridCell = { x: number; y: number };
+type GridRect = { x: number; y: number; width: number; height: number };
+type GridSquare = { x: number; y: number; side: number };
+type GridPredicate = (x: number, y: number) => boolean;
+type GridConnectivity = 4 | 8;
+type GridMask = { width: number; height: number; cells: Uint8Array; count: number };
+```
+
+A `GridMask` holds `1` for a member cell in `cells[y * width + x]` and `0`
+otherwise.
+
+```ts
+function createGridMask(size: GridSize, predicate: GridPredicate): GridMask;
+function gridMaskHas(mask: GridMask, x: number, y: number): boolean; // false outside the grid
+function gridMaskCells(mask: GridMask): GridCell[]; // ascending row-major
+```
+
+#### Occupancy
+
+```ts
+function buildGridOccupancy(size: GridSize, footprints: readonly GridRect[]): GridOccupancy;
+
+type GridOccupancy = {
+  width: number;
+  height: number;
+  occupant: Int32Array; // occupant[y * width + x]: first footprint to cover the cell, or -1
+  occupied: GridMask;
+  overlapping: readonly number[]; // ascending indices that cover an already covered cell
+  outOfBounds: readonly number[]; // ascending indices with any cell outside the grid
+};
+```
+
+Footprints are laid in array order and the first footprint to cover a cell owns
+it. An overlap or an out-of-bounds footprint is reported as data, never thrown,
+and an out-of-bounds footprint still lays its in-bounds cells. Rotation is the
+caller's: pass the footprint already turned, with its lowest-index corner as
+`x, y`.
+
+#### Reachability flood
+
+```ts
+function floodGrid(
+  size: GridSize,
+  open: GridPredicate,
+  seeds: readonly GridCell[],
+  step: GridConnectivity,
+): GridMask;
+```
+
+Returns every open cell reachable from `seeds` by steps through open cells.
+`step` 4 moves to the four side neighbours; `step` 8 also moves to the four
+diagonals. **There is no corner-cutting rule:** under 8 the flood passes between
+two blocked cells that touch only at a corner, so a barrier seals only when its
+pieces join side to side. A seed that is not open is never entered. A seed
+outside the grid, or a sparse seed list, throws. Reachability is symmetric:
+`b` is reached from `a` exactly when `a` is reached from `b`, and the 8-step
+set contains the 4-step set.
+
+#### Enclosed regions
+
+```ts
+function enclosedGridRegions(
+  size: GridSize,
+  open: GridPredicate,
+  options: { step: GridConnectivity; regionStep?: GridConnectivity; seeds?: readonly GridCell[] },
+): GridEnclosure;
+
+type GridEnclosure = {
+  outside: GridMask; // what the outside flood reached
+  regions: readonly { cells: readonly GridCell[] }[];
+};
+```
+
+Floods the outside through open cells with `step` (required: it decides what
+counts as a seal) and returns the open cells it never reached, grouped into
+connected regions with `regionStep` (default `step`). The outside begins at
+every open border cell unless `seeds` are given, which is the same as an open
+ring beyond the grid: a barrier along the border closes a region, and three
+sides of a barrier against the border do not. Pass `seeds` (open cells at the
+edge of the land) when the grid is a bounding box of irregular land. Regions
+are ordered by their first cell in row-major order and each region's cells
+ascend in row-major order. A region is not told which barrier cells bound it;
+a barrier cell may touch a region only diagonally, so a caller who needs a
+region's fence should look at the eight neighbours of its cells.
+
+A game that wants "wire must join side to side to seal" floods the outside with
+`step: 8`; a route that must not squeeze through a corner gap floods with
+`floodGrid(..., 4)`.
+
+#### Largest clear square
+
+```ts
+function largestClearGridSquare(
+  size: GridSize,
+  clear: GridPredicate,
+  target: GridCell | GridRect,
+  options?: { minSide?: number; maxSide?: number },
+): GridSquare | null;
+```
+
+Returns the largest square of clear cells that contains the whole `target` (a
+cell, or a rectangle), or `null`. Among squares of the largest side, the one
+whose corner has the lowest `y`, then the lowest `x`, wins. The side is bounded
+by `minSide` (default 1) and `maxSide` (default the grid's shorter side); `null` means
+no square within them fits, including a target that is blocked, outside the grid
+or larger than `maxSide`. Pass `minSide` one above a current square's side to
+ask whether it can grow. The predicate is read only for the cells a qualifying
+square could cover, so `maxSide` bounds the work and the allocation. Deriving a
+capacity from the side is the caller's; `deterministicSafeIntegerCubeRoot` in
+`koota-kit/numeric` is the replay-stable integer root.
+
 ## `world`
 
 ### `createSimWorld(seeds)`

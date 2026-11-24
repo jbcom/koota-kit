@@ -11,6 +11,8 @@
 //                imports)
 //   ./eventLog — scratch-backed publish/drain event logs with a peek seam for
 //                observers (harnesses, tests, HUDs)
+//   ./spatial  — point-clearance queries and pure grid queries (cell occupancy,
+//                reachability and enclosure floods, largest clear square)
 
 export {
   advanceClock,
@@ -61,8 +63,30 @@ export type { Schedule, ScheduleOptions, System } from "./schedule.js";
 export { defineEventLog } from "./eventLog.js";
 export type { EventLog } from "./eventLog.js";
 
-export { queryPointClearance } from "./spatial.js";
+export {
+  buildGridOccupancy,
+  createGridMask,
+  enclosedGridRegions,
+  floodGrid,
+  GRID_MAX_CELLS,
+  gridMaskCells,
+  gridMaskHas,
+  largestClearGridSquare,
+  queryPointClearance,
+} from "./spatial.js";
 export type {
+  GridCell,
+  GridConnectivity,
+  GridEnclosure,
+  GridEnclosureOptions,
+  GridMask,
+  GridOccupancy,
+  GridPredicate,
+  GridRect,
+  GridRegion,
+  GridSize,
+  GridSquare,
+  GridSquareOptions,
   SpatialAabb,
   SpatialClearanceQuery,
   SpatialClearanceResult,

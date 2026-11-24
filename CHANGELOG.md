@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.3 (2026-11-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* chore(deps): bump fast-uri from 3.1.8 to 3.1.9 by @dependabot[bot] in https://github.com/jbcom/koota-kit/pull/104
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.14.2...v0.14.3
+
 ## 0.14.2 (2026-11-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

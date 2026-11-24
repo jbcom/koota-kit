@@ -199,6 +199,13 @@ try {
     "substream",
     "trait",
     "queryPointClearance",
+    "buildGridOccupancy",
+    "createGridMask",
+    "enclosedGridRegions",
+    "floodGrid",
+    "gridMaskCells",
+    "gridMaskHas",
+    "largestClearGridSquare",
   ];
   for (const name of expectedRuntimeExports) {
     assert.equal(typeof esm[name], "function", `ESM export ${name} is missing`);
@@ -424,6 +431,28 @@ try {
     "satisfied",
     "installed CommonJS koota-kit/spatial did not run",
   );
+
+  const gridCheck = path.join(consumerRoot, "grid-check.mjs");
+  writeFileSync(
+    gridCheck,
+    `
+    import assert from "node:assert/strict";
+    import {createRequire} from "node:module";
+    import * as esm from "koota-kit/spatial";
+    const cjs = createRequire(import.meta.url)("koota-kit/spatial");
+    const rows = ["#####", "#...#", "#...#", "#####"];
+    const open = (x, y) => rows[y][x] === ".";
+    const size = { width: 5, height: 4 };
+    for (const api of [esm, cjs]) {
+      assert.equal(api.enclosedGridRegions(size, open, { step: 8 }).regions[0].cells.length, 6);
+      assert.equal(api.floodGrid(size, open, [{ x: 1, y: 1 }], 4).count, 6);
+      assert.deepEqual(api.largestClearGridSquare(size, open, { x: 1, y: 1 }), { x: 1, y: 1, side: 2 });
+      assert.equal(api.buildGridOccupancy(size, [{ x: 0, y: 0, width: 2, height: 2 }]).occupied.count, 4);
+      assert.equal(api.GRID_MAX_CELLS, 4194304);
+    }
+  `,
+  );
+  execFileSync(process.execPath, [gridCheck], { cwd: consumerRoot, stdio: "pipe" });
 
   // The React entry only works once the consumer opts in by installing React.
   // Install the matching supported pair and render a provider through each

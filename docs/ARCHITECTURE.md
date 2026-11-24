@@ -14,6 +14,7 @@ world ────────────────> koota + rng
 schedule ─────────────> world (advanceClock) + WorldHandle scratch
 eventLog ─────────────> WorldHandle scratch
 spatial ──────────────> (leaf: caller-provided provider + exact oracle)
+spatialGrid ──────────> (leaf: caller-provided cell predicate; re-exported by spatial)
 coordination ─────────> koota (borrowed World, no sibling runtime dependency)
 react ────────────────> koota/react + react + world (type only)
 index ────────────────> public re-exports only (never react)
@@ -60,6 +61,39 @@ are evaluated, preserving exact violation precedence. Satisfaction involving
 any AABB-only evidence remains conservative.
 Point clearance establishes distance to open surfaces only. It deliberately
 does not infer solid containment or nonpenetration from triangle proximity.
+
+The grid queries are a second, independent job in the same `koota-kit/spatial`
+entry. They live in their own leaf module (`spatialGrid`), which `spatial`
+re-exports, and share no state or types with the point-clearance oracle. A grid
+is a width and a height of unit cells described only by a caller predicate;
+the module owns no cell meaning, catalog, ruleset, saved state or coordinate
+frame. Three decisions are part of the contract:
+
+- **A predicate is sampled, never consulted during a search.** The flood and
+  enclosure queries read it once for every cell of the grid, row-major, into a
+  mask before they search; the largest-square query does the same for the cells
+  of its window only. A search therefore never calls back, and the predicate
+  is not read again after sampling. A predicate whose answers depend on its own
+  state or call count still sees that dependence in the single sampling pass, so
+  callers should pass pure functions of the cell.
+- **The 8-step flood has no corner-cutting rule.** It passes between two blocked
+  cells that meet only at a corner. A barrier therefore seals under that flood
+  only when its pieces join side to side, which is the rule a game uses to make
+  enclosure a fact; the 4-step flood is the conservative route rule. The caller
+  picks the step each time; there is no default.
+- **The largest clear square reads only its window and searches by side.**
+  Cells farther from the target than the largest permitted side cannot belong
+  to a candidate, so `maxSide` bounds the allocation. A clear square of side
+  `s` that contains the target implies one of every smaller side that still
+  contains it, so the largest side is found by binary search over a summed-area
+  table rather than by trying every square.
+
+Enclosure is "open and not reached from outside". By default the outside begins
+at every open border cell, which is the same as an open ring beyond the grid; a
+caller whose grid is a bounding box of irregular land passes its own seeds.
+A flood allocates a few typed arrays of `width * height` cells (enclosure uses
+more than a plain flood), and `GRID_MAX_CELLS` bounds every one.
+
 `coordination` accepts an existing raw Koota `World` and attaches only its
 own ownership and registration traits. Its immutable snapshot is a completed
 metadata projection, not a second World or ECS serializer. The World retains

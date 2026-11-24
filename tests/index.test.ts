@@ -73,6 +73,17 @@ describe("root barrel (src/index.ts) re-exports", () => {
     expect(indexModule.queryPointClearance).toBe(spatialModule.queryPointClearance);
   });
 
+  it("re-exports the grid queries from spatial.js by identity", () => {
+    expect(indexModule.buildGridOccupancy).toBe(spatialModule.buildGridOccupancy);
+    expect(indexModule.createGridMask).toBe(spatialModule.createGridMask);
+    expect(indexModule.enclosedGridRegions).toBe(spatialModule.enclosedGridRegions);
+    expect(indexModule.floodGrid).toBe(spatialModule.floodGrid);
+    expect(indexModule.GRID_MAX_CELLS).toBe(spatialModule.GRID_MAX_CELLS);
+    expect(indexModule.gridMaskCells).toBe(spatialModule.gridMaskCells);
+    expect(indexModule.gridMaskHas).toBe(spatialModule.gridMaskHas);
+    expect(indexModule.largestClearGridSquare).toBe(spatialModule.largestClearGridSquare);
+  });
+
   it("re-exports coordination values by identity without loading an optional adapter", () => {
     expect(indexModule.bindCoordination).toBe(coordinationModule.bindCoordination);
     expect(indexModule.CoordinationBinding).toBe(coordinationModule.CoordinationBinding);

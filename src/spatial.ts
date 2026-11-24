@@ -4,7 +4,36 @@
  * Producers own their buffers, transforms, and exact geometry implementations.
  * This module only validates a completed provider snapshot, filters certified
  * AABBs, and calls an injected oracle in one declared common metric.
+ *
+ * The `koota-kit/spatial` entry also carries the grid queries of
+ * `./spatialGrid.js` (cell masks, occupancy, floods, enclosed regions and the
+ * largest clear square), which share none of this module's state.
  */
+
+export {
+  buildGridOccupancy,
+  createGridMask,
+  enclosedGridRegions,
+  floodGrid,
+  GRID_MAX_CELLS,
+  gridMaskCells,
+  gridMaskHas,
+  largestClearGridSquare,
+} from "./spatialGrid.js";
+export type {
+  GridCell,
+  GridConnectivity,
+  GridEnclosure,
+  GridEnclosureOptions,
+  GridMask,
+  GridOccupancy,
+  GridPredicate,
+  GridRect,
+  GridRegion,
+  GridSize,
+  GridSquare,
+  GridSquareOptions,
+} from "./spatialGrid.js";
 
 export type SpatialPoint = Readonly<{ x: number; y: number; z: number }>;
 

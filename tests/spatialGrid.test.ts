@@ -196,6 +196,11 @@ describe("buildGridOccupancy", () => {
       RangeError,
     );
     expect(() => buildGridOccupancy({ width: 0, height: 1 }, [])).toThrow(RangeError);
+    const sparse = new Array(2);
+    sparse[1] = { x: 0, y: 0, width: 1, height: 1 };
+    expect(() => buildGridOccupancy(size, sparse)).toThrow(/footprints\[0\] is sparse/);
+    const inherited = Object.setPrototypeOf(new Array(1), [{ x: 0, y: 0, width: 1, height: 1 }]);
+    expect(() => buildGridOccupancy(size, inherited)).toThrow(/sparse/);
   });
 
   it("agrees with a per-cell reference on random footprints", () => {

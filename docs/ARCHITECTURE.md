@@ -82,8 +82,8 @@ frame. Three decisions are part of the contract:
 Enclosure is "open and not reached from outside". By default the outside begins
 at every open border cell, which is the same as an open ring beyond the grid; a
 caller whose grid is a bounding box of irregular land passes its own seeds.
-Floods allocate one mask and one queue of `width * height`, and `GRID_MAX_CELLS`
-bounds both.
+A flood allocates a few typed arrays of `width * height` cells (enclosure uses
+more than a plain flood), and `GRID_MAX_CELLS` bounds every one.
 Point clearance establishes distance to open surfaces only. It deliberately
 does not infer solid containment or nonpenetration from triangle proximity.
 `coordination` accepts an existing raw Koota `World` and attaches only its

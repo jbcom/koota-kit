@@ -259,18 +259,22 @@ export function buildGridOccupancy(size: GridSize, footprints: readonly GridRect
   if (!Array.isArray(footprints)) {
     throw new TypeError("spatial: footprints must be an array of rectangles.");
   }
-  const rects = footprints.map((value: unknown, i) => {
+  const hasOwn = Object.prototype.hasOwnProperty;
+  const rects: GridRect[] = new Array(footprints.length);
+  for (let i = 0; i < footprints.length; i++) {
+    if (!hasOwn.call(footprints, i)) throw new TypeError(`spatial: footprints[${i}] is sparse.`);
+    const value: unknown = footprints[i];
     if (typeof value !== "object" || value === null) {
       throw new TypeError(`spatial: footprints[${i}] must be a rectangle.`);
     }
     const rect = value as GridRect;
-    return {
+    rects[i] = {
       x: integer(rect.x, `footprints[${i}].x`),
       y: integer(rect.y, `footprints[${i}].y`),
       width: positiveInteger(rect.width, `footprints[${i}].width`),
       height: positiveInteger(rect.height, `footprints[${i}].height`),
     };
-  });
+  }
   const occupant = new Int32Array(width * height).fill(-1);
   const overlapping: number[] = [];
   const outOfBounds: number[] = [];
@@ -330,8 +334,9 @@ export function floodGrid(
 /**
  * Floods the outside through open cells and returns the open cells it never
  * reached, grouped into connected regions. The outside begins at the grid's
- * border unless `seeds` say otherwise, so a barrier that runs along the border
- * does not close a region by itself: only the cells beyond the grid are open.
+ * border unless `seeds` say otherwise, which is the same as an open ring just
+ * beyond the grid. A barrier lying on the border row or column therefore closes
+ * a region, while barrier cells beside open border cells do not.
  *
  * Regions are numbered by the row-major order of their first cell, and each
  * region's cells ascend in row-major order. Grouping uses `regionStep`, which

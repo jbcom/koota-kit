@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.1 (2026-11-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* ci(cd): build the docs and deploy them in separate jobs by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/134
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.14.0...v0.14.1
+
 ## 0.14.0 (2026-11-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

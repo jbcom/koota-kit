@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.4 (2026-11-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* fix(deps): override vulnerable transitive docs-toolchain packages by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/137
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.14.3...v0.14.4
+
 ## 0.14.3 (2026-11-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

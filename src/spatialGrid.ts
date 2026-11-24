@@ -8,9 +8,11 @@
  * allocates only typed arrays sized to the grid (or to the query window).
  *
  * Every predicate is read exactly once per cell it needs, in row-major order,
- * before any search begins. Results therefore never depend on how often or in
- * what order a search happens to ask, and an impure predicate cannot make two
- * identical calls disagree.
+ * before any search begins: every cell of the grid for the floods, occupancy
+ * and masks, and only the cells of the query window for the largest square.
+ * A search never calls the predicate back, so how often or in what order it
+ * asks cannot change a result. Pass a pure function of the cell; one that
+ * depends on its own state still sees that state during the single pass.
  */
 
 export type GridSize = Readonly<{ width: number; height: number }>;
@@ -232,8 +234,9 @@ export function createGridMask(size: GridSize, predicate: GridPredicate): GridMa
   return { width: checked.width, height: checked.height, cells, count: countMembers(cells) };
 }
 
-/** Whether `(x, y)` is a member. A cell outside the grid is never a member. */
+/** Whether `(x, y)` is a member. A cell outside the grid, or a non-integer position, is never a member. */
 export function gridMaskHas(mask: GridMask, x: number, y: number): boolean {
+  if (!Number.isInteger(x) || !Number.isInteger(y)) return false;
   if (x < 0 || y < 0 || x >= mask.width || y >= mask.height) return false;
   return mask.cells[y * mask.width + x] === 1;
 }
@@ -428,13 +431,35 @@ export function largestClearGridSquare(
   const y1 = Math.min(height, ty + largest);
   const blockedIn = blockedCounter(reader, x0, y0, x1, y1);
   if (blockedIn(tx, ty, tw, th) > 0) return null;
-  for (let side = largest; side >= smallest; side--) {
-    const lastY = Math.min(ty, y1 - side);
-    const lastX = Math.min(tx, x1 - side);
-    for (let y = Math.max(y0, ty + th - side); y <= lastY; y++) {
-      for (let x = Math.max(x0, tx + tw - side); x <= lastX; x++) {
-        if (blockedIn(x, y, side, side) === 0) return { x, y, side };
-      }
+  const place = (side: number) =>
+    firstClearSquare(blockedIn, { x0, y0, x1, y1 }, { x: tx, y: ty, width: tw, height: th }, side);
+  // A clear square of side s that contains the target implies one of every smaller
+  // side down to the target's longer side: trim a row or column the target does not
+  // use. So the sides that fit are a prefix of [smallest, largest], and the largest
+  // is found by bisection instead of trying every square of every side.
+  if (place(smallest) === null) return null;
+  let fits = smallest;
+  let tooBig = largest + 1;
+  while (tooBig - fits > 1) {
+    const middle = fits + Math.floor((tooBig - fits) / 2);
+    if (place(middle) === null) tooBig = middle;
+    else fits = middle;
+  }
+  return place(fits);
+}
+
+/** The first square of `side`, by lowest corner `y` then `x`, that contains `target` and is clear. */
+function firstClearSquare(
+  blockedIn: (x: number, y: number, w: number, h: number) => number,
+  window: Readonly<{ x0: number; y0: number; x1: number; y1: number }>,
+  target: GridRect,
+  side: number,
+): GridSquare | null {
+  const lastY = Math.min(target.y, window.y1 - side);
+  const lastX = Math.min(target.x, window.x1 - side);
+  for (let y = Math.max(window.y0, target.y + target.height - side); y <= lastY; y++) {
+    for (let x = Math.max(window.x0, target.x + target.width - side); x <= lastX; x++) {
+      if (blockedIn(x, y, side, side) === 0) return { x, y, side };
     }
   }
   return null;

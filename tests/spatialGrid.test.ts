@@ -118,6 +118,15 @@ describe("createGridMask and its readers", () => {
     }
   });
 
+  it("never reports a non-integer position as a member", () => {
+    const mask = createGridMask({ width: 2, height: 2 }, () => true);
+    expect(gridMaskHas(mask, 1, 0.5)).toBe(false);
+    expect(gridMaskHas(mask, 0.5, 1)).toBe(false);
+    expect(gridMaskHas(mask, Number.NaN, 0)).toBe(false);
+    expect(gridMaskHas(mask, 0, Number.POSITIVE_INFINITY)).toBe(false);
+    expect(gridMaskHas(mask, 1, 1)).toBe(true);
+  });
+
   it("rejects malformed sizes and predicates before allocating", () => {
     const yes = () => true;
     expect(() => createGridMask(null as never, yes)).toThrow(TypeError);
@@ -653,6 +662,20 @@ describe("largestClearGridSquare", () => {
     expect(new Set(calls).size).toBe(25);
     expect(calls[0]).toBe("48,48");
     expect(calls[24]).toBe("52,52");
+  });
+
+  it("finds the largest side by bisection, not by trying every square, on the largest grid", () => {
+    // A lone clear cell in a 2048 by 2048 grid used to cost every square of every side.
+    const lone = (x: number, y: number) => x === 1024 && y === 1024;
+    const started = Date.now();
+    expect(
+      largestClearGridSquare({ width: 2048, height: 2048 }, lone, { x: 1024, y: 1024 }),
+    ).toEqual({ x: 1024, y: 1024, side: 1 });
+    expect(Date.now() - started).toBeLessThan(3000);
+    const open = (x: number, y: number) => x < 1000 && y < 700;
+    expect(largestClearGridSquare({ width: 2048, height: 2048 }, open, { x: 500, y: 500 })).toEqual(
+      { x: 0, y: 0, side: 700 },
+    );
   });
 
   it("clips the window at the grid's edges", () => {

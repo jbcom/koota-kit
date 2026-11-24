@@ -50,7 +50,9 @@ semantics. A future solid query needs an injected containment-capable oracle.
 finite grid of unit cells. A grid is `{ width, height }`; cell `(x, y)` has the
 row-major index `y * width + x`. The caller owns what a cell means and passes a
 `GridPredicate = (x, y) => boolean`. Every predicate is read exactly once per
-cell it needs, row-major, before any search starts. A grid holds at most
+cell it needs, row-major, before any search starts: every cell of the grid for
+masks, occupancy and floods, and only the cells of the query window for the
+largest square. Pass a pure function of the cell. A grid holds at most
 `GRID_MAX_CELLS` (4,194,304) cells. Malformed sizes, predicates, cells and
 options throw `TypeError` or `RangeError` with a `spatial:` message before any
 allocation.
@@ -70,7 +72,7 @@ otherwise.
 
 ```ts
 function createGridMask(size: GridSize, predicate: GridPredicate): GridMask;
-function gridMaskHas(mask: GridMask, x: number, y: number): boolean; // false outside the grid
+function gridMaskHas(mask: GridMask, x: number, y: number): boolean; // false outside the grid or off the integer lattice
 function gridMaskCells(mask: GridMask): GridCell[]; // ascending row-major
 ```
 

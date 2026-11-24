@@ -5,6 +5,14 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
+# Transitive dependencies of the docs and lint toolchain (commitlint, sourcey,
+# markdownlint-cli2) that their parents still resolve to a vulnerable release.
+# Each override is the first patched release at or above the vulnerable one.
+overrides:
+  fast-uri@<3.1.9: ^3.1.9
+  fflate@<0.7.5: ^0.7.5
+  katex@<0.19.0: ^0.19.0
+  postcss-selector-parser@<6.1.5: ^6.1.5
 minimumReleaseAgeExclude:
   # Sourcey currently resolves this exact svgo release. Keep the normal 24-hour
   # age policy for every other package and future svgo version.

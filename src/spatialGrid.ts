@@ -148,7 +148,7 @@ function rasterize(size: GridSize, predicate: GridPredicate): Uint8Array {
 
 function countMembers(cells: Uint8Array): number {
   let count = 0;
-  for (let i = 0; i < cells.length; i++) count += cells[i] as number;
+  for (const cell of cells) count += cell;
   return count;
 }
 
@@ -415,18 +415,7 @@ export function largestClearGridSquare(
 ): GridSquare | null {
   const checked = readSize(size);
   const reader = readPredicate(clear, "clear");
-  if (typeof target !== "object" || target === null) {
-    throw new TypeError("spatial: target must be a cell or a rectangle.");
-  }
-  if (typeof options !== "object" || options === null) {
-    throw new TypeError("spatial: options must be an object.");
-  }
-  const tx = integer(target.x, "target.x");
-  const ty = integer(target.y, "target.y");
-  const tw = positiveInteger((target as GridRect).width ?? 1, "target.width");
-  const th = positiveInteger((target as GridRect).height ?? 1, "target.height");
-  const minSide = positiveInteger(options.minSide ?? 1, "options.minSide");
-  const maxSide = positiveInteger(options.maxSide ?? Number.MAX_SAFE_INTEGER, "options.maxSide");
+  const { tx, ty, tw, th, minSide, maxSide } = readSquareRequest(target, options);
   const { width, height } = checked;
   const largest = Math.min(maxSide, width, height);
   const smallest = Math.max(minSide, tw, th);
@@ -437,27 +426,7 @@ export function largestClearGridSquare(
   const y0 = Math.max(0, ty + th - largest);
   const x1 = Math.min(width, tx + largest);
   const y1 = Math.min(height, ty + largest);
-  const stride = x1 - x0 + 1;
-  // blocked[(y - y0) * stride + (x - x0)] counts blocked cells in the window above and left of (x, y).
-  const blocked = new Int32Array(stride * (y1 - y0 + 1));
-  for (let y = y0; y < y1; y++) {
-    let row = 0;
-    for (let x = x0; x < x1; x++) {
-      row += reader(x, y) ? 0 : 1;
-      const at = (y - y0 + 1) * stride + (x - x0 + 1);
-      blocked[at] = (blocked[at - stride] as number) + row;
-    }
-  }
-  const blockedIn = (x: number, y: number, w: number, h: number): number => {
-    const left = x - x0;
-    const top = y - y0;
-    return (
-      (blocked[(top + h) * stride + left + w] as number) -
-      (blocked[top * stride + left + w] as number) -
-      (blocked[(top + h) * stride + left] as number) +
-      (blocked[top * stride + left] as number)
-    );
-  };
+  const blockedIn = blockedCounter(reader, x0, y0, x1, y1);
   if (blockedIn(tx, ty, tw, th) > 0) return null;
   for (let side = largest; side >= smallest; side--) {
     const lastY = Math.min(ty, y1 - side);
@@ -469,4 +438,58 @@ export function largestClearGridSquare(
     }
   }
   return null;
+}
+
+function readSquareRequest(target: unknown, options: unknown) {
+  if (typeof target !== "object" || target === null) {
+    throw new TypeError("spatial: target must be a cell or a rectangle.");
+  }
+  if (typeof options !== "object" || options === null) {
+    throw new TypeError("spatial: options must be an object.");
+  }
+  const cell = target as GridRect;
+  const bounds = options as GridSquareOptions;
+  return {
+    tx: integer(cell.x, "target.x"),
+    ty: integer(cell.y, "target.y"),
+    tw: positiveInteger(cell.width ?? 1, "target.width"),
+    th: positiveInteger(cell.height ?? 1, "target.height"),
+    minSide: positiveInteger(bounds.minSide ?? 1, "options.minSide"),
+    maxSide: positiveInteger(bounds.maxSide ?? Number.MAX_SAFE_INTEGER, "options.maxSide"),
+  };
+}
+
+/**
+ * Reads `clear` once per cell of the window `[x0, x1) x [y0, y1)`, row-major,
+ * into a summed-area table, and returns a counter of the blocked cells in any
+ * `w` by `h` rectangle whose corner `(x, y)` lies inside the window.
+ */
+function blockedCounter(
+  clear: GridPredicate,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+): (x: number, y: number, w: number, h: number) => number {
+  const stride = x1 - x0 + 1;
+  // table[(y - y0) * stride + (x - x0)] counts blocked cells above and left of (x, y).
+  const table = new Int32Array(stride * (y1 - y0 + 1));
+  for (let y = y0; y < y1; y++) {
+    let row = 0;
+    for (let x = x0; x < x1; x++) {
+      row += clear(x, y) ? 0 : 1;
+      const at = (y - y0 + 1) * stride + (x - x0 + 1);
+      table[at] = (table[at - stride] as number) + row;
+    }
+  }
+  return (x, y, w, h) => {
+    const left = x - x0;
+    const top = y - y0;
+    return (
+      (table[(top + h) * stride + left + w] as number) -
+      (table[top * stride + left + w] as number) -
+      (table[(top + h) * stride + left] as number) +
+      (table[top * stride + left] as number)
+    );
+  };
 }

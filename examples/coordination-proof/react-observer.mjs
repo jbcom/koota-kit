@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createProofInspector } from "./react-inspector.mjs";
+import { createProofInspectorElement } from "./react-inspector.mjs";
 
 /** A headless mounted observer; neither the component nor its unmount owns the World. */
 export async function observeCommittedUpdate({ registryImport, cohort, world, publish }) {
@@ -20,8 +20,9 @@ export async function observeCommittedUpdate({ registryImport, cohort, world, pu
   const observations = [];
   const container = dom.window.document.getElementById("proof");
   const root = createRoot(container);
-  const Inspector = createProofInspector({ React, useWorld });
-  const inspector = React.createElement(Inspector, {
+  const inspector = createProofInspectorElement({
+    React,
+    useWorld,
     cohort,
     world,
     onObservation: (snapshot) => observations.push(snapshot),

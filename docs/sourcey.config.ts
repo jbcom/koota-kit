@@ -36,13 +36,21 @@ export default defineConfig({
   navbar: {
     links: [
       { type: "github", href: "https://github.com/jbcom/koota-kit" },
-      { label: "npm", href: "https://www.npmjs.com/package/koota-kit" },
+      { type: "npm", href: "https://www.npmjs.com/package/koota-kit" },
     ],
   },
   footer: {
     links: [
-      { label: "MIT License", href: "https://github.com/jbcom/koota-kit/blob/main/LICENSE" },
-      { label: "Security", href: "https://github.com/jbcom/koota-kit/security/policy" },
+      {
+        type: "link",
+        label: "MIT License",
+        href: "https://github.com/jbcom/koota-kit/blob/main/LICENSE",
+      },
+      {
+        type: "link",
+        label: "Security",
+        href: "https://github.com/jbcom/koota-kit/security/policy",
+      },
     ],
   },
   navigation: {

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.0 (2026-11-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+* feat(spatial): grid occupancy, floods, enclosed regions and largest clear square by @jbdevprimary in https://github.com/jbcom/koota-kit/pull/132
+
+
+**Full Changelog**: https://github.com/jbcom/koota-kit/compare/v0.13.5...v0.14.0
+
 ## 0.13.5 (2026-11-23)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
